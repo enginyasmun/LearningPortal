@@ -1,4 +1,8 @@
-# Salesforce Junior Developer Academy
+# Salesforce Developer Academy: Modern LearningPortal V8
+
+A complete Flask learning portal for a 16-week Salesforce junior developer program. Version 8 includes a redesigned modern workspace while preserving the existing curriculum, guided labs, authentication, instructor assignment, grading, and project model.
+
+See [`MODERN_UI_V8_GUIDE.md`](MODERN_UI_V8_GUIDE.md) for deployment instructions.
 
 A complete Flask website for running a 16-week Salesforce junior developer academy.
 

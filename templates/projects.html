@@ -1,31 +1,30 @@
 {% extends "base.html" %}
-{% block title %}Project Choices | Developer Academy{% endblock %}
+{% block title %}Project Plans | Developer Academy{% endblock %}
 {% block content %}
-<section class="curriculum-hero project-hero">
-  <div><span class="page-kicker">FIVE PARALLEL PROJECT OPTIONS</span><h1>Every project has the same complete 16-week engineering journey.</h1><p>Students choose one industry application. They do not rotate through all five. The selected application becomes the context for every weekly build and the final portfolio project.</p></div>
-  <div class="curriculum-summary"><div><strong>5</strong><span>Project choices</span></div><div><strong>16</strong><span>Weeks per project</span></div><div><strong>1</strong><span>App per student</span></div></div>
+<section class="page-heading">
+  <div><span class="eyebrow">Five parallel project tracks</span><h1>Choose an industry. Build one complete application.</h1><p>Every project follows the same rigorous 16-week engineering journey while using different data models, workflows, integrations, and Agentforce use cases.</p></div>
+  {% if current_user.role == 'student' and not selected_project %}<div class="page-actions"><a class="button button-primary" href="{{ url_for('select_project') }}">Choose my project</a></div>{% endif %}
 </section>
 
-{% if current_user.role == 'student' and not selected_project %}
-<div class="choice-callout"><div><strong>You have not chosen your project yet.</strong><p>Select one before beginning the curriculum.</p></div><a class="button" href="{{ url_for('select_project') }}">Choose my project</a></div>
-{% elif current_user.role == 'student' %}
-<div class="choice-callout selected-callout"><div><span>YOUR PROJECT</span><strong>{{ selected_project.title }}</strong><p>{{ 'Locked after submitted work.' if project_locked else 'You may change this before your first submission.' }}</p></div>{% if not project_locked %}<a class="button secondary" href="{{ url_for('select_project') }}">Change selection</a>{% endif %}</div>
+{% if current_user.role == 'student' and selected_project %}
+<section class="selected-track-banner reveal project-{{ selected_project.accent }}"><div><span class="eyebrow">Your selected track</span><h2>{{ selected_project.title }}</h2><p>{{ 'Your project is locked because submitted work already exists.' if project_locked else 'You may change this selection before your first submission.' }}</p></div>{% if not project_locked %}<a class="button button-secondary" href="{{ url_for('select_project') }}">Change project</a>{% endif %}</section>
 {% endif %}
 
-<section class="parallel-projects">
+<section class="project-track-list reveal">
 {% for p in projects %}
-  <article class="parallel-project project-{{ p.accent }} {% if selected_project and selected_project.id == p.id %}is-selected{% endif %}">
-    <header><div><span>PROJECT {{ '%02d'|format(p.project_number) }} · {{ p.industry|upper }}</span><h2>{{ p.title }}</h2><p>{{ p.summary }}</p></div>{% if selected_project and selected_project.id == p.id %}<strong class="selected-project-badge">✓ Selected</strong>{% endif %}</header>
-    <div class="sixteen-week-grid">
-    {% for m in milestones %}
-      {% if m.project_id == p.id %}
-      <a href="{{ url_for('curriculum_week', week_number=m.week_number, project=p.id) }}" class="{% if m.is_final %}final-milestone{% endif %}">
-        <span>W{{ '%02d'|format(m.week_number) }}</span><strong>{{ m.title }}</strong>{% if m.is_final %}<small>FINAL APPLICATION</small>{% endif %}
-      </a>
-      {% endif %}
-    {% endfor %}
+  <article class="project-track project-{{ p.accent }} {% if selected_project and selected_project.id == p.id %}selected{% endif %}">
+    <div class="track-header">
+      <div class="track-number"><span>{{ '%02d'|format(p.project_number) }}</span><small>Project</small></div>
+      <div class="track-copy"><span class="eyebrow">{{ p.industry }}</span><h2>{{ p.title }}</h2><p>{{ p.summary }}</p></div>
+      <div class="track-header-actions">{% if selected_project and selected_project.id == p.id %}<span class="selected-badge">✓ Selected</span>{% endif %}{% if current_user.role == 'instructor' %}<a class="row-action" href="{{ url_for('curriculum', project=p.id) }}">Open plan</a>{% elif selected_project and selected_project.id == p.id %}<a class="row-action" href="{{ url_for('curriculum') }}">Open my plan</a>{% endif %}</div>
     </div>
-    <footer><span>16 milestones · weekly research · weekly LinkedIn · one final application</span>{% if current_user.role == 'student' and selected_project and selected_project.id == p.id %}<a class="button secondary" href="{{ url_for('curriculum') }}">Open my plan</a>{% elif current_user.role == 'instructor' %}<a class="button secondary" href="{{ url_for('curriculum', project=p.id) }}">Open plan</a>{% endif %}</footer>
+    <div class="track-facts"><span><strong>16</strong><small>guided build milestones</small></span><span><strong>16</strong><small>research assignments</small></span><span><strong>16</strong><small>LinkedIn assignments</small></span><span><strong>1</strong><small>production-style application</small></span></div>
+    <div class="track-roadmap">
+      {% for m in milestones %}{% if m.project_id == p.id %}
+      <a href="{{ url_for('curriculum_week', week_number=m.week_number, project=p.id) }}" class="roadmap-node {% if m.is_final %}final{% endif %}"><span>{{ '%02d'|format(m.week_number) }}</span><strong>{{ m.title }}</strong>{% if m.is_final %}<small>Final application</small>{% endif %}</a>
+      {% endif %}{% endfor %}
+    </div>
+    <div class="track-footer"><span>{{ p.process }}</span>{% if current_user.role == 'student' and selected_project and selected_project.id == p.id %}<a class="text-action" href="{{ url_for('curriculum') }}">Continue this project <span>→</span></a>{% elif current_user.role == 'instructor' %}<a class="text-action" href="{{ url_for('curriculum', project=p.id) }}">Review 16-week plan <span>→</span></a>{% endif %}</div>
   </article>
 {% endfor %}
 </section>

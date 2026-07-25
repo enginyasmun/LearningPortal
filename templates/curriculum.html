@@ -1,22 +1,25 @@
 {% extends "base.html" %}
 {% block title %}16-Week Curriculum | Developer Academy{% endblock %}
 {% block content %}
-<section class="curriculum-hero curriculum-hero-v2">
-  <div><span class="page-kicker">{{ selected_project.industry|upper }} PROJECT PLAN</span><h1>{{ selected_project.title }}</h1><p>{{ selected_project.summary }} Every week advances the same application toward a production-style final demonstration.</p></div>
-  <div class="curriculum-summary"><div><strong>16</strong><span>Project weeks</span></div><div><strong>16</strong><span>Research papers</span></div><div><strong>16</strong><span>LinkedIn posts</span></div></div>
+<section class="curriculum-hero-modern reveal project-{{ selected_project.accent }}">
+  <div class="curriculum-copy"><span class="spotlight-label"><i></i> {{ selected_project.industry }} project plan</span><h1>{{ selected_project.title }}</h1><p>{{ selected_project.summary }} Every week advances the same application toward a production-style final demonstration.</p><div class="curriculum-actions"><a class="button button-light" href="#roadmap">Explore the roadmap</a><a class="text-action light" href="{{ url_for('projects') }}">Compare project tracks <span>→</span></a></div></div>
+  <div class="curriculum-stats"><article><strong>16</strong><span>guided build labs</span></article><article><strong>16</strong><span>research assignments</span></article><article><strong>16</strong><span>LinkedIn assignments</span></article><article><strong>48</strong><span>total deliverables</span></article></div>
 </section>
 
 {% if current_user.role == 'instructor' %}
-<form class="project-plan-selector" method="get"><label>View another project plan<select name="project" onchange="this.form.submit()">{% for p in projects %}<option value="{{ p.id }}" {% if p.id == selected_project.id %}selected{% endif %}>{{ p.industry }} · {{ p.title }}</option>{% endfor %}</select></label></form>
+<form class="project-switcher reveal" method="get"><label><span>Viewing project plan</span><select name="project" onchange="this.form.submit()">{% for p in projects %}<option value="{{ p.id }}" {% if p.id == selected_project.id %}selected{% endif %}>{{ p.industry }} · {{ p.title }}</option>{% endfor %}</select></label></form>
 {% endif %}
 
-<div class="week-grid modern-week-grid project-week-grid project-week-grid-v2">
-{% for week in weeks %}
-<a class="week-card stage-{{ week.stage|lower|replace(' ','-') }} {% if week.is_final %}final-week-card{% endif %}" href="{{ url_for('curriculum_week', week_number=week.week_number, project=selected_project.id) }}">
-  <div class="week-card-top"><span class="week-number">{{ '%02d'|format(week.week_number) }}</span><span class="stage-pill">{{ week.stage }}</span></div>
-  <span class="milestone-label">PROJECT MILESTONE</span><h3>{{ week.milestone_title }}</h3><p>{{ week.milestone_instructions[:170] }}{% if week.milestone_instructions|length > 170 %}…{% endif %}</p>
-  <div class="week-card-foot"><span>3 assignments{% if week.is_final %} · final app{% endif %}</span><strong>Explore week →</strong></div>
-</a>
-{% endfor %}
-</div>
+<section class="roadmap-section reveal" id="roadmap">
+  <div class="section-heading-modern"><div><span class="eyebrow">16-week roadmap</span><h2>From discovery to production delivery</h2></div><p>Each week combines one guided project build, one research assignment, and one LinkedIn assignment.</p></div>
+  <div class="curriculum-grid">
+  {% for week in weeks %}
+    <a class="curriculum-week-card stage-{{ week.stage|lower|replace(' ','-') }} {% if week.is_final %}final{% endif %}" href="{{ url_for('curriculum_week', week_number=week.week_number, project=selected_project.id) }}">
+      <div class="week-card-header"><span class="week-index">{{ '%02d'|format(week.week_number) }}</span><span class="stage-chip">{{ week.stage }}</span></div>
+      <span class="eyebrow">Project milestone</span><h3>{{ week.milestone_title }}</h3><p>{{ week.milestone_instructions[:190] }}{% if week.milestone_instructions|length > 190 %}…{% endif %}</p>
+      <div class="week-card-footer"><span>3 deliverables{% if week.is_final %} · Final application{% endif %}</span><b>Open week →</b></div>
+    </a>
+  {% endfor %}
+  </div>
+</section>
 {% endblock %}

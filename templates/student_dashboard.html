@@ -9,98 +9,62 @@
 {% set project_approved = project_progress|selectattr('status','equalto','Approved')|list|length %}
 {% set project_percent = ((project_approved / project_total) * 100)|round|int if project_total else 0 %}
 {% set ns = namespace(next_item=None) %}
-{% for r in rows %}
-  {% if ns.next_item is none and r.submission_status != 'Approved' %}
-    {% set ns.next_item = r %}
-  {% endif %}
-{% endfor %}
+{% for r in rows %}{% if ns.next_item is none and r.submission_status != 'Approved' %}{% set ns.next_item = r %}{% endif %}{% endfor %}
 
-<section class="dashboard-hero">
-  <div>
-    <span class="page-kicker">STUDENT DASHBOARD</span>
+<section class="student-hero reveal">
+  <div class="student-hero-copy">
+    <span class="spotlight-label"><i></i> Student workspace</span>
     <h1>Welcome back, {{ current_user.name.split(' ')[0] }}.</h1>
-    <p>You are building one complete application over sixteen weeks. Each project milestone, research paper, and LinkedIn post moves the same portfolio story forward.</p>
-    <div class="student-identity-row">
-      <span class="mentor-chip">Project: <strong>{{ project.title }}</strong></span>
-      {% if mentor and mentor.name %}<span class="mentor-chip">Instructor: <strong>{{ mentor.name }}</strong></span>{% endif %}
-    </div>
+    <p>Keep moving one application from idea to production through guided labs, research, and professional communication.</p>
+    <div class="student-meta-chips"><span>Project <strong>{{ project.industry }}</strong></span>{% if mentor and mentor.name %}<span>Instructor <strong>{{ mentor.name }}</strong></span>{% endif %}</div>
+    <div class="spotlight-actions"><a class="button button-light" href="{{ url_for('curriculum') }}">Continue my plan</a><a class="text-action light" href="{{ url_for('projects') }}">View project roadmap <span>→</span></a></div>
   </div>
-  <a class="button" href="{{ url_for('curriculum') }}">Open my 16-week plan →</a>
+  <div class="progress-orb" style="--progress:{{ project_percent }}%"><div><strong>{{ project_percent }}%</strong><span>project build</span></div></div>
 </section>
 
-<section class="stats-grid modern-stats">
-  <article class="stat-card accent-sage"><div class="stat-icon">▦</div><div><span>Total assignments</span><strong>{{ total }}</strong><small>48 deliverables</small></div></article>
-  <article class="stat-card accent-amber"><div class="stat-icon">◷</div><div><span>Submitted</span><strong>{{ submitted }}</strong><small>Sent to your instructor</small></div></article>
-  <article class="stat-card accent-coral"><div class="stat-icon">✓</div><div><span>Approved</span><strong>{{ approved }}</strong><small>Completed successfully</small></div></article>
-  <article class="stat-card accent-charcoal"><div class="stat-icon">↗</div><div><span>Average score</span><strong>{{ summary.avg_score }}</strong><small>Across graded work</small></div></article>
+<section class="metric-grid reveal">
+  <article class="metric-card metric-purple"><div class="metric-icon"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm8 2v5h5l-5-5ZM8 13v2h8v-2H8Zm0 4v2h8v-2H8Z"/></svg></div><span>Total assignments</span><strong>{{ total }}</strong><small>Across 16 weeks</small><i class="metric-line"></i></article>
+  <article class="metric-card metric-amber"><div class="metric-icon"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm-1 5v6l5 3 1-1.7-4-2.3V7h-2Z"/></svg></div><span>Submitted</span><strong>{{ submitted }}</strong><small>Sent to your instructor</small><i class="metric-line"></i></article>
+  <article class="metric-card metric-mint"><div class="metric-icon"><svg viewBox="0 0 24 24"><path d="m9 16.2-3.5-3.5L4 14.2l5 5L20 8l-1.5-1.5L9 16.2Z"/></svg></div><span>Approved</span><strong>{{ approved }}</strong><small>Completed successfully</small><i class="metric-line"></i></article>
+  <article class="metric-card metric-ink"><div class="metric-icon"><svg viewBox="0 0 24 24"><path d="M4 19h16v2H4v-2Zm2-4 4-4 3 3 5-6 1.6 1.2-6.4 8.6-3.2-3.2L7.4 17 6 15Z"/></svg></div><span>Average score</span><strong>{{ summary.avg_score }}</strong><small>Across graded work</small><i class="metric-line"></i></article>
 </section>
 
-<section class="selected-project-progress project-{{ project.accent }}">
-  <div class="selected-project-copy">
-    <span>YOUR CHOSEN PROJECT · {{ project.industry|upper }}</span>
-    <h2>{{ project.title }}</h2>
-    <p>{{ project.summary }}</p>
-  </div>
-  <div class="selected-project-meter">
-    <strong>{{ project_percent }}%</strong>
-    <span>{{ project_approved }} of {{ project_total }} build milestones approved</span>
-    <div class="progress-track"><i style="width:{{ project_percent }}%"></i></div>
-  </div>
-</section>
-
-<section class="dashboard-grid">
-  <article class="panel progress-panel">
-    <div class="panel-heading"><div><span class="panel-kicker">PROGRAM PROGRESS</span><h2>{{ progress }}% completed</h2></div><span class="progress-badge">{{ approved }} of {{ total }}</span></div>
-    <div class="progress-track large-track"><span style="width:{{ progress }}%"></span></div>
-    <div class="progress-legend"><span><i class="legend-approved"></i>Approved {{ approved }}</span><span><i class="legend-submitted"></i>In review {{ submitted - approved if submitted >= approved else 0 }}</span><span><i class="legend-open"></i>Remaining {{ total - submitted if total >= submitted else 0 }}</span></div>
+<section class="student-dashboard-grid reveal">
+  <article class="surface-card selected-project-card project-{{ project.accent }}">
+    <div class="selected-project-top"><div><span class="eyebrow">Your selected project</span><h2>{{ project.title }}</h2><p>{{ project.summary }}</p></div><span class="project-number">{{ '%02d'|format(project.project_number) }}</span></div>
+    <div class="project-progress-row"><div><strong>{{ project_approved }} of {{ project_total }}</strong><span>build milestones approved</span></div><div class="modern-progress"><i style="width:{{ project_percent }}%"></i></div></div>
+    <a class="text-action" href="{{ url_for('curriculum') }}">Open 16-week curriculum <span>→</span></a>
   </article>
-  <article class="panel next-panel">
-    <span class="panel-kicker">NEXT ACTION</span>
+
+  <article class="surface-card next-action-card">
+    <span class="eyebrow">Next action</span>
     {% if ns.next_item %}
-      <div class="next-row"><span class="week-chip">W{{ ns.next_item.week_number }}</span><div><h3>{{ ns.next_item.display_title }}</h3><p>{{ project.title }}</p></div></div>
-      <a class="button secondary full" href="{{ url_for('student_assignment', assignment_id=ns.next_item.id) }}">Continue assignment</a>
+      <div class="next-week-label"><span>Week {{ '%02d'|format(ns.next_item.week_number) }}</span><i></i></div>
+      <h2>{{ ns.next_item.display_title }}</h2><p>{{ ns.next_item.week_title }}</p>
+      <a class="button button-primary full-width" href="{{ url_for('student_assignment', assignment_id=ns.next_item.id) }}">Continue assignment</a>
     {% else %}
-      <div class="empty-success"><span>✓</span><h3>Your application is complete.</h3><p>All sixteen weeks have been approved.</p></div>
+      <div class="completion-state"><span>✓</span><h2>Your application is complete.</h2><p>All sixteen weeks have been approved.</p></div>
     {% endif %}
   </article>
 </section>
 
-<section class="project-milestone-timeline panel">
-  <div class="table-toolbar"><div><span class="panel-kicker">PROJECT BUILD</span><h2>Sixteen milestones</h2></div><a class="table-action" href="{{ url_for('projects') }}">View complete roadmap →</a></div>
-  <div class="milestone-progress-grid">
+<section class="surface-card milestone-card reveal">
+  <div class="card-heading table-card-heading"><div><span class="eyebrow">Project build</span><h2>Sixteen connected milestones</h2></div><a class="text-action" href="{{ url_for('projects') }}">View roadmap <span>→</span></a></div>
+  <div class="milestone-grid">
   {% for item in project_progress %}
-    <a href="{{ url_for('student_assignment', assignment_id=item.assignment_id) }}" class="{% if item.status == 'Approved' %}approved{% elif item.status %}active{% endif %}">
-      <span>{{ '%02d'|format(item.week_number) }}</span><strong>{{ item.title }}</strong><small>{{ item.status or 'Not started' }}</small>
+    <a href="{{ url_for('student_assignment', assignment_id=item.assignment_id) }}" class="milestone-item {% if item.status == 'Approved' %}complete{% elif item.status %}active{% endif %}">
+      <span class="milestone-number">{{ '%02d'|format(item.week_number) }}</span><strong>{{ item.title }}</strong><small>{{ item.status or 'Not started' }}</small>
     </a>
   {% endfor %}
   </div>
 </section>
 
-<section class="panel table-panel">
-  <div class="table-toolbar">
-    <div><span class="panel-kicker">MY WORK</span><h2>Assignments</h2></div>
-    <div class="table-controls">
-      <label class="search-control"><svg viewBox="0 0 24 24"><path d="m21 20-5.2-5.2a7 7 0 1 0-1.4 1.4L20 21l1-1ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"/></svg><input type="search" placeholder="Search assignments" data-table-search="student-assignments"></label>
-      <select class="compact-select" data-table-filter="student-assignments"><option value="">All types</option><option value="Hands-On">Hands-On</option><option value="Research">Research</option><option value="LinkedIn">LinkedIn</option><option value="Capstone">Final Project</option></select>
-    </div>
-  </div>
-  <div class="responsive-table">
-    <table id="student-assignments">
-      <thead><tr><th>Week</th><th>Assignment</th><th>Type</th><th>Status</th><th>Score</th><th></th></tr></thead>
-      <tbody>
-      {% for r in rows %}
-      <tr data-category="{{ r.category }}">
-        <td><span class="week-cell">{{ '%02d'|format(r.week_number) }}</span></td>
-        <td><strong class="table-title">{{ r.display_title }}</strong><span class="table-subtitle">{{ r.week_title }}</span></td>
-        <td><span class="pill {{ r.category|lower|replace(' ','-') }}">{{ 'Final Project' if r.category == 'Capstone' else r.category }}</span></td>
-        <td><span class="status {{ (r.submission_status or 'not-started')|lower|replace(' ','-') }}"><i></i>{{ r.submission_status or 'Not Started' }}</span></td>
-        <td>{% if r.score is not none %}<strong>{{ r.score }}</strong><span class="score-max"> / {{ r.max_score }}</span>{% else %}<span class="muted">Not graded</span>{% endif %}</td>
-        <td><a class="table-action" href="{{ url_for('student_assignment', assignment_id=r.id) }}">Open →</a></td>
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-    <div class="table-empty-state" data-empty-for="student-assignments">No assignments match your search.</div>
-  </div>
+<section class="surface-card roster-card reveal">
+  <div class="catalog-toolbar"><div><span class="eyebrow">My work</span><h2>Assignments</h2></div><div class="filter-cluster"><label class="modern-search"><svg viewBox="0 0 24 24"><path d="m21 20-5.2-5.2a7 7 0 1 0-1.4 1.4L20 21l1-1ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"/></svg><input type="search" placeholder="Search assignments" data-table-search="student-assignments"></label><select class="modern-select" data-table-filter="student-assignments"><option value="">All assignment types</option><option value="Hands-On">Hands-On</option><option value="Research">Research</option><option value="LinkedIn">LinkedIn</option><option value="Capstone">Final Project</option></select></div></div>
+  <div class="modern-table-wrap"><table class="modern-table" id="student-assignments"><thead><tr><th>Week</th><th>Assignment</th><th>Type</th><th>Status</th><th>Score</th><th></th></tr></thead><tbody>
+  {% for r in rows %}
+    <tr data-category="{{ r.category }}"><td><span class="week-badge">{{ '%02d'|format(r.week_number) }}</span></td><td><strong>{{ r.display_title }}</strong><small>{{ r.week_title }}</small></td><td><span class="type-pill {{ r.category|lower|replace(' ','-') }}">{{ 'Final Project' if r.category == 'Capstone' else r.category }}</span></td><td><span class="status-pill {{ (r.submission_status or 'not-started')|lower|replace(' ','-') }}"><i></i>{{ r.submission_status or 'Not Started' }}</span></td><td>{% if r.score is not none %}<span class="score-chip">{{ r.score }} / {{ r.max_score }}</span>{% else %}<span class="muted-value">Not graded</span>{% endif %}</td><td><a class="row-action" href="{{ url_for('student_assignment', assignment_id=r.id) }}">Open</a></td></tr>
+  {% endfor %}
+  </tbody></table><div class="table-empty-state" data-empty-for="student-assignments"><strong>No assignments found</strong><span>Try another search or filter.</span></div></div>
 </section>
 {% endblock %}

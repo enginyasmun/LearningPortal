@@ -1,8 +1,43 @@
 {% extends "base.html" %}
 {% block title %}Assignments | Developer Academy{% endblock %}
 {% block content %}
-<section class="dashboard-hero compact-hero"><div><span class="page-kicker">PROGRAM CATALOG</span><h1>Assignments</h1><p>Every student completes the same 48-assignment rhythm while the project-build instructions adapt to their selected industry.</p></div><a class="button ghost" href="{{ url_for('projects') }}">View five project plans</a></section>
-<section class="panel table-panel"><div class="table-toolbar"><div><span class="panel-kicker">ASSIGNMENT CATALOG</span><h2>{{ rows|length }} assignments</h2></div><div class="table-controls"><label class="search-control"><svg viewBox="0 0 24 24"><path d="m21 20-5.2-5.2a7 7 0 1 0-1.4 1.4L20 21l1-1ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"/></svg><input type="search" placeholder="Search assignments" data-table-search="assignment-catalog"></label><select class="compact-select" data-table-filter="assignment-catalog"><option value="">All types</option><option value="Hands-On">Hands-On</option><option value="Research">Research</option><option value="LinkedIn">LinkedIn</option><option value="Capstone">Final Project</option></select></div></div><div class="responsive-table"><table id="assignment-catalog"><thead><tr><th>Week</th><th>Assignment</th><th>Type</th><th>Due</th><th>Score</th><th>{% if is_academy_admin %}All submissions{% else %}My students{% endif %}</th></tr></thead><tbody>
-{% for r in rows %}<tr data-category="{{ r.category }}"><td><span class="week-cell">{{ '%02d'|format(r.week_number) }}</span></td><td><strong class="table-title">{{ r.title }}</strong><span class="table-subtitle">{{ r.week_title }}</span></td><td><span class="pill {{ r.category|lower|replace(' ','-') }}">{{ 'Final Project' if r.category == 'Capstone' else r.category }}</span></td><td>{{ r.due_date or '—' }}</td><td>{{ r.max_score }}</td><td><strong>{{ r.submissions }}</strong></td></tr>{% endfor %}
-</tbody></table><div class="table-empty-state" data-empty-for="assignment-catalog">No assignments match your search.</div></div></section>
+<section class="page-heading">
+  <div><span class="eyebrow">Program catalog</span><h1>Assignments</h1><p>A single 48-deliverable rhythm that adapts every project-build assignment to the student's selected industry.</p></div>
+  <div class="page-actions"><a class="button button-secondary" href="{{ url_for('projects') }}">View project plans</a></div>
+</section>
+
+<section class="catalog-summary reveal">
+  <article><span class="summary-icon purple"><svg viewBox="0 0 24 24"><path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm2 4v2h10V7H7Zm0 4v2h10v-2H7Zm0 4v2h7v-2H7Z"/></svg></span><div><strong>16</strong><small>guided weeks</small></div></article>
+  <article><span class="summary-icon mint"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4V4Zm9 0h7v7h-7V4ZM4 13h7v7H4v-7Zm9 0h7v7h-7v-7Z"/></svg></span><div><strong>48</strong><small>total assignments</small></div></article>
+  <article><span class="summary-icon amber"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm-1 5v6l5 3 1-1.7-4-2.3V7h-2Z"/></svg></span><div><strong>3</strong><small>deliverables each week</small></div></article>
+  <article><span class="summary-icon coral"><svg viewBox="0 0 24 24"><path d="M12 3 2 8l10 5 8-4v6h2V8L12 3Zm-6 9v5l6 3 6-3v-5l-6 3-6-3Z"/></svg></span><div><strong>5</strong><small>industry choices</small></div></article>
+</section>
+
+<section class="surface-card catalog-card reveal">
+  <div class="catalog-toolbar">
+    <div><span class="eyebrow">Assignment catalog</span><h2>{{ rows|length }} assignments</h2></div>
+    <div class="filter-cluster">
+      <label class="modern-search"><svg viewBox="0 0 24 24"><path d="m21 20-5.2-5.2a7 7 0 1 0-1.4 1.4L20 21l1-1ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"/></svg><input type="search" placeholder="Search assignments" data-table-search="assignment-catalog"></label>
+      <select class="modern-select" data-table-filter="assignment-catalog"><option value="">All assignment types</option><option value="Hands-On">Hands-On</option><option value="Research">Research</option><option value="LinkedIn">LinkedIn</option><option value="Capstone">Final Project</option></select>
+    </div>
+  </div>
+  <div class="modern-table-wrap">
+    <table class="modern-table assignment-table" id="assignment-catalog">
+      <thead><tr><th>Week</th><th>Assignment</th><th>Type</th><th>Due date</th><th>Points</th><th>{% if is_academy_admin %}Submissions{% else %}My students{% endif %}</th></tr></thead>
+      <tbody>
+      {% for r in rows %}
+        <tr data-category="{{ r.category }}">
+          <td><span class="week-badge">{{ '%02d'|format(r.week_number) }}</span></td>
+          <td><strong>{{ r.title }}</strong><small>{{ r.week_title }}</small></td>
+          <td><span class="type-pill {{ r.category|lower|replace(' ','-') }}">{{ 'Final Project' if r.category == 'Capstone' else r.category }}</span></td>
+          <td><span class="date-value">{{ r.due_date or 'Not set' }}</span></td>
+          <td><strong class="points-value">{{ r.max_score|int if r.max_score == r.max_score|int else r.max_score }}</strong></td>
+          <td><span class="submission-count">{{ r.submissions }}</span></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <div class="table-empty-state" data-empty-for="assignment-catalog"><strong>No assignments found</strong><span>Try another search or filter.</span></div>
+  </div>
+</section>
 {% endblock %}
