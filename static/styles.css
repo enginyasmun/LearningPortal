@@ -1029,3 +1029,177 @@ body.sidebar-collapsed [data-tooltip]:hover:after{left:66px;font-size:12px;paddi
   .form-grid.form-grid-two{grid-template-columns:1fr}
   .form-grid.form-grid-two .field-span-two{grid-column:auto}
 }
+
+
+/* =========================================================
+   Version 14.2: project-week repair and classroom diagram
+   ========================================================= */
+.classroom-diagram-card{
+  padding:26px;
+  min-height:0;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(112,87,255,.09),transparent 34%),
+    linear-gradient(180deg,#fff 0%,#fbfbfe 100%);
+  border:1px solid #e5e4ec;
+}
+.classroom-diagram-heading{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:16px;
+  margin-bottom:20px;
+}
+.classroom-diagram-heading h2{
+  margin:7px 0 0;
+  font-size:28px;
+  line-height:1.08;
+  letter-spacing:-.035em;
+  max-width:390px;
+}
+.classroom-flow{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px 18px 18px;
+  border:1px solid #e8e6f0;
+  border-radius:22px;
+  background:linear-gradient(180deg,#f9f8ff 0%,#fff 100%);
+}
+.classroom-flow-instructor,
+.classroom-flow-center{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:230px;
+  padding:11px 14px;
+  border-radius:16px;
+  background:#fff;
+  border:1px solid #e5e3ed;
+  box-shadow:0 8px 22px rgba(29,31,45,.06);
+}
+.classroom-flow-instructor img{
+  width:52px;
+  height:52px;
+  flex:none;
+  border-radius:15px;
+  object-fit:cover;
+  object-position:center top;
+  background:#f0eff7;
+}
+.classroom-flow-instructor span,
+.classroom-flow-center span{
+  display:block;
+  font-size:11px;
+  color:var(--muted);
+  margin-bottom:3px;
+}
+.classroom-flow-instructor strong,
+.classroom-flow-center strong{
+  display:block;
+  font-size:14px;
+  line-height:1.35;
+}
+.classroom-flow-icon{
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  display:grid!important;
+  place-items:center;
+  background:var(--purple-soft);
+  color:var(--purple)!important;
+  flex:none;
+  margin:0!important;
+}
+.classroom-flow-icon svg{width:22px;height:22px;fill:currentColor}
+.classroom-flow-line.vertical{
+  width:2px;
+  height:24px;
+  background:linear-gradient(#b8afff,#7461ff);
+}
+.classroom-flow-line.branch{
+  position:relative;
+  width:min(310px,82%);
+  height:28px;
+  border-top:2px solid #c7c1f4;
+  margin-top:25px;
+}
+.classroom-flow-line.branch:before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:-27px;
+  width:2px;
+  height:27px;
+  background:#8c7cff;
+}
+.classroom-student-row{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin-top:-12px;
+  padding:0 8px;
+}
+.classroom-student-avatar{
+  width:50px;
+  height:50px;
+  border-radius:16px;
+  overflow:hidden;
+  border:3px solid #fff;
+  box-shadow:0 6px 18px rgba(34,36,52,.12);
+  background:#f2f1f7;
+  margin-left:-7px;
+}
+.classroom-student-avatar:first-child{margin-left:0}
+.classroom-student-avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center top;
+}
+.classroom-flow-caption{
+  text-align:center;
+  margin-top:12px;
+}
+.classroom-flow-caption strong{
+  display:block;
+  font-size:15px;
+  margin-bottom:4px;
+}
+.classroom-flow-caption span{
+  display:block;
+  font-size:12px;
+  line-height:1.55;
+  color:var(--muted);
+  max-width:340px;
+}
+.classroom-diagram-footer{
+  display:grid;
+  grid-template-columns:auto auto 1fr;
+  gap:12px;
+  align-items:center;
+  margin-top:17px;
+}
+.classroom-diagram-footer>div{
+  display:flex;
+  flex-direction:column;
+  min-width:86px;
+  padding:11px 13px;
+  border-radius:14px;
+  background:#f5f4fa;
+}
+.classroom-diagram-footer strong{font-size:19px;line-height:1}
+.classroom-diagram-footer span{font-size:9px;color:var(--muted);margin-top:4px}
+.classroom-diagram-footer>a{
+  justify-self:end;
+  font-size:12px;
+  font-weight:800;
+  color:var(--ink);
+}
+.classroom-diagram-footer>a span{color:inherit;margin-left:5px}
+@media(max-width:620px){
+  .classroom-diagram-heading{flex-direction:column}
+  .classroom-diagram-footer{grid-template-columns:1fr 1fr}
+  .classroom-diagram-footer>a{grid-column:1/-1;justify-self:start}
+  .classroom-student-avatar{width:44px;height:44px;border-radius:14px}
+}

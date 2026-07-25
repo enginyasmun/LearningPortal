@@ -56,13 +56,36 @@
     </div>
   </article>
 
-  <article class="surface-card program-card">
-    <div class="program-card-glow"></div>
-    <span class="eyebrow light">Program model</span>
-    <h2>One classroom.<br>One instructor.<br>Many students.<br>One shared project.</h2>
-    <p>Every classroom builds one complete Salesforce application. Students submit individual work and receive private grades and feedback.</p>
-    <div class="program-facts"><span><strong>{{ stats.classrooms }}</strong><small>classrooms</small></span><span><strong>5</strong><small>project choices</small></span><span><strong>48</strong><small>deliverables each</small></span></div>
-    <a href="{{ url_for('projects') }}">View all project plans <span>→</span></a>
+  <article class="surface-card classroom-diagram-card">
+    <div class="classroom-diagram-heading">
+      <div><span class="eyebrow">Classroom structure</span><h2>One instructor guides many students.</h2></div>
+      <span class="soft-badge">One shared project</span>
+    </div>
+
+    <div class="classroom-flow" aria-label="One instructor guides multiple students in one classroom and shared project">
+      <div class="classroom-flow-instructor">
+        <img src="{{ avatar_src(current_user.avatar_filename) }}" alt="{{ current_user.name }}">
+        <div><span>Instructor</span><strong>{{ current_user.name }}</strong></div>
+      </div>
+      <span class="classroom-flow-line vertical"></span>
+      <div class="classroom-flow-center">
+        <span class="classroom-flow-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H4V4Zm2 2v8h12V6H6Zm3 12h6v2H9v-2Z"/></svg></span>
+        <div><span>Classroom</span><strong>One guided project roadmap</strong></div>
+      </div>
+      <span class="classroom-flow-line branch"></span>
+      <div class="classroom-student-row">
+        {% for avatar in ['realistic-female-01.png','realistic-male-02.png','realistic-female-03.png','realistic-male-04.png','realistic-female-05.png'] %}
+          <span class="classroom-student-avatar"><img src="{{ avatar_src(avatar) }}" alt="Student avatar"></span>
+        {% endfor %}
+      </div>
+      <div class="classroom-flow-caption"><strong>Many students</strong><span>Each submits individual homework and receives private feedback.</span></div>
+    </div>
+
+    <div class="classroom-diagram-footer">
+      <div><strong>{{ stats.classrooms }}</strong><span>active classrooms</span></div>
+      <div><strong>{{ stats.students }}</strong><span>active students</span></div>
+      <a href="{{ url_for('manage_classrooms') }}">Manage classrooms <span>→</span></a>
+    </div>
   </article>
 </section>
 

@@ -443,7 +443,7 @@ def project_week(project_id, week_number):
         "research_topic": week["research_topic"], "linkedin_topic": week["linkedin_topic"],
     })
     guide = build_guided_lab(context, week_number, week["research_topic"], week["linkedin_topic"])
-    return render_template("week_detail.html", week=context, assignments=assignments, guide=guide)
+    return render_template("week_detail.html", week=context, assignments=assignments, guide=guide, guided_lab=guide)
 
 
 @app.route("/student")
