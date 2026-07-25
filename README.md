@@ -56,3 +56,8 @@ Set your own instructor credentials before running `seed.py` on a public website
 ## Curriculum and project plans
 
 The Curriculum section provides the common 16-week class syllabus for every student. Project Plans contain the five industry-specific, step-by-step guided build tracks.
+
+
+## Version 11
+
+Version 11 increases readability across the portal, modernizes the guided project-plan experience, and adds ten built-in profile avatar choices while retaining custom photo uploads.

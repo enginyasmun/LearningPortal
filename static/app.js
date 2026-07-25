@@ -294,6 +294,19 @@
     } else {
       revealNodes.forEach((node) => node.classList.add("is-visible"));
     }
+
+    /* Built-in avatar gallery */
+    const avatarPreview = document.querySelector("[data-avatar-preview]");
+    const avatarPresetInputs = document.querySelectorAll("[data-avatar-preset]");
+    avatarPresetInputs.forEach((input) => {
+      input.addEventListener("change", () => {
+        if (!input.checked) return;
+        if (avatarPreview && input.dataset.avatarUrl) avatarPreview.src = input.dataset.avatarUrl;
+        document.querySelectorAll(".avatar-option").forEach((option) => option.classList.remove("selected"));
+        input.closest(".avatar-option")?.classList.add("selected");
+      });
+    });
+
   });
 })();
 

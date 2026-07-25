@@ -21,6 +21,14 @@ AVATAR_DIR = Path(os.environ.get("AVATAR_DIR", BASE_DIR / "avatars"))
 DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 ALLOWED_EXTENSIONS = {"pdf", "doc", "docx", "txt", "md", "png", "jpg", "jpeg", "zip"}
 AVATAR_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
+AVATAR_PRESETS = [
+    {"filename": f"avatar-male-{index:02d}.svg", "label": f"Male avatar {index}", "group": "Male"}
+    for index in range(1, 6)
+] + [
+    {"filename": f"avatar-female-{index:02d}.svg", "label": f"Female avatar {index}", "group": "Female"}
+    for index in range(1, 6)
+]
+AVATAR_PRESET_FILES = {item["filename"] for item in AVATAR_PRESETS}
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "change-this-secret-in-production")
@@ -295,11 +303,19 @@ def profile():
             return redirect(url_for("profile"))
 
         avatar_filename = user["avatar_filename"]
-        if request.form.get("remove_avatar") == "1":
-            if avatar_filename:
-                old_path = AVATAR_DIR / avatar_filename
+        selected_preset = request.form.get("avatar_preset", "").strip()
+
+        def remove_custom_avatar(filename):
+            if filename and filename not in AVATAR_PRESET_FILES:
+                old_path = AVATAR_DIR / filename
                 if old_path.exists():
                     old_path.unlink()
+
+        if selected_preset in AVATAR_PRESET_FILES:
+            remove_custom_avatar(avatar_filename)
+            avatar_filename = selected_preset
+        elif request.form.get("remove_avatar") == "1":
+            remove_custom_avatar(avatar_filename)
             avatar_filename = None
 
         uploaded = request.files.get("avatar")
@@ -311,10 +327,7 @@ def profile():
             timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
             new_filename = f"user_{user['id']}_{timestamp}.{extension}"
             uploaded.save(AVATAR_DIR / new_filename)
-            if avatar_filename and avatar_filename != new_filename:
-                old_path = AVATAR_DIR / avatar_filename
-                if old_path.exists():
-                    old_path.unlink()
+            remove_custom_avatar(avatar_filename)
             avatar_filename = new_filename
 
         execute(
@@ -324,7 +337,7 @@ def profile():
         session["name"] = name
         flash("Your profile has been updated.", "success")
         return redirect(url_for("profile"))
-    return render_template("profile.html", user=user)
+    return render_template("profile.html", user=user, avatar_presets=AVATAR_PRESETS)
 
 
 @app.route("/avatars/<path:filename>")
