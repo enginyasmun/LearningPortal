@@ -13,7 +13,7 @@
     <article class="surface-card sticky-context-card">
       <div class="context-icon"><svg viewBox="0 0 24 24"><path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm2 4v2h10V7H7Zm0 4v2h10v-2H7Zm0 4v2h7v-2H7Z"/></svg></div>
       <span class="eyebrow">Assignment details</span><h2>Required deliverable</h2><p>{{ assignment.display_deliverable }}</p>
-      <a class="guide-link" href="{{ url_for('curriculum_week', week_number=assignment.week_number, project=assignment.project_id) }}#guided-lab"><span>Open step-by-step guide</span><b>→</b></a>
+      <a class="guide-link" href="{{ url_for('project_week', project_id=assignment.project_id, week_number=assignment.week_number) }}#guided-lab"><span>Open step-by-step guide</span><b>→</b></a>
       <div class="context-facts"><div><span>Maximum score</span><strong>{{ assignment.max_score }}</strong></div><div><span>Due date</span><strong>{{ assignment.due_date or 'To be assigned' }}</strong></div><div><span>Current status</span><strong>{{ submission.status if submission else 'Not Started' }}</strong></div></div>
       {% if submission and submission.mentor_feedback %}<section class="feedback-panel"><div><span>✓</span><strong>Instructor feedback</strong></div><p>{{ submission.mentor_feedback }}</p>{% if submission.score is not none %}<b>{{ submission.score }} / {{ assignment.max_score }}</b>{% endif %}</section>{% endif %}
     </article>

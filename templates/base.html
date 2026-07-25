@@ -19,8 +19,8 @@
 {% elif endpoint in ['manage_students','update_student_class','assign_student_instructor','assign_student_project'] %}{% set page_title = 'Students' %}{% set page_area = 'Academy management' %}
 {% elif endpoint in ['manage_instructors','toggle_instructor'] %}{% set page_title = 'Instructors' %}{% set page_area = 'Academy management' %}
 {% elif endpoint == 'manage_assignments' %}{% set page_title = 'Assignments' %}{% set page_area = 'Program catalog' %}
-{% elif endpoint in ['projects','select_project'] %}{% set page_title = 'Project plans' %}{% set page_area = 'Learning tracks' %}
-{% elif endpoint in ['curriculum','curriculum_week'] %}{% set page_title = 'Curriculum' %}{% set page_area = '16-week program' %}
+{% elif endpoint in ['projects','select_project','project_week'] %}{% set page_title = 'Project plans' %}{% set page_area = 'Guided project tracks' %}
+{% elif endpoint in ['curriculum','curriculum_week'] %}{% set page_title = 'Curriculum' %}{% set page_area = 'Class overview' %}
 {% elif endpoint in ['student_dashboard','student_assignment'] %}{% set page_title = 'My learning' %}{% set page_area = 'Student workspace' %}
 {% elif endpoint == 'profile' %}{% set page_title = 'Profile' %}{% set page_area = 'Account settings' %}
 {% else %}{% set page_title = 'Developer Academy' %}{% set page_area = 'Workspace' %}{% endif %}
@@ -43,11 +43,11 @@
         <a class="workspace-link {% if endpoint == 'student_dashboard' %}active{% endif %}" href="{{ url_for('student_dashboard') }}" data-tooltip="Dashboard">
           <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4V4Zm9 0h7v4h-7V4ZM4 13h7v7H4v-7Zm9-3h7v10h-7V10Z"/></svg></span><span class="nav-copy">Dashboard</span>
         </a>
-        <a class="workspace-link {% if endpoint in ['projects','select_project'] %}active{% endif %}" href="{{ url_for('projects') }}" data-tooltip="Project choices">
+        <a class="workspace-link {% if endpoint in ['projects','select_project','project_week'] %}active{% endif %}" href="{{ url_for('projects') }}" data-tooltip="Project choices">
           <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M5 3h6v6H5V3Zm8 0h6v6h-6V3ZM5 11h6v10H5V11Zm8 0h6v10h-6V11Z"/></svg></span><span class="nav-copy">Project choices</span>
         </a>
-        <a class="workspace-link {% if endpoint in ['curriculum','curriculum_week'] %}active{% endif %}" href="{{ url_for('curriculum') }}" data-tooltip="16-week plan">
-          <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M6 3h12a2 2 0 0 1 2 2v16l-8-3-8 3V5a2 2 0 0 1 2-2Zm1 4v2h10V7H7Zm0 4v2h10v-2H7Z"/></svg></span><span class="nav-copy">My 16-week plan</span>
+        <a class="workspace-link {% if endpoint in ['curriculum','curriculum_week'] %}active{% endif %}" href="{{ url_for('curriculum') }}" data-tooltip="Curriculum overview">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M6 3h12a2 2 0 0 1 2 2v16l-8-3-8 3V5a2 2 0 0 1 2-2Zm1 4v2h10V7H7Zm0 4v2h10v-2H7Z"/></svg></span><span class="nav-copy">Curriculum overview</span>
         </a>
       {% else %}
         <span class="nav-label">Academy</span>
@@ -106,7 +106,7 @@
       </button>
       <div class="topbar-actions">
         {% if current_user.role == 'student' %}
-          <a class="topbar-link" href="{{ url_for('curriculum') }}">Continue learning</a>
+          <a class="topbar-link" href="{{ url_for('curriculum') }}">Class curriculum</a>
         {% else %}
           <a class="topbar-link" href="{{ url_for('submissions_list', status='Submitted') }}">Review queue</a>
         {% endif %}
@@ -137,7 +137,7 @@
       {% if current_user.role == 'student' %}
         <a href="{{ url_for('student_dashboard') }}"><span>Dashboard</span><small>My progress and assignments</small></a>
         <a href="{{ url_for('projects') }}"><span>Project choices</span><small>Review industry applications</small></a>
-        <a href="{{ url_for('curriculum') }}"><span>My 16-week plan</span><small>Open guided labs and research</small></a>
+        <a href="{{ url_for('curriculum') }}"><span>Curriculum overview</span><small>See the shared 16-week class syllabus</small></a>
       {% else %}
         <a href="{{ url_for('instructor_dashboard') }}"><span>Overview</span><small>Academy activity and priorities</small></a>
         <a href="{{ url_for('submissions_list') }}"><span>Submissions</span><small>Review student work</small></a>
@@ -145,7 +145,7 @@
         {% if is_academy_admin %}<a href="{{ url_for('manage_instructors') }}"><span>Instructors</span><small>Manage instructor access</small></a>{% endif %}
         <a href="{{ url_for('projects') }}"><span>Project plans</span><small>Five complete tracks</small></a>
         <a href="{{ url_for('manage_assignments') }}"><span>Assignments</span><small>Program catalog</small></a>
-        <a href="{{ url_for('curriculum') }}"><span>Curriculum</span><small>16-week guided program</small></a>
+        <a href="{{ url_for('curriculum') }}"><span>Curriculum</span><small>Shared 16-week class overview</small></a>
       {% endif %}
       <a href="{{ url_for('profile') }}"><span>Profile settings</span><small>Update your name, email, and picture</small></a>
     </div>

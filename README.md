@@ -51,3 +51,8 @@ Follow `PYTHONANYWHERE_FRESH_SETUP.md`.
 - Student: `student@example.com` / `Student123!`
 
 Set your own instructor credentials before running `seed.py` on a public website.
+
+
+## Curriculum and project plans
+
+The Curriculum section provides the common 16-week class syllabus for every student. Project Plans contain the five industry-specific, step-by-step guided build tracks.

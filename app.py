@@ -402,43 +402,15 @@ def select_project():
 @app.route("/curriculum")
 @login_required
 def curriculum():
-    user = current_user()
-    projects = query_all("SELECT * FROM projects ORDER BY project_number")
-
-    if user["role"] == "student":
-        if not user["selected_project_id"]:
-            return redirect(url_for("select_project"))
-        project_id = user["selected_project_id"]
-    else:
-        raw_project = request.args.get("project", "").strip()
-        try:
-            project_id = int(raw_project) if raw_project else projects[0]["id"]
-        except ValueError:
-            project_id = projects[0]["id"]
-
-    selected_project = query_one("SELECT * FROM projects WHERE id=?", (project_id,))
-    if not selected_project:
-        selected_project = projects[0]
-        project_id = selected_project["id"]
-
     weeks = query_all(
         """
-        SELECT w.*,pm.title AS milestone_title,pm.instructions AS milestone_instructions,
-               pm.deliverable AS milestone_deliverable,pm.is_final
-        FROM weeks w
-        JOIN project_milestones pm
-          ON pm.week_number=w.week_number AND pm.project_id=?
-        WHERE w.week_number BETWEEN 1 AND 16
-        ORDER BY w.week_number
-        """,
-        (project_id,),
+        SELECT *
+        FROM weeks
+        WHERE week_number BETWEEN 1 AND 16
+        ORDER BY week_number
+        """
     )
-    return render_template(
-        "curriculum.html",
-        projects=projects,
-        selected_project=selected_project,
-        weeks=weeks,
-    )
+    return render_template("curriculum.html", weeks=weeks)
 
 
 @app.route("/curriculum/week/<int:week_number>")
@@ -446,21 +418,64 @@ def curriculum():
 def curriculum_week(week_number):
     if not 1 <= week_number <= 16:
         abort(404)
+
+    # Preserve compatibility with links created by earlier versions.
+    legacy_project = request.args.get("project", "").strip()
+    if legacy_project:
+        try:
+            project_id = int(legacy_project)
+        except ValueError:
+            project_id = 0
+        if project_id:
+            return redirect(
+                url_for(
+                    "project_week",
+                    project_id=project_id,
+                    week_number=week_number,
+                )
+            )
+
+    week = query_one(
+        """
+        SELECT *
+        FROM weeks
+        WHERE week_number=?
+        """,
+        (week_number,),
+    )
+    if not week:
+        abort(404)
+
+    user = current_user()
+    selected_project = None
+    if user["role"] == "student":
+        selected_project = project_for_student(user["id"])
+
+    return render_template(
+        "curriculum_week_overview.html",
+        week=week,
+        selected_project=selected_project,
+    )
+
+
+@app.route("/projects/<int:project_id>/week/<int:week_number>")
+@login_required
+def project_week(project_id, week_number):
+    if not 1 <= week_number <= 16:
+        abort(404)
+
     user = current_user()
     if user["role"] == "student":
         if not user["selected_project_id"]:
+            flash("Choose one industry project before opening guided project labs.", "info")
             return redirect(url_for("select_project"))
-        project_id = user["selected_project_id"]
-    else:
-        raw_project = request.args.get("project", "").strip()
-        first_project = query_one(
-            "SELECT id FROM projects ORDER BY project_number LIMIT 1"
-        )
-        default_project_id = first_project["id"] if first_project else 0
-        try:
-            project_id = int(raw_project) if raw_project else default_project_id
-        except ValueError:
-            project_id = default_project_id
+        if user["selected_project_id"] != project_id:
+            flash(
+                "Guided build labs are available for your selected project. "
+                "You can still compare the other project overviews.",
+                "warning",
+            )
+            return redirect(url_for("projects"))
 
     week = query_one(
         """
@@ -478,6 +493,7 @@ def curriculum_week(week_number):
     )
     if not week:
         abort(404)
+
     assignments = query_all(
         """
         SELECT * FROM assignments

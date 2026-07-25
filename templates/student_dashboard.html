@@ -17,7 +17,7 @@
     <h1>Welcome back, {{ current_user.name.split(' ')[0] }}.</h1>
     <p>Keep moving one application from idea to production through guided labs, research, and professional communication.</p>
     <div class="student-meta-chips"><span>Project <strong>{{ project.industry }}</strong></span>{% if mentor and mentor.name %}<span>Instructor <strong>{{ mentor.name }}</strong></span>{% endif %}</div>
-    <div class="spotlight-actions"><a class="button button-light" href="{{ url_for('curriculum') }}">Continue my plan</a><a class="text-action light" href="{{ url_for('projects') }}">View project roadmap <span>→</span></a></div>
+    <div class="spotlight-actions"><a class="button button-light" href="{{ url_for('curriculum') }}">View class curriculum</a><a class="text-action light" href="{{ url_for('projects') }}#project-{{ project.id }}">Open guided project <span>→</span></a></div>
   </div>
   <div class="student-hero-visual"><img src="{{ url_for('static', filename='images/guided-learning-hero.webp') }}" alt="Guided learning workspace illustration"><div class="progress-orb" style="--progress:{{ project_percent }}%"><div><strong>{{ project_percent }}%</strong><span>project build</span></div></div></div>
 </section>
@@ -33,7 +33,7 @@
   <article class="surface-card selected-project-card project-{{ project.accent }}">
     <div class="selected-project-top"><div><span class="eyebrow">Your selected project</span><h2>{{ project.title }}</h2><p>{{ project.summary }}</p></div><span class="project-number">{{ '%02d'|format(project.project_number) }}</span></div>
     <div class="project-progress-row"><div><strong>{{ project_approved }} of {{ project_total }}</strong><span>build milestones approved</span></div><div class="modern-progress"><i style="width:{{ project_percent }}%"></i></div></div>
-    <a class="text-action" href="{{ url_for('curriculum') }}">Open 16-week curriculum <span>→</span></a>
+    <a class="text-action" href="{{ url_for('projects') }}#project-{{ project.id }}">Open guided project plan <span>→</span></a>
   </article>
 
   <article class="surface-card next-action-card">

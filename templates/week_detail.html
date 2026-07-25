@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Week {{ week.week_number }} | Developer Academy{% endblock %}
 {% block content %}
-<a class="breadcrumb-modern" href="{{ url_for('curriculum', project=week.project_id) }}"><span>←</span> Back to 16-week plan</a>
+<a class="breadcrumb-modern" href="{{ url_for('projects') }}#project-{{ week.project_id }}"><span>←</span> Back to project plans</a>
 
 <section class="week-hero-modern reveal stage-{{ week.stage|lower|replace(' ','-') }} project-{{ week.accent }}">
   <div class="week-hero-index"><strong>{{ '%02d'|format(week.week_number) }}</strong><span>Week of 16</span></div>

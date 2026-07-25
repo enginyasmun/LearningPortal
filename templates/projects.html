@@ -12,11 +12,11 @@
 
 <section class="project-track-list project-track-list-readable reveal">
 {% for p in projects %}
-  <article class="project-track project-track-readable project-{{ p.accent }} {% if selected_project and selected_project.id == p.id %}selected{% endif %}">
+  <article id="project-{{ p.id }}" class="project-track project-track-readable project-{{ p.accent }} {% if selected_project and selected_project.id == p.id %}selected{% endif %}">
     <div class="track-header-readable">
       <div class="track-number"><span>{{ '%02d'|format(p.project_number) }}</span><small>Project</small></div>
       <div class="track-copy"><span class="eyebrow">{{ p.industry }}</span><h2>{{ p.title }}</h2><p>{{ p.summary }}</p><div class="track-tags"><span>16 weeks</span><span>Guided</span><span>Intermediate</span></div></div>
-      <div class="track-header-actions">{% if selected_project and selected_project.id == p.id %}<span class="selected-badge">✓ Selected</span>{% endif %}{% if current_user.role == 'instructor' %}<a class="button button-secondary" href="{{ url_for('curriculum', project=p.id) }}">Open plan</a>{% elif selected_project and selected_project.id == p.id %}<a class="button button-secondary" href="{{ url_for('curriculum') }}">Open my plan</a>{% endif %}</div>
+      <div class="track-header-actions">{% if selected_project and selected_project.id == p.id %}<span class="selected-badge">✓ Selected</span>{% endif %}{% if current_user.role == 'instructor' %}<a class="button button-secondary" href="{{ url_for('project_week', project_id=p.id, week_number=1) }}">Open guided plan</a>{% elif selected_project and selected_project.id == p.id %}<a class="button button-secondary" href="{{ url_for('project_week', project_id=p.id, week_number=1) }}">Open guided plan</a>{% endif %}</div>
     </div>
 
     <div class="project-phase-grid">
@@ -26,9 +26,9 @@
       <article><span>Weeks 13–16</span><strong>Deliver and add agents</strong><p>Advanced experience, DevOps, MCP, Agentforce, and launch.</p><ul>{% for m in milestones %}{% if m.project_id == p.id and m.week_number >= 13 %}<li><b>{{ '%02d'|format(m.week_number) }}</b>{{ m.title }}</li>{% endif %}{% endfor %}</ul></article>
     </div>
 
-    <details class="complete-roadmap-details"><summary>See all 16 weekly milestones <span>+</span></summary><div class="track-roadmap">{% for m in milestones %}{% if m.project_id == p.id %}<a href="{{ url_for('curriculum_week', week_number=m.week_number, project=p.id) }}" class="roadmap-node {% if m.is_final %}final{% endif %}"><span>{{ '%02d'|format(m.week_number) }}</span><strong>{{ m.title }}</strong>{% if m.is_final %}<small>Final application</small>{% endif %}</a>{% endif %}{% endfor %}</div></details>
+    <details class="complete-roadmap-details"><summary>See all 16 weekly milestones <span>+</span></summary><div class="track-roadmap">{% for m in milestones %}{% if m.project_id == p.id %}<a href="{{ url_for('project_week', project_id=p.id, week_number=m.week_number) }}" class="roadmap-node {% if m.is_final %}final{% endif %}"><span>{{ '%02d'|format(m.week_number) }}</span><strong>{{ m.title }}</strong>{% if m.is_final %}<small>Final application</small>{% endif %}</a>{% endif %}{% endfor %}</div></details>
 
-    <div class="track-footer"><span>{{ p.process }}</span>{% if current_user.role == 'student' and selected_project and selected_project.id == p.id %}<a class="text-action" href="{{ url_for('curriculum') }}">Continue this project <span>→</span></a>{% elif current_user.role == 'instructor' %}<a class="text-action" href="{{ url_for('curriculum', project=p.id) }}">Review 16-week plan <span>→</span></a>{% endif %}</div>
+    <div class="track-footer"><span>{{ p.process }}</span>{% if current_user.role == 'student' and selected_project and selected_project.id == p.id %}<a class="text-action" href="{{ url_for('project_week', project_id=p.id, week_number=1) }}">Open guided project <span>→</span></a>{% elif current_user.role == 'instructor' %}<a class="text-action" href="{{ url_for('project_week', project_id=p.id, week_number=1) }}">Review guided project <span>→</span></a>{% endif %}</div>
   </article>
 {% endfor %}
 </section>
