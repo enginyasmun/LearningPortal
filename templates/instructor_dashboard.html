@@ -23,13 +23,7 @@
       <a class="text-action light" href="{{ url_for('projects') }}">Explore project plans <span>→</span></a>
     </div>
   </div>
-  <div class="spotlight-visual" aria-hidden="true">
-    <div class="pulse-orbit orbit-one"></div><div class="pulse-orbit orbit-two"></div>
-    <div class="pulse-center"><span>{{ stats.awaiting_review }}</span><small>waiting<br>for review</small></div>
-    <div class="floating-metric metric-a"><strong>{{ stats.students }}</strong><span>active students</span></div>
-    <div class="floating-metric metric-b"><strong>{{ stats.revisions }}</strong><span>revisions</span></div>
-    <div class="floating-metric metric-c"><strong>16</strong><span>guided weeks</span></div>
-  </div>
+  <div class="spotlight-visual spotlight-picture"><img src="{{ url_for('static', filename='images/dashboard-hero.webp') }}" alt="Modern learning dashboard illustration"><span class="image-stat"><strong>{{ stats.awaiting_review }}</strong> waiting for review</span></div>
 </section>
 
 <section class="metric-grid reveal">
@@ -80,7 +74,7 @@
       <tbody>
       {% for r in recent %}
         <tr>
-          <td><div class="identity-cell"><span class="mini-avatar">{{ r.student_name[:1]|upper }}</span><div><strong>{{ r.student_name }}</strong><small>{{ r.student_email }}</small></div></div></td>
+          <td><div class="identity-cell"><img class="mini-avatar mini-avatar-photo" src="{{ avatar_src(r.student_avatar) }}" alt=""><div><strong>{{ r.student_name }}</strong><small>{{ r.student_email }}</small></div></div></td>
           <td><strong>{{ r.assignment_title }}</strong><small>Week {{ r.week_number }}</small></td>
           <td><strong>{{ r.industry or 'Not selected' }}</strong><small>{{ r.project_title or '' }}</small></td>
           <td><span class="type-pill {{ r.category|lower|replace(' ','-') }}">{{ 'Final Project' if r.category == 'Capstone' else r.category }}</span></td>

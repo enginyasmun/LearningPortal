@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Profile Settings | Developer Academy{% endblock %}
+{% block content %}
+<section class="page-heading profile-page-heading">
+  <div><span class="eyebrow">Account settings</span><h1>Make the workspace yours.</h1><p>Update your name, sign-in email, and profile picture. Your avatar appears in navigation, rosters, submissions, and review pages.</p></div>
+</section>
+
+<section class="profile-settings-layout reveal">
+  <form class="surface-card profile-settings-card" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="avatar-editor">
+      <div class="avatar-preview-shell"><img src="{{ avatar_src(user.avatar_filename) }}" alt="Current profile picture" data-avatar-preview></div>
+      <div><span class="eyebrow">Profile picture</span><h2>Choose a friendly, recognizable photo.</h2><p>PNG, JPG, JPEG, or WebP. A square image works best.</p><label class="button button-secondary avatar-upload-button">Choose picture<input type="file" name="avatar" accept="image/png,image/jpeg,image/webp" data-avatar-input hidden></label>{% if user.avatar_filename %}<label class="remove-avatar"><input type="checkbox" name="remove_avatar" value="1"> Remove current picture</label>{% endif %}</div>
+    </div>
+    <div class="profile-fields-grid">
+      <label class="modern-field"><span>Full name</span><input type="text" name="name" value="{{ user.name }}" required></label>
+      <label class="modern-field"><span>Email address</span><input type="email" name="email" value="{{ clean_email(user.email) or user.email }}" required>{% if not clean_email(user.email) %}<small class="field-warning">Replace the placeholder with the real email address you use to sign in.</small>{% endif %}</label>
+      <div class="profile-role-card"><span>Account type</span><strong>{% if user.role == 'student' %}Student{% elif user.is_admin %}Academy administrator{% else %}Instructor{% endif %}</strong><small>Role changes are managed by an academy administrator.</small></div>
+    </div>
+    <div class="profile-form-footer"><span>Changes apply immediately throughout the portal.</span><button class="button button-primary" type="submit">Save profile</button></div>
+  </form>
+
+  <aside class="surface-card profile-visual-card">
+    <img src="{{ url_for('static', filename='images/dashboard-hero.webp') }}" alt="Modern learning workspace illustration">
+    <div><span class="eyebrow">A more personal learning space</span><h2>Your photo makes mentoring and review easier.</h2><p>Instructors can recognize students quickly, and students can immediately see who is responsible for reviewing their work.</p></div>
+  </aside>
+</section>
+{% endblock %}

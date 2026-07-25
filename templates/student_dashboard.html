@@ -19,7 +19,7 @@
     <div class="student-meta-chips"><span>Project <strong>{{ project.industry }}</strong></span>{% if mentor and mentor.name %}<span>Instructor <strong>{{ mentor.name }}</strong></span>{% endif %}</div>
     <div class="spotlight-actions"><a class="button button-light" href="{{ url_for('curriculum') }}">Continue my plan</a><a class="text-action light" href="{{ url_for('projects') }}">View project roadmap <span>→</span></a></div>
   </div>
-  <div class="progress-orb" style="--progress:{{ project_percent }}%"><div><strong>{{ project_percent }}%</strong><span>project build</span></div></div>
+  <div class="student-hero-visual"><img src="{{ url_for('static', filename='images/guided-learning-hero.webp') }}" alt="Guided learning workspace illustration"><div class="progress-orb" style="--progress:{{ project_percent }}%"><div><strong>{{ project_percent }}%</strong><span>project build</span></div></div></div>
 </section>
 
 <section class="metric-grid reveal">

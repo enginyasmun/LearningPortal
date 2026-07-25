@@ -16,7 +16,7 @@
       <label class="modern-field"><span>Temporary password</span><input type="text" name="password" required placeholder="Create a secure password"><small>Share this privately with the student.</small></label>
       <label class="modern-field"><span>Class</span><input type="text" name="class_name" placeholder="Class 1"></label>
       {% if page_is_admin %}
-      <label class="modern-field field-span-two"><span>Assigned instructor</span><select name="assigned_instructor_id" required>{% for instructor in instructors %}<option value="{{ instructor.id }}" {% if instructor.id == current_user.id %}selected{% endif %}>{{ instructor.name }} · {{ instructor.email }}</option>{% endfor %}</select><small>Only this instructor and academy administrators can review the student's work.</small></label>
+      <div class="instructor-picker field-span-two"><div><span class="eyebrow">Assigned instructor</span><h3>Who will review this student's work?</h3><p>Only the selected instructor and academy administrators can view submissions and grades.</p></div><label><span>Instructor</span><select name="assigned_instructor_id" required>{% for instructor in instructors %}<option value="{{ instructor.id }}" {% if instructor.id == current_user.id %}selected{% endif %}>{{ instructor.name }}{% if clean_email(instructor.email) %} · {{ clean_email(instructor.email) }}{% endif %}</option>{% endfor %}</select></label></div>
       {% else %}
       <div class="ownership-banner field-span-two"><span class="ownership-check">✓</span><div><strong>Automatically assigned to you</strong><p>The new student will enter your private instructor workspace.</p></div></div>
       {% endif %}
@@ -25,7 +25,7 @@
   </form>
 
   <article class="surface-card model-card">
-    <div class="model-card-art"><span class="model-ring ring-one"></span><span class="model-ring ring-two"></span><span class="model-core">1:1</span></div>
+    <div class="model-card-picture"><img src="{{ url_for('static', filename='images/default-avatar.webp') }}" alt="Friendly learner avatar illustration"><span>1:1 mentoring</span></div>
     <span class="eyebrow light">Learning model</span>
     <h2>One student.<br>One instructor.<br>One project.</h2>
     <p>Every student follows a clear 16-week path with private review, structured research, and visible progress.</p>
@@ -44,7 +44,7 @@
       <tbody>
       {% for s in students %}
         <tr>
-          <td><div class="identity-cell"><span class="mini-avatar">{{ s.name[:1]|upper }}</span><div><strong>{{ s.name }}</strong><small>{{ s.email }}</small></div></div></td>
+          <td><div class="identity-cell"><img class="mini-avatar mini-avatar-photo" src="{{ avatar_src(s.avatar_filename) }}" alt=""><div><strong>{{ s.name }}</strong><small>{{ s.email }}</small></div></div></td>
           <td><form class="inline-editor" method="post" action="{{ url_for('update_student_class', user_id=s.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="text" name="class_name" value="{{ s.cohort or '' }}" placeholder="Class"><button type="submit">Save</button></form></td>
           <td>{% if page_is_admin %}<form class="inline-editor inline-select" method="post" action="{{ url_for('assign_student_instructor', user_id=s.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="assigned_instructor_id">{% for instructor in instructors %}<option value="{{ instructor.id }}" {% if instructor.id == s.assigned_instructor_id %}selected{% endif %}>{{ instructor.name }}</option>{% endfor %}</select><button type="submit">Assign</button></form>{% else %}<strong>{{ s.instructor_name or current_user.name }}</strong><small>Assigned instructor</small>{% endif %}</td>
           <td>{% if page_is_admin %}<form class="inline-editor inline-select" method="post" action="{{ url_for('assign_student_project', user_id=s.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="selected_project_id"><option value="">Not selected</option>{% for p in projects %}<option value="{{ p.id }}" {% if p.id == s.selected_project_id %}selected{% endif %}>{{ p.industry }}</option>{% endfor %}</select><button type="submit">Save</button></form>{% else %}<strong>{{ s.industry or 'Not selected' }}</strong><small>{{ s.project_title or 'Student must choose' }}</small>{% endif %}</td>

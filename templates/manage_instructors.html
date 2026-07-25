@@ -35,7 +35,7 @@
       <tbody>
       {% for instructor in instructors %}
         <tr>
-          <td><div class="identity-cell"><span class="mini-avatar">{{ instructor.name[:1]|upper }}</span><div><strong>{{ instructor.name }}</strong><small>{{ instructor.email }}</small></div></div></td>
+          <td><div class="identity-cell"><img class="mini-avatar mini-avatar-photo" src="{{ avatar_src(instructor.avatar_filename) }}" alt=""><div><strong>{{ instructor.name }}</strong><small>{{ clean_email(instructor.email) or 'Email not updated' }}</small></div></div></td>
           <td>{% if instructor.is_admin %}<span class="access-pill admin">Academy admin</span>{% else %}<span class="access-pill instructor">Assigned students only</span>{% endif %}</td>
           <td><div class="stacked-number"><strong>{{ instructor.assigned_students }}</strong><small>assigned students</small></div></td>
           <td><span class="date-value">{{ instructor.created_at[:10] if instructor.created_at else 'Not available' }}</span></td>

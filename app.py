@@ -17,8 +17,10 @@ from guided_labs import build_guided_lab
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = Path(os.environ.get("DATABASE_PATH", BASE_DIR / "academy.db"))
 UPLOAD_DIR = Path(os.environ.get("UPLOAD_DIR", BASE_DIR / "uploads"))
+AVATAR_DIR = Path(os.environ.get("AVATAR_DIR", BASE_DIR / "avatars"))
 DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 ALLOWED_EXTENSIONS = {"pdf", "doc", "docx", "txt", "md", "png", "jpg", "jpeg", "zip"}
+AVATAR_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "change-this-secret-in-production")
@@ -26,6 +28,7 @@ app.config["MAX_CONTENT_LENGTH"] = 12 * 1024 * 1024
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+AVATAR_DIR.mkdir(parents=True, exist_ok=True)
 
 PASSWORD_ITERATIONS = 260_000
 
@@ -133,6 +136,44 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def allowed_avatar_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in AVATAR_EXTENSIONS
+
+
+def clean_email(value):
+    if not value:
+        return ""
+    email = str(value).strip()
+    upper = email.upper()
+    if "YOUR_EMAIL" in upper or "REPLACE" in upper or email in {"-", "_"}:
+        return ""
+    return email
+
+
+def avatar_src(filename=None):
+    if filename:
+        return url_for("avatar_file", filename=filename)
+    return url_for("static", filename="images/default-avatar.webp")
+
+
+def ensure_runtime_schema():
+    if not DB_PATH.exists():
+        return
+    with sqlite3.connect(DB_PATH) as conn:
+        users_exists = conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='users'"
+        ).fetchone()
+        if not users_exists:
+            return
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(users)")}
+        if "avatar_filename" not in columns:
+            conn.execute("ALTER TABLE users ADD COLUMN avatar_filename TEXT")
+            conn.commit()
+
+
+ensure_runtime_schema()
+
+
 def current_user():
     if "user_id" not in session:
         return None
@@ -197,6 +238,8 @@ def inject_globals():
         "is_academy_admin": user_is_admin(user),
         "today": date.today().isoformat(),
         "csrf_token": get_csrf_token(),
+        "avatar_src": avatar_src,
+        "clean_email": clean_email,
     }
 
 
@@ -231,6 +274,63 @@ def logout():
     session.clear()
     flash("You have been signed out.", "info")
     return redirect(url_for("login"))
+
+
+@app.route("/profile", methods=["GET", "POST"])
+@login_required
+def profile():
+    user = current_user()
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        if not name or not email:
+            flash("Name and email are required.", "danger")
+            return redirect(url_for("profile"))
+        duplicate = query_one(
+            "SELECT id FROM users WHERE lower(email)=? AND id<>?",
+            (email, user["id"]),
+        )
+        if duplicate:
+            flash("Another account already uses that email address.", "danger")
+            return redirect(url_for("profile"))
+
+        avatar_filename = user["avatar_filename"]
+        if request.form.get("remove_avatar") == "1":
+            if avatar_filename:
+                old_path = AVATAR_DIR / avatar_filename
+                if old_path.exists():
+                    old_path.unlink()
+            avatar_filename = None
+
+        uploaded = request.files.get("avatar")
+        if uploaded and uploaded.filename:
+            if not allowed_avatar_file(uploaded.filename):
+                flash("Profile pictures must be PNG, JPG, JPEG, or WebP.", "danger")
+                return redirect(url_for("profile"))
+            extension = uploaded.filename.rsplit(".", 1)[1].lower()
+            timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+            new_filename = f"user_{user['id']}_{timestamp}.{extension}"
+            uploaded.save(AVATAR_DIR / new_filename)
+            if avatar_filename and avatar_filename != new_filename:
+                old_path = AVATAR_DIR / avatar_filename
+                if old_path.exists():
+                    old_path.unlink()
+            avatar_filename = new_filename
+
+        execute(
+            "UPDATE users SET name=?,email=?,avatar_filename=? WHERE id=?",
+            (name, email, avatar_filename, user["id"]),
+        )
+        session["name"] = name
+        flash("Your profile has been updated.", "success")
+        return redirect(url_for("profile"))
+    return render_template("profile.html", user=user)
+
+
+@app.route("/avatars/<path:filename>")
+@login_required
+def avatar_file(filename):
+    return send_from_directory(AVATAR_DIR, filename)
 
 
 @app.route("/projects")
@@ -475,7 +575,7 @@ def student_dashboard():
     )
     mentor = query_one(
         """
-        SELECT mentor.id,mentor.name,mentor.email
+        SELECT mentor.id,mentor.name,mentor.email,mentor.avatar_filename
         FROM users student
         LEFT JOIN users mentor ON mentor.id=student.assigned_instructor_id
         WHERE student.id=?
@@ -666,6 +766,7 @@ def instructor_dashboard():
 
     recent_sql = """
         SELECT s.*,u.name AS student_name,u.email AS student_email,
+               u.avatar_filename AS student_avatar,
                p.title AS project_title,p.industry,
                w.week_number,a.category,
                CASE WHEN a.category IN ('Hands-On','Capstone')
@@ -716,6 +817,7 @@ def submissions_list():
 
     sql = """
         SELECT s.*,u.name AS student_name,u.email AS student_email,
+               u.avatar_filename AS student_avatar,
                u.assigned_instructor_id,p.title AS project_title,p.industry,
                a.category,a.max_score,w.week_number,w.title AS week_title,
                CASE WHEN a.category IN ('Hands-On','Capstone')
@@ -780,6 +882,7 @@ def grade_submission(submission_id):
     row = query_one(
         """
         SELECT s.*,u.name AS student_name,u.email AS student_email,
+               u.avatar_filename AS student_avatar,
                u.assigned_instructor_id,p.title AS project_title,p.industry,
                a.category,a.max_score,w.week_number,w.title AS week_title,
                CASE WHEN a.category IN ('Hands-On','Capstone')
@@ -842,7 +945,7 @@ def manage_students():
     instructors = (
         query_all(
             """
-            SELECT id,name,email FROM users
+            SELECT id,name,email,avatar_filename FROM users
             WHERE role='instructor' AND is_active=1
             ORDER BY name
             """

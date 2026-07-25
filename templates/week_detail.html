@@ -15,6 +15,8 @@
 
 <nav class="week-tabs reveal" aria-label="Week sections"><a href="#guided-lab" class="active">Build lab</a><a href="#research-lab">Research lab</a><a href="#linkedin-lab">LinkedIn lab</a><a href="#assignments">Submit work</a></nav>
 
+<section class="learning-illustration-banner reveal"><img src="{{ url_for('static', filename='images/guided-learning-hero.webp') }}" alt="Illustration of a guided learning workspace"><div><span class="eyebrow">How to use this page</span><h2>Follow the steps. Check your work. Save the evidence.</h2><p>The hands-on lab tells you exactly what to build. The research lab teaches you how to investigate and evaluate sources. The LinkedIn lab helps you explain what you learned professionally.</p></div></section>
+
 <section class="guided-lab-modern reveal" id="guided-lab" data-lab-id="{{ guided_lab.lab_id }}">
   <header class="guided-lab-hero">
     <div><span class="spotlight-label"><i></i> Step-by-step hands-on lab</span><h2>{{ guided_lab.title }}</h2><p>Follow the build path in order. Execute each action, confirm the checkpoint, and save the required evidence before moving forward.</p></div>

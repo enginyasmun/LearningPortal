@@ -22,6 +22,7 @@
 {% elif endpoint in ['projects','select_project'] %}{% set page_title = 'Project plans' %}{% set page_area = 'Learning tracks' %}
 {% elif endpoint in ['curriculum','curriculum_week'] %}{% set page_title = 'Curriculum' %}{% set page_area = '16-week program' %}
 {% elif endpoint in ['student_dashboard','student_assignment'] %}{% set page_title = 'My learning' %}{% set page_area = 'Student workspace' %}
+{% elif endpoint == 'profile' %}{% set page_title = 'Profile' %}{% set page_area = 'Account settings' %}
 {% else %}{% set page_title = 'Developer Academy' %}{% set page_area = 'Workspace' %}{% endif %}
 
 <div class="app-shell">
@@ -78,10 +79,13 @@
     </nav>
 
     <div class="sidebar-footer">
-      <div class="sidebar-profile">
-        <span class="profile-avatar">{{ current_user.name[:1]|upper }}</span>
+      <a class="sidebar-profile" href="{{ url_for('profile') }}" aria-label="Open profile settings">
+        <img class="profile-avatar profile-photo" src="{{ avatar_src(current_user.avatar_filename) }}" alt="">
         <span class="profile-meta"><strong>{{ current_user.name }}</strong><small>{% if current_user.role == 'student' %}Student{% elif is_academy_admin %}Academy administrator{% else %}Instructor{% endif %}</small></span>
-      </div>
+      </a>
+      <a class="workspace-link {% if endpoint == 'profile' %}active{% endif %}" href="{{ url_for('profile') }}" data-tooltip="Profile settings">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM4 21a8 8 0 0 1 16 0H4Z"/></svg></span><span class="nav-copy">Profile settings</span>
+      </a>
       <a class="workspace-link signout-link" href="{{ url_for('logout') }}" data-tooltip="Sign out">
         <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5v-2H5V5h5V3Zm5.6 4.6L14.2 9l2 2H8v2h8.2l-2 2 1.4 1.4 4.4-4.4-4.4-4.4Z"/></svg></span><span class="nav-copy">Sign out</span>
       </a>
@@ -106,7 +110,7 @@
         {% else %}
           <a class="topbar-link" href="{{ url_for('submissions_list', status='Submitted') }}">Review queue</a>
         {% endif %}
-        <span class="topbar-avatar">{{ current_user.name[:1]|upper }}</span>
+        <a class="topbar-avatar topbar-photo-link" href="{{ url_for('profile') }}" aria-label="Profile settings"><img src="{{ avatar_src(current_user.avatar_filename) }}" alt=""></a>
       </div>
     </header>
 
@@ -143,6 +147,7 @@
         <a href="{{ url_for('manage_assignments') }}"><span>Assignments</span><small>Program catalog</small></a>
         <a href="{{ url_for('curriculum') }}"><span>Curriculum</span><small>16-week guided program</small></a>
       {% endif %}
+      <a href="{{ url_for('profile') }}"><span>Profile settings</span><small>Update your name, email, and picture</small></a>
     </div>
   </section>
 </div>

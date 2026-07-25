@@ -9,6 +9,7 @@ CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
+    avatar_filename TEXT,
     password_hash TEXT NOT NULL,
     role TEXT NOT NULL CHECK(role IN ('student','instructor')),
     cohort TEXT,

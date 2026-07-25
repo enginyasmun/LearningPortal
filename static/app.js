@@ -296,3 +296,17 @@
     }
   });
 })();
+
+
+// Profile picture preview
+const avatarInput = document.querySelector('[data-avatar-input]');
+const avatarPreview = document.querySelector('[data-avatar-preview]');
+if (avatarInput && avatarPreview) {
+  avatarInput.addEventListener('change', () => {
+    const file = avatarInput.files && avatarInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.addEventListener('load', () => { avatarPreview.src = reader.result; });
+    reader.readAsDataURL(file);
+  });
+}
