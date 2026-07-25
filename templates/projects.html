@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Project Choices | Developer Academy{% endblock %}
+{% block content %}
+<section class="curriculum-hero project-hero">
+  <div><span class="page-kicker">FIVE PARALLEL PROJECT OPTIONS</span><h1>Every project has the same complete 16-week engineering journey.</h1><p>Students choose one industry application. They do not rotate through all five. The selected application becomes the context for every weekly build and the final portfolio project.</p></div>
+  <div class="curriculum-summary"><div><strong>5</strong><span>Project choices</span></div><div><strong>16</strong><span>Weeks per project</span></div><div><strong>1</strong><span>App per student</span></div></div>
+</section>
+
+{% if current_user.role == 'student' and not selected_project %}
+<div class="choice-callout"><div><strong>You have not chosen your project yet.</strong><p>Select one before beginning the curriculum.</p></div><a class="button" href="{{ url_for('select_project') }}">Choose my project</a></div>
+{% elif current_user.role == 'student' %}
+<div class="choice-callout selected-callout"><div><span>YOUR PROJECT</span><strong>{{ selected_project.title }}</strong><p>{{ 'Locked after submitted work.' if project_locked else 'You may change this before your first submission.' }}</p></div>{% if not project_locked %}<a class="button secondary" href="{{ url_for('select_project') }}">Change selection</a>{% endif %}</div>
+{% endif %}
+
+<section class="parallel-projects">
+{% for p in projects %}
+  <article class="parallel-project project-{{ p.accent }} {% if selected_project and selected_project.id == p.id %}is-selected{% endif %}">
+    <header><div><span>PROJECT {{ '%02d'|format(p.project_number) }} · {{ p.industry|upper }}</span><h2>{{ p.title }}</h2><p>{{ p.summary }}</p></div>{% if selected_project and selected_project.id == p.id %}<strong class="selected-project-badge">✓ Selected</strong>{% endif %}</header>
+    <div class="sixteen-week-grid">
+    {% for m in milestones %}
+      {% if m.project_id == p.id %}
+      <a href="{{ url_for('curriculum_week', week_number=m.week_number, project=p.id) }}" class="{% if m.is_final %}final-milestone{% endif %}">
+        <span>W{{ '%02d'|format(m.week_number) }}</span><strong>{{ m.title }}</strong>{% if m.is_final %}<small>FINAL APPLICATION</small>{% endif %}
+      </a>
+      {% endif %}
+    {% endfor %}
+    </div>
+    <footer><span>16 milestones · weekly research · weekly LinkedIn · one final application</span>{% if current_user.role == 'student' and selected_project and selected_project.id == p.id %}<a class="button secondary" href="{{ url_for('curriculum') }}">Open my plan</a>{% elif current_user.role == 'instructor' %}<a class="button secondary" href="{{ url_for('curriculum', project=p.id) }}">Open plan</a>{% endif %}</footer>
+  </article>
+{% endfor %}
+</section>
+{% endblock %}
