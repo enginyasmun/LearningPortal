@@ -1,67 +1,63 @@
-# Salesforce Developer Academy LearningPortal
+# Salesforce Junior Developer Academy
 
-A Flask-based learning portal for a 16-week junior Salesforce developer academy.
+A complete Flask website for running a 16-week Salesforce junior developer academy.
 
-## Classroom model
+## Program model
 
-The academy is organized around classrooms:
+Each student selects one of five industry projects and builds that same Salesforce application for all 16 weeks.
 
-- One classroom has one instructor.
-- A classroom can have multiple students.
-- One project is assigned to the whole classroom.
-- Students submit individual homework and receive private grades and feedback.
-- The instructor sees only their classrooms unless they are an academy administrator.
+Every week includes:
 
-## Project choices
+- one step-by-step hands-on guided lab
+- one research homework assignment
+- one LinkedIn post assignment
 
-1. Warehouse Management & Logistics
-2. Patient Referral & Care Coordination
-3. Donor & Volunteer Engagement
-4. Production & Quality Operations
-5. AI-Enabled Client Delivery
+Each student receives 48 active assignments:
 
-Each classroom follows one complete 16-week guided project plan.
-
-## Weekly learning rhythm
-
-Every student completes 48 deliverables:
-
-- 16 classroom-project build milestones, including the final application
+- 15 weekly hands-on project milestones
+- 1 final application assignment in Week 16
 - 16 research assignments
 - 16 LinkedIn assignments
 
-## Real integrations
+## Website features
 
-Week 11 now requires a genuine Salesforce callout through a Named Credential. Each project includes a safe training API:
+- modern responsive landing, login, curriculum, and guided-lab pages
+- student and instructor authentication
+- academy administrator and regular instructor access levels
+- student-to-instructor assignment
+- private instructor review queues
+- student project selection
+- guided Trailhead-style build instructions
+- research training and source-quality checks
+- weekly LinkedIn workflow
+- file uploads, repository links, submissions, grading, revisions, and feedback
+- SQLite database
 
-- Warehouse: Zippopotam.us postal-code validation
-- Healthcare: CMS NPI Registry
-- Nonprofit: US Census Geocoding Services
-- Manufacturing: NHTSA vPIC
-- Professional Services: GitHub REST API
-
-The runtime lab performs a real HTTP call. `HttpCalloutMock` is used only inside automated Apex tests.
-
-## Existing site update
-
-Run:
+## Required Python packages
 
 ```bash
-cd ~/LearningPortal
-git pull origin main
-workon coaching-env
-python migrate_v14.py
+pip install -r requirements.txt
 ```
-
-Then reload the PythonAnywhere web app. The migration creates a timestamped database backup.
 
 ## Fresh installation
 
-```bash
-export ADMIN_NAME='Your Name'
-export ADMIN_EMAIL='you@example.com'
-export ADMIN_PASSWORD='A strong password'
-python seed.py
-```
+Follow `PYTHONANYWHERE_FRESH_SETUP.md`.
 
-Do not run `RESET_DB=1 python seed.py` on an existing installation.
+## Development credentials
+
+`seed.py` uses environment variables when provided. Without them, the local development defaults are:
+
+- Instructor: `admin@example.com` / `Admin123!`
+- Student: `student@example.com` / `Student123!`
+
+Set your own instructor credentials before running `seed.py` on a public website.
+
+
+## Curriculum and project plans
+
+The Curriculum section provides the common 16-week class syllabus for every student. Project Plans contain the five industry-specific, step-by-step guided build tracks.
+
+
+## Version 11
+
+Version 11 increases readability across the portal, modernizes the guided project-plan experience, and adds ten built-in profile avatar choices while retaining custom photo uploads.

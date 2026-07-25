@@ -878,3 +878,154 @@ body.sidebar-collapsed [data-tooltip]:hover:after{left:66px;font-size:12px;paddi
 
 @media(max-width:1100px){.classroom-card-grid{grid-template-columns:1fr}}
 @media(max-width:760px){.classroom-card>header{grid-template-columns:auto 1fr}.classroom-card>header>.status{grid-column:1/-1}.classroom-metrics{grid-template-columns:1fr}.classroom-metrics div{border-right:0;border-bottom:1px solid #ecebf0}.classroom-metrics div:last-child{border-bottom:0}.classroom-card>footer{flex-direction:column}.classroom-edit-details>form{grid-template-columns:1fr}}
+
+
+/* =========================================================
+   Version 14.1: classroom form and student roster repair
+   ========================================================= */
+.classroom-management-layout .modern-form-card,
+.management-layout .modern-form-card{
+  min-width:0;
+  align-self:start;
+}
+.form-grid.form-grid-two{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:18px;
+}
+.form-grid.form-grid-two .modern-field{
+  min-width:0;
+}
+.form-grid.form-grid-two .modern-field>span{
+  font-size:15px;
+  font-weight:750;
+  color:var(--ink);
+}
+.form-grid.form-grid-two .modern-field input,
+.form-grid.form-grid-two .modern-field select,
+.form-grid.form-grid-two .modern-field textarea{
+  width:100%;
+  max-width:none;
+  min-height:54px;
+  border:1px solid var(--line-strong);
+  border-radius:15px;
+  background:#fafafd;
+  color:var(--ink);
+  padding:13px 15px;
+  font-size:16px;
+  line-height:1.45;
+  outline:none;
+  transition:border-color .16s ease,box-shadow .16s ease,background .16s ease;
+}
+.form-grid.form-grid-two .modern-field textarea{
+  min-height:128px;
+  resize:vertical;
+}
+.form-grid.form-grid-two .modern-field input:focus,
+.form-grid.form-grid-two .modern-field select:focus,
+.form-grid.form-grid-two .modern-field textarea:focus{
+  background:#fff;
+  border-color:#aa9fff;
+  box-shadow:0 0 0 4px rgba(109,93,252,.10);
+}
+.form-grid.form-grid-two .modern-field small{
+  display:block;
+  margin-top:1px;
+  font-size:12px;
+  line-height:1.55;
+  color:var(--muted);
+}
+.classroom-management-layout .modern-form-card .full-width,
+.management-layout .modern-form-card .full-width{
+  min-height:54px;
+  margin-top:22px;
+  border-radius:15px;
+  font-size:15px;
+}
+
+/* Protect roster images even when a template class is changed later. */
+.modern-table .identity-cell img,
+.roster-card .identity-cell img,
+#student-roster img,
+.person-cell img{
+  width:44px !important;
+  height:44px !important;
+  max-width:44px !important;
+  max-height:44px !important;
+  min-width:44px;
+  flex:0 0 44px;
+  border-radius:14px;
+  object-fit:cover;
+  object-position:center top;
+  display:block;
+  background:#f0eff7;
+}
+.identity-cell{
+  min-width:220px;
+}
+.identity-cell>div,
+.table-stack{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+.identity-cell strong,
+.table-stack strong{
+  font-size:15px;
+  line-height:1.35;
+  color:var(--ink);
+}
+.identity-cell small,
+.table-stack small{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.4;
+  white-space:normal;
+}
+#student-roster{
+  min-width:1240px;
+}
+#student-roster th{
+  font-size:12px;
+  padding:16px 18px;
+}
+#student-roster td{
+  font-size:14px;
+  padding:17px 18px;
+}
+.classroom-move-form{
+  min-width:220px;
+}
+.classroom-move-form select{
+  flex:1;
+  width:155px;
+  max-width:180px;
+  min-width:145px;
+  height:44px;
+  font-size:14px;
+}
+.classroom-move-form .row-action{
+  min-height:38px;
+  padding:0 12px;
+  font-size:12px;
+}
+#student-roster .score-chip{
+  min-width:40px;
+  min-height:36px;
+  font-size:13px;
+}
+#student-roster .status-pill{
+  padding:8px 11px;
+  font-size:12px;
+}
+#student-roster .row-action.subtle{
+  font-size:12px;
+  white-space:nowrap;
+}
+
+@media(max-width:900px){
+  .form-grid.form-grid-two{grid-template-columns:1fr}
+  .form-grid.form-grid-two .field-span-two{grid-column:auto}
+}

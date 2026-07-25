@@ -12,17 +12,17 @@
 
 {% if page_is_admin %}
 <section class="management-layout classroom-management-layout reveal">
-  <form class="modern-form-card" method="post">
+  <form class="surface-card modern-form-card" method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     <div class="form-card-heading">
       <span class="form-icon purple"><svg viewBox="0 0 24 24"><path d="M3 4h18v14H3V4Zm2 2v10h14V6H5Zm3 13h8v2H8v-2Z"/></svg></span>
       <div><span class="eyebrow">New classroom</span><h2>Create a classroom</h2><p>Choose the instructor and one project shared by every student in this classroom.</p></div>
     </div>
-    <div class="modern-form-grid">
-      <label><span>Classroom name</span><input type="text" name="name" required placeholder="Spring 2027 · Class A"></label>
-      <label><span>Instructor</span><select name="instructor_id" required><option value="">Select instructor</option>{% for instructor in instructors %}<option value="{{ instructor.id }}">{{ instructor.name }}{% if clean_email(instructor.email) %} · {{ clean_email(instructor.email) }}{% endif %}</option>{% endfor %}</select></label>
-      <label class="field-span-two"><span>Shared project</span><select name="project_id" required><option value="">Select project</option>{% for project in projects %}<option value="{{ project.id }}">{{ project.industry }} · {{ project.title }}</option>{% endfor %}</select></label>
-      <label class="field-span-two"><span>Description</span><textarea name="description" rows="4" placeholder="Schedule, goals, classroom notes, or cohort details"></textarea></label>
+    <div class="form-grid form-grid-two">
+      <label class="modern-field"><span>Classroom name</span><input type="text" name="name" required placeholder="Spring 2027 · Class A"></label>
+      <label class="modern-field"><span>Instructor</span><select name="instructor_id" required><option value="">Select instructor</option>{% for instructor in instructors %}<option value="{{ instructor.id }}">{{ instructor.name }}{% if clean_email(instructor.email) %} · {{ clean_email(instructor.email) }}{% endif %}</option>{% endfor %}</select></label>
+      <label class="modern-field field-span-two"><span>Shared project</span><select name="project_id" required><option value="">Select project</option>{% for project in projects %}<option value="{{ project.id }}">{{ project.industry }} · {{ project.title }}</option>{% endfor %}</select></label>
+      <label class="modern-field field-span-two"><span>Description</span><textarea name="description" rows="4" placeholder="Schedule, goals, classroom notes, or cohort details"></textarea></label>
     </div>
     <button class="button button-dark full-width" type="submit">Create classroom</button>
   </form>
@@ -47,7 +47,7 @@
     <header>
       <div class="classroom-icon"><svg viewBox="0 0 24 24"><path d="M3 4h18v14H3V4Zm2 2v10h14V6H5Zm3 13h8v2H8v-2Z"/></svg></div>
       <div><span class="eyebrow">{{ room.industry }}</span><h2>{{ room.name }}</h2><p>{{ room.project_title }}</p></div>
-      <span class="status {{ 'approved' if room.is_active else 'late' }}"><i></i>{{ 'Active' if room.is_active else 'Inactive' }}</span>
+      <span class="status-pill {{ 'approved' if room.is_active else 'late' }}"><i></i>{{ 'Active' if room.is_active else 'Inactive' }}</span>
     </header>
     <div class="classroom-metrics">
       <div><strong>{{ room.student_count }}</strong><span>Students</span></div>

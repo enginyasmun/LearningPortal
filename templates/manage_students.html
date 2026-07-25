@@ -7,14 +7,14 @@
 </section>
 
 <section class="management-layout reveal">
-  <form class="modern-form-card" method="post">
+  <form class="surface-card modern-form-card" method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     <div class="form-card-heading"><span class="form-icon purple"><svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM4 21a8 8 0 0 1 16 0H4Zm15-9h2v3h3v2h-3v3h-2v-3h-3v-2h3v-3Z"/></svg></span><div><span class="eyebrow">New account</span><h2>Add a student</h2><p>The student inherits the classroom instructor and project.</p></div></div>
-    <div class="modern-form-grid">
-      <label><span>Full name</span><input type="text" name="name" required placeholder="Student name"></label>
-      <label><span>Email address</span><input type="email" name="email" required placeholder="student@example.com"></label>
-      <label><span>Temporary password</span><input type="text" name="password" required placeholder="Create a secure password"><small>Share this privately with the student.</small></label>
-      <label><span>Classroom</span><select name="classroom_id" required><option value="">Select classroom</option>{% for room in classrooms %}<option value="{{ room.id }}">{{ room.name }} · {{ room.industry }}</option>{% endfor %}</select><small>Instructor and project come from this classroom.</small></label>
+    <div class="form-grid form-grid-two">
+      <label class="modern-field"><span>Full name</span><input type="text" name="name" required placeholder="Student name"></label>
+      <label class="modern-field"><span>Email address</span><input type="email" name="email" required placeholder="student@example.com"></label>
+      <label class="modern-field"><span>Temporary password</span><input type="text" name="password" required placeholder="Create a secure password"><small>Share this privately with the student.</small></label>
+      <label class="modern-field"><span>Classroom</span><select name="classroom_id" required><option value="">Select classroom</option>{% for room in classrooms %}<option value="{{ room.id }}">{{ room.name }} · {{ room.industry }}</option>{% endfor %}</select><small>Instructor and project come from this classroom.</small></label>
     </div>
     <button class="button button-dark full-width" type="submit">Create student account</button>
   </form>
@@ -27,19 +27,19 @@
   </article>
 </section>
 
-<section class="catalog-panel reveal">
+<section class="surface-card roster-card reveal">
   <div class="catalog-toolbar"><div><span class="eyebrow">Student roster</span><h2>{{ students|length }} students</h2></div><label class="modern-search"><svg viewBox="0 0 24 24"><path d="m21 20-5.2-5.2a7 7 0 1 0-1.4 1.4L20 21l1-1ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"/></svg><input type="search" placeholder="Search students" data-table-search="student-roster"></label></div>
-  <div class="responsive-table"><table id="student-roster"><thead><tr><th>Student</th><th>Classroom</th><th>Instructor</th><th>Shared project</th><th>Work</th><th>Average</th><th>Status</th><th></th></tr></thead><tbody>
+  <div class="modern-table-wrap"><table class="modern-table roster-table" id="student-roster"><thead><tr><th>Student</th><th>Classroom</th><th>Instructor</th><th>Shared project</th><th>Work</th><th>Average</th><th>Status</th><th></th></tr></thead><tbody>
   {% for s in students %}
   <tr>
-    <td><div class="person-cell"><img src="{{ avatar_src(s.avatar_filename) }}" alt=""><div><strong>{{ s.name }}</strong><small>{{ s.email }}</small></div></div></td>
-    <td><form class="inline-editor inline-select" method="post" action="{{ url_for('assign_student_classroom', user_id=s.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="classroom_id">{% for room in classrooms %}<option value="{{ room.id }}" {% if room.id == s.classroom_id %}selected{% endif %}>{{ room.name }}</option>{% endfor %}</select><button type="submit">Move</button></form></td>
-    <td><strong>{{ s.instructor_name }}</strong><small>Classroom instructor</small></td>
-    <td><strong>{{ s.industry }}</strong><small>{{ s.project_title }}</small></td>
-    <td><strong>{{ s.submissions }}</strong><small>{{ s.approved or 0 }} approved</small></td>
-    <td><span class="score-bubble">{{ s.avg_score }}</span></td>
-    <td><span class="status {{ 'approved' if s.is_active else 'late' }}"><i></i>{{ 'Active' if s.is_active else 'Inactive' }}</span></td>
-    <td><form method="post" action="{{ url_for('toggle_student', user_id=s.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="table-action-button" type="submit">{{ 'Deactivate' if s.is_active else 'Activate' }}</button></form></td>
+    <td><div class="identity-cell"><img class="mini-avatar mini-avatar-photo" src="{{ avatar_src(s.avatar_filename) }}" alt="{{ s.name }}"><div><strong>{{ s.name }}</strong><small>{{ clean_email(s.email) or 'Email not updated' }}</small></div></div></td>
+    <td><form class="inline-editor inline-select classroom-move-form" method="post" action="{{ url_for('assign_student_classroom', user_id=s.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="classroom_id">{% for room in classrooms %}<option value="{{ room.id }}" {% if room.id == s.classroom_id %}selected{% endif %}>{{ room.name }}</option>{% endfor %}</select><button class="row-action" type="submit">Move</button></form></td>
+    <td><div class="table-stack"><strong>{{ s.instructor_name }}</strong><small>Classroom instructor</small></div></td>
+    <td><div class="table-stack"><strong>{{ s.industry }}</strong><small>{{ s.project_title }}</small></div></td>
+    <td><div class="stacked-number"><strong>{{ s.submissions }}</strong><small>{{ s.approved or 0 }} approved</small></div></td>
+    <td><span class="score-chip">{{ s.avg_score }}</span></td>
+    <td><span class="status-pill {{ 'approved' if s.is_active else 'late' }}"><i></i>{{ 'Active' if s.is_active else 'Inactive' }}</span></td>
+    <td><form method="post" action="{{ url_for('toggle_student', user_id=s.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="row-action subtle" type="submit">{{ 'Deactivate' if s.is_active else 'Activate' }}</button></form></td>
   </tr>
   {% endfor %}
   </tbody></table><div class="table-empty-state" data-empty-for="student-roster">No students match your search.</div></div>
