@@ -46,16 +46,13 @@ with get_db() as conn:
     admin_id = conn.execute(
         """
         INSERT INTO users
-        (name,email,password_hash,role,cohort,assigned_instructor_id,
-         selected_project_id,is_admin,is_active,created_at)
-        VALUES (?,?,?,?,?,NULL,NULL,1,1,?)
+        (name,email,avatar_filename,password_hash,role,classroom_id,is_admin,is_active,created_at)
+        VALUES (?,?,NULL,?,'instructor',NULL,1,1,?)
         """,
         (
             os.environ.get("ADMIN_NAME", "Academy Instructor"),
             admin_email,
             generate_password_hash(admin_password),
-            "instructor",
-            None,
             now,
         ),
     ).lastrowid
@@ -65,37 +62,45 @@ with get_db() as conn:
         project_ids[project["number"]] = conn.execute(
             """
             INSERT INTO projects
-            (project_number,industry,title,summary,entities,personas,process,
-             integration,workspace,agent,accent)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?)
+            (project_number,industry,title,summary,entities,personas,process,integration,
+             integration_name,integration_base_url,integration_docs_url,integration_auth,
+             integration_operation,integration_path,workspace,agent,accent)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """,
             (
-                project["number"], project["industry"], project["title"],
-                project["summary"], project["entities"], project["personas"],
-                project["process"], project["integration"], project["workspace"],
-                project["agent"], project["accent"],
+                project["number"], project["industry"], project["title"], project["summary"],
+                project["entities"], project["personas"], project["process"], project["integration"],
+                project["integration_name"], project["integration_base_url"], project["integration_docs_url"],
+                project["integration_auth"], project["integration_operation"], project["integration_path"],
+                project["workspace"], project["agent"], project["accent"],
             ),
         ).lastrowid
 
-    demo_project_number = int(os.environ.get("DEMO_STUDENT_PROJECT", "1"))
-    demo_project_id = project_ids.get(demo_project_number, project_ids[1])
+    classroom_id = conn.execute(
+        """
+        INSERT INTO classrooms(name,instructor_id,project_id,description,is_active,created_at)
+        VALUES (?,?,?,?,1,?)
+        """,
+        (
+            os.environ.get("DEMO_CLASSROOM_NAME", "Classroom 1"),
+            admin_id,
+            project_ids[int(os.environ.get("DEMO_CLASSROOM_PROJECT", "1"))],
+            "Demo classroom. One instructor, multiple students, one shared project.",
+            now,
+        ),
+    ).lastrowid
+
     conn.execute(
         """
         INSERT INTO users
-        (name,email,password_hash,role,cohort,assigned_instructor_id,
-         selected_project_id,is_admin,is_active,created_at)
-        VALUES (?,?,?,?,?,?,?,0,1,?)
+        (name,email,avatar_filename,password_hash,role,classroom_id,is_admin,is_active,created_at)
+        VALUES (?,?,NULL,?,'student',?,0,1,?)
         """,
         (
             os.environ.get("DEMO_STUDENT_NAME", "Demo Student"),
             os.environ.get("DEMO_STUDENT_EMAIL", "student@example.com"),
-            generate_password_hash(
-                os.environ.get("DEMO_STUDENT_PASSWORD", "Student123!")
-            ),
-            "student",
-            "Class 1",
-            admin_id,
-            demo_project_id,
+            generate_password_hash(os.environ.get("DEMO_STUDENT_PASSWORD", "Student123!")),
+            classroom_id,
             now,
         ),
     )
@@ -111,8 +116,7 @@ with get_db() as conn:
                 """,
                 (
                     project_id, milestone["week_number"], milestone["title"],
-                    milestone["instructions"], milestone["deliverable"],
-                    milestone["is_final"],
+                    milestone["instructions"], milestone["deliverable"], milestone["is_final"],
                 ),
             )
 
@@ -131,80 +135,64 @@ with get_db() as conn:
 
         if week_number < 16:
             category = "Hands-On"
-            assignment_title = f"Week {week_number} Project Build"
-            assignment_key = f"v5:w{week_number:02d}:build"
+            build_key = f"v14:w{week_number:02d}:build"
+            build_title = f"Week {week_number} Classroom Project Build"
             max_score = 100
-            instructions = (
-                "Complete the Week "
-                f"{week_number} milestone for your selected industry application."
+            build_instructions = (
+                f"Complete Week {week_number} of the project assigned to your classroom."
             )
-            deliverable = (
-                "The required deliverable is defined by the project plan selected "
-                "for your student account."
-            )
+            build_deliverable = "The classroom project milestone defines the required deliverable."
         else:
             category = "Capstone"
-            assignment_title = "Week 16 Final Industry Application"
-            assignment_key = "v5:w16:capstone"
+            build_key = "v14:w16:capstone"
+            build_title = "Week 16 Final Classroom Application"
             max_score = 150
-            instructions = (
-                "Complete, deploy, document, and demonstrate the full application "
-                "for your selected industry project."
+            build_instructions = (
+                "Complete, deploy, document, and demonstrate the application shared by your classroom."
             )
-            deliverable = (
-                "A production-style Salesforce application, source repository, "
-                "architecture documentation, tests, release evidence, agent "
-                "guardrails, and final stakeholder demonstration."
+            build_deliverable = (
+                "A production-style application, source repository, architecture documentation, tests, "
+                "release evidence, agent guardrails, and final classroom demonstration."
             )
 
-        conn.execute(
-            """
-            INSERT INTO assignments
-            (week_id,assignment_key,program_version,title,category,instructions,
-             deliverable,max_score,due_date,is_published)
-            VALUES (?,?, 'v5',?,?,?,?,?,?,1)
-            """,
+        specs = [
+            (build_key, build_title, category, build_instructions, build_deliverable, max_score),
             (
-                week_id, assignment_key, assignment_title, category,
-                instructions, deliverable, max_score, due,
-            ),
-        )
-        conn.execute(
-            """
-            INSERT INTO assignments
-            (week_id,assignment_key,program_version,title,category,instructions,
-             deliverable,max_score,due_date,is_published)
-            VALUES (?,?, 'v5',?,?,?,?,100,?,1)
-            """,
-            (
-                week_id, f"v5:w{week_number:02d}:research",
-                f"Week {week_number} Research: {research_topic}", "Research",
+                f"v14:w{week_number:02d}:research",
+                f"Week {week_number} Research: {research_topic}",
+                "Research",
                 research_topic,
-                "500 to 1,000 words, at least three credible sources including "
-                "one official Salesforce source, one practical example, and a "
-                "personal conclusion.",
-                due,
+                "500 to 1,000 words, at least three credible sources including one official Salesforce source, "
+                "one practical example, and a conclusion connected to the classroom project.",
+                100,
             ),
-        )
-        conn.execute(
-            """
-            INSERT INTO assignments
-            (week_id,assignment_key,program_version,title,category,instructions,
-             deliverable,max_score,due_date,is_published)
-            VALUES (?,?, 'v5',?,?,?,?,100,?,1)
-            """,
             (
-                week_id, f"v5:w{week_number:02d}:linkedin",
-                f"Week {week_number} LinkedIn: {linkedin_topic}", "LinkedIn",
+                f"v14:w{week_number:02d}:linkedin",
+                f"Week {week_number} LinkedIn: {linkedin_topic}",
+                "LinkedIn",
                 linkedin_topic,
-                "Submit a mentor-reviewed draft first. After approval, publish it "
-                "and add the LinkedIn post URL.",
-                due,
+                "Submit an instructor-reviewed draft first. After approval, publish it and add the LinkedIn post URL.",
+                100,
             ),
-        )
+        ]
+        for key, assignment_title, assignment_category, instructions, deliverable, score in specs:
+            conn.execute(
+                """
+                INSERT INTO assignments
+                (week_id,assignment_key,program_version,title,category,instructions,
+                 deliverable,max_score,due_date,is_published)
+                VALUES (?,?,'v14',?,?,?,?,?,?,1)
+                """,
+                (
+                    week_id, key, assignment_title, assignment_category, instructions,
+                    deliverable, score, due,
+                ),
+            )
+
 
     conn.commit()
 
 print(f"Database initialized at {DB_PATH}")
 print(f"Instructor email: {admin_email}")
-print("Program: 16 weeks, 5 project choices, 48 assignments per student.")
+print("Program model: classrooms, one instructor, many students, one shared project.")
+print("Program: 16 weeks, 5 classroom project choices, 48 assignments per student.")

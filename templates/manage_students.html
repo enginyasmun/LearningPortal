@@ -1,62 +1,47 @@
 {% extends "base.html" %}
 {% block title %}Students | Developer Academy{% endblock %}
 {% block content %}
-<section class="page-heading">
-  <div><span class="eyebrow">Academy management</span><h1>{% if page_is_admin %}Students{% else %}My students{% endif %}</h1><p>{% if page_is_admin %}Create accounts, assign instructors, and manage each student's selected 16-week project.{% else %}Only students assigned to you are shown. Their work remains private to you and academy administrators.{% endif %}</p></div>
-  {% if page_is_admin %}<div class="page-actions"><a class="button button-secondary" href="{{ url_for('manage_instructors') }}">Manage instructors</a></div>{% endif %}
+<section class="page-heading reveal">
+  <div><span class="eyebrow">Academy management</span><h1>{% if page_is_admin %}Students{% else %}My students{% endif %}</h1><p>Add students to a classroom. The classroom automatically determines their instructor and shared project.</p></div>
+  <a class="button button-secondary" href="{{ url_for('manage_classrooms') }}">Manage classrooms</a>
 </section>
 
 <section class="management-layout reveal">
-  <form class="surface-card modern-form-card" method="post">
+  <form class="modern-form-card" method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-    <div class="form-card-heading"><span class="form-icon purple"><svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM4 21a8 8 0 0 1 16 0H4Zm15-9h2v3h3v2h-3v3h-2v-3h-3v-2h3v-3Z"/></svg></span><div><span class="eyebrow">New account</span><h2>Add a student</h2><p>The student will choose one industry project after signing in.</p></div></div>
-    <div class="form-grid form-grid-two">
-      <label class="modern-field"><span>Full name</span><input type="text" name="name" required placeholder="Student name"></label>
-      <label class="modern-field"><span>Email address</span><input type="email" name="email" required placeholder="student@example.com"></label>
-      <label class="modern-field"><span>Temporary password</span><input type="text" name="password" required placeholder="Create a secure password"><small>Share this privately with the student.</small></label>
-      <label class="modern-field"><span>Class</span><input type="text" name="class_name" placeholder="Class 1"></label>
-      {% if page_is_admin %}
-      <div class="instructor-picker field-span-two"><div><span class="eyebrow">Assigned instructor</span><h3>Who will review this student's work?</h3><p>Only the selected instructor and academy administrators can view submissions and grades.</p></div><label><span>Instructor</span><select name="assigned_instructor_id" required>{% for instructor in instructors %}<option value="{{ instructor.id }}" {% if instructor.id == current_user.id %}selected{% endif %}>{{ instructor.name }}{% if clean_email(instructor.email) %} · {{ clean_email(instructor.email) }}{% endif %}</option>{% endfor %}</select></label></div>
-      {% else %}
-      <div class="ownership-banner field-span-two"><span class="ownership-check">✓</span><div><strong>Automatically assigned to you</strong><p>The new student will enter your private instructor workspace.</p></div></div>
-      {% endif %}
+    <div class="form-card-heading"><span class="form-icon purple"><svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM4 21a8 8 0 0 1 16 0H4Zm15-9h2v3h3v2h-3v3h-2v-3h-3v-2h3v-3Z"/></svg></span><div><span class="eyebrow">New account</span><h2>Add a student</h2><p>The student inherits the classroom instructor and project.</p></div></div>
+    <div class="modern-form-grid">
+      <label><span>Full name</span><input type="text" name="name" required placeholder="Student name"></label>
+      <label><span>Email address</span><input type="email" name="email" required placeholder="student@example.com"></label>
+      <label><span>Temporary password</span><input type="text" name="password" required placeholder="Create a secure password"><small>Share this privately with the student.</small></label>
+      <label><span>Classroom</span><select name="classroom_id" required><option value="">Select classroom</option>{% for room in classrooms %}<option value="{{ room.id }}">{{ room.name }} · {{ room.industry }}</option>{% endfor %}</select><small>Instructor and project come from this classroom.</small></label>
     </div>
-    <button class="button button-primary full-width" type="submit">Create student account</button>
+    <button class="button button-dark full-width" type="submit">Create student account</button>
   </form>
 
-  <article class="surface-card model-card">
-    <div class="model-card-picture"><img src="{{ url_for('static', filename='images/default-avatar.webp') }}" alt="Friendly learner avatar illustration"><span>1:1 mentoring</span></div>
-    <span class="eyebrow light">Learning model</span>
-    <h2>One student.<br>One instructor.<br>One project.</h2>
-    <p>Every student follows a clear 16-week path with private review, structured research, and visible progress.</p>
-    <ul><li>16 connected build milestones</li><li>Weekly research and LinkedIn work</li><li>Private feedback and grading</li><li>One final portfolio-ready application</li></ul>
+  <article class="classroom-model-card compact-model-card">
+    <span class="classroom-model-badge">How assignment works</span>
+    <h2>Choose the classroom once.</h2>
+    <p>The classroom determines:</p>
+    <ul><li>The instructor who reviews the student's work</li><li>The industry application the class builds</li><li>The shared 16-week guided project plan</li><li>The student's private submission and grading access</li></ul>
   </article>
 </section>
 
-<section class="surface-card roster-card reveal">
-  <div class="catalog-toolbar">
-    <div><span class="eyebrow">Student roster</span><h2>{{ students|length }} students</h2></div>
-    <label class="modern-search"><svg viewBox="0 0 24 24"><path d="m21 20-5.2-5.2a7 7 0 1 0-1.4 1.4L20 21l1-1ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"/></svg><input type="search" placeholder="Search students" data-table-search="student-roster"></label>
-  </div>
-  <div class="modern-table-wrap">
-    <table class="modern-table roster-table" id="student-roster">
-      <thead><tr><th>Student</th><th>Class</th><th>Instructor</th><th>Project</th><th>Work</th><th>Average</th><th>Status</th><th></th></tr></thead>
-      <tbody>
-      {% for s in students %}
-        <tr>
-          <td><div class="identity-cell"><img class="mini-avatar mini-avatar-photo" src="{{ avatar_src(s.avatar_filename) }}" alt=""><div><strong>{{ s.name }}</strong><small>{{ s.email }}</small></div></div></td>
-          <td><form class="inline-editor" method="post" action="{{ url_for('update_student_class', user_id=s.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="text" name="class_name" value="{{ s.cohort or '' }}" placeholder="Class"><button type="submit">Save</button></form></td>
-          <td>{% if page_is_admin %}<form class="inline-editor inline-select" method="post" action="{{ url_for('assign_student_instructor', user_id=s.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="assigned_instructor_id">{% for instructor in instructors %}<option value="{{ instructor.id }}" {% if instructor.id == s.assigned_instructor_id %}selected{% endif %}>{{ instructor.name }}</option>{% endfor %}</select><button type="submit">Assign</button></form>{% else %}<strong>{{ s.instructor_name or current_user.name }}</strong><small>Assigned instructor</small>{% endif %}</td>
-          <td>{% if page_is_admin %}<form class="inline-editor inline-select" method="post" action="{{ url_for('assign_student_project', user_id=s.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="selected_project_id"><option value="">Not selected</option>{% for p in projects %}<option value="{{ p.id }}" {% if p.id == s.selected_project_id %}selected{% endif %}>{{ p.industry }}</option>{% endfor %}</select><button type="submit">Save</button></form>{% else %}<strong>{{ s.industry or 'Not selected' }}</strong><small>{{ s.project_title or 'Student must choose' }}</small>{% endif %}</td>
-          <td><div class="stacked-number"><strong>{{ s.submissions }}</strong><small>{{ s.approved or 0 }} approved</small></div></td>
-          <td><span class="score-chip">{{ s.avg_score }}</span></td>
-          <td><span class="status-pill {{ 'approved' if s.is_active else 'late' }}"><i></i>{{ 'Active' if s.is_active else 'Inactive' }}</span></td>
-          <td><form method="post" action="{{ url_for('toggle_student', user_id=s.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="row-action subtle" type="submit">{{ 'Deactivate' if s.is_active else 'Activate' }}</button></form></td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-    <div class="table-empty-state" data-empty-for="student-roster"><strong>No students found</strong><span>Try another search.</span></div>
-  </div>
+<section class="catalog-panel reveal">
+  <div class="catalog-toolbar"><div><span class="eyebrow">Student roster</span><h2>{{ students|length }} students</h2></div><label class="modern-search"><svg viewBox="0 0 24 24"><path d="m21 20-5.2-5.2a7 7 0 1 0-1.4 1.4L20 21l1-1ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"/></svg><input type="search" placeholder="Search students" data-table-search="student-roster"></label></div>
+  <div class="responsive-table"><table id="student-roster"><thead><tr><th>Student</th><th>Classroom</th><th>Instructor</th><th>Shared project</th><th>Work</th><th>Average</th><th>Status</th><th></th></tr></thead><tbody>
+  {% for s in students %}
+  <tr>
+    <td><div class="person-cell"><img src="{{ avatar_src(s.avatar_filename) }}" alt=""><div><strong>{{ s.name }}</strong><small>{{ s.email }}</small></div></div></td>
+    <td><form class="inline-editor inline-select" method="post" action="{{ url_for('assign_student_classroom', user_id=s.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="classroom_id">{% for room in classrooms %}<option value="{{ room.id }}" {% if room.id == s.classroom_id %}selected{% endif %}>{{ room.name }}</option>{% endfor %}</select><button type="submit">Move</button></form></td>
+    <td><strong>{{ s.instructor_name }}</strong><small>Classroom instructor</small></td>
+    <td><strong>{{ s.industry }}</strong><small>{{ s.project_title }}</small></td>
+    <td><strong>{{ s.submissions }}</strong><small>{{ s.approved or 0 }} approved</small></td>
+    <td><span class="score-bubble">{{ s.avg_score }}</span></td>
+    <td><span class="status {{ 'approved' if s.is_active else 'late' }}"><i></i>{{ 'Active' if s.is_active else 'Inactive' }}</span></td>
+    <td><form method="post" action="{{ url_for('toggle_student', user_id=s.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="table-action-button" type="submit">{{ 'Deactivate' if s.is_active else 'Activate' }}</button></form></td>
+  </tr>
+  {% endfor %}
+  </tbody></table><div class="table-empty-state" data-empty-for="student-roster">No students match your search.</div></div>
 </section>
 {% endblock %}

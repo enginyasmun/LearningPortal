@@ -21,7 +21,7 @@
 
   <form class="surface-card submission-editor" method="post" enctype="multipart/form-data">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-    <div class="form-card-heading compact"><span class="form-icon purple"><svg viewBox="0 0 24 24"><path d="M3 17.3V21h3.7L17.8 9.9l-3.7-3.7L3 17.3ZM20.7 7c.4-.4.4-1 0-1.4l-2.3-2.3a1 1 0 0 0-1.4 0l-1.8 1.8 3.7 3.7L20.7 7Z"/></svg></span><div><span class="eyebrow">Your work</span><h2>Assignment submission</h2><p>Your assigned instructor will review this work.</p></div></div>
+    <div class="form-card-heading compact"><span class="form-icon purple"><svg viewBox="0 0 24 24"><path d="M3 17.3V21h3.7L17.8 9.9l-3.7-3.7L3 17.3ZM20.7 7c.4-.4.4-1 0-1.4l-2.3-2.3a1 1 0 0 0-1.4 0l-1.8 1.8 3.7 3.7L20.7 7Z"/></svg></span><div><span class="eyebrow">Your work</span><h2>Assignment submission</h2><p>Your classroom instructor will review this work.</p></div></div>
     <div class="form-grid form-grid-two"><label class="modern-field"><span>Submission status</span><select name="status">{% for status in ['Draft','Submitted'] %}<option value="{{ status }}" {% if submission and submission.status == status %}selected{% endif %}>{{ status }}</option>{% endfor %}</select></label><div class="submission-guidance"><strong>Draft</strong><span>Stays editable</span><strong>Submitted</strong><span>Enters the review queue</span></div></div>
     <label class="modern-field"><span>Written response</span><textarea name="submission_text" rows="13" placeholder="Explain your work, decisions, testing, research, or final demonstration.">{{ submission.submission_text if submission else '' }}</textarea><small>Use clear headings and cite sources where required.</small></label>
     {% if assignment.category == 'LinkedIn' %}
@@ -32,7 +32,7 @@
     <label class="file-drop"><span class="file-icon">↑</span><span><strong>Upload supporting file</strong><small>PDF, document, image, text file, or ZIP. Maximum 12 MB.</small></span><input type="file" name="file"></label>
     {% if submission and submission.file_name %}<a class="existing-file-link" href="{{ url_for('uploaded_file', filename=submission.file_name) }}">Download current uploaded file <span>↓</span></a>{% endif %}
     <label class="modern-field"><span>Note to instructor</span><textarea name="student_note" rows="4" placeholder="Add context, questions, or anything your instructor should know.">{{ submission.student_note if submission else '' }}</textarea></label>
-    <div class="editor-footer"><p>Visible only to you, your assigned instructor, and academy administrators.</p><button class="button button-primary" type="submit">Save submission</button></div>
+    <div class="editor-footer"><p>Visible only to you, your classroom instructor, and academy administrators.</p><button class="button button-primary" type="submit">Save submission</button></div>
   </form>
 </section>
 {% endblock %}

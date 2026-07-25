@@ -1,7 +1,7 @@
 import os
 import sys
 
-PROJECT_HOME = "/home/enginyasmun/Coaching"
+PROJECT_HOME = "/home/enginyasmun/LearningPortal"
 if PROJECT_HOME not in sys.path:
     sys.path.insert(0, PROJECT_HOME)
 

@@ -2,25 +2,9 @@ DROP TABLE IF EXISTS submissions;
 DROP TABLE IF EXISTS assignments;
 DROP TABLE IF EXISTS project_milestones;
 DROP TABLE IF EXISTS weeks;
-DROP TABLE IF EXISTS projects;
+DROP TABLE IF EXISTS classrooms;
 DROP TABLE IF EXISTS users;
-
-CREATE TABLE users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    avatar_filename TEXT,
-    password_hash TEXT NOT NULL,
-    role TEXT NOT NULL CHECK(role IN ('student','instructor')),
-    cohort TEXT,
-    assigned_instructor_id INTEGER,
-    selected_project_id INTEGER,
-    is_admin INTEGER NOT NULL DEFAULT 0,
-    is_active INTEGER NOT NULL DEFAULT 1,
-    created_at TEXT NOT NULL,
-    FOREIGN KEY (assigned_instructor_id) REFERENCES users(id),
-    FOREIGN KEY (selected_project_id) REFERENCES projects(id)
-);
+DROP TABLE IF EXISTS projects;
 
 CREATE TABLE projects (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,9 +16,42 @@ CREATE TABLE projects (
     personas TEXT NOT NULL,
     process TEXT NOT NULL,
     integration TEXT NOT NULL,
+    integration_name TEXT NOT NULL,
+    integration_base_url TEXT NOT NULL,
+    integration_docs_url TEXT NOT NULL,
+    integration_auth TEXT NOT NULL,
+    integration_operation TEXT NOT NULL,
+    integration_path TEXT NOT NULL,
     workspace TEXT NOT NULL,
     agent TEXT NOT NULL,
     accent TEXT NOT NULL
+);
+
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    avatar_filename TEXT,
+    password_hash TEXT NOT NULL,
+    role TEXT NOT NULL CHECK(role IN ('student','instructor')),
+    classroom_id INTEGER,
+    is_admin INTEGER NOT NULL DEFAULT 0,
+    is_active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (classroom_id) REFERENCES classrooms(id)
+);
+
+CREATE TABLE classrooms (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    instructor_id INTEGER NOT NULL,
+    project_id INTEGER NOT NULL,
+    description TEXT,
+    is_active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (instructor_id) REFERENCES users(id),
+    FOREIGN KEY (project_id) REFERENCES projects(id),
+    UNIQUE(name, instructor_id)
 );
 
 CREATE TABLE weeks (
@@ -63,7 +80,7 @@ CREATE TABLE assignments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     week_id INTEGER NOT NULL,
     assignment_key TEXT UNIQUE,
-    program_version TEXT NOT NULL DEFAULT 'v5',
+    program_version TEXT NOT NULL DEFAULT 'v14',
     title TEXT NOT NULL,
     category TEXT NOT NULL CHECK(category IN ('Hands-On','Research','LinkedIn','Reflection','Capstone')),
     instructions TEXT NOT NULL,
@@ -98,8 +115,9 @@ CREATE TABLE submissions (
     FOREIGN KEY (graded_by) REFERENCES users(id)
 );
 
-CREATE INDEX idx_users_assigned_instructor ON users(assigned_instructor_id);
-CREATE INDEX idx_users_selected_project ON users(selected_project_id);
+CREATE INDEX idx_users_classroom ON users(classroom_id);
+CREATE INDEX idx_classrooms_instructor ON classrooms(instructor_id);
+CREATE INDEX idx_classrooms_project ON classrooms(project_id);
 CREATE INDEX idx_milestones_project_week ON project_milestones(project_id, week_number);
 CREATE INDEX idx_submissions_student ON submissions(student_id);
 CREATE INDEX idx_submissions_status ON submissions(status);

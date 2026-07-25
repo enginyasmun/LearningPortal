@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Classrooms | Developer Academy{% endblock %}
+{% block content %}
+<section class="page-heading reveal">
+  <div>
+    <span class="eyebrow">Academy management</span>
+    <h1>{% if page_is_admin %}Classrooms{% else %}My classrooms{% endif %}</h1>
+    <p>Each classroom has one instructor, multiple students, and one shared 16-week project.</p>
+  </div>
+  <a class="button button-secondary" href="{{ url_for('manage_students') }}">Manage students</a>
+</section>
+
+{% if page_is_admin %}
+<section class="management-layout classroom-management-layout reveal">
+  <form class="modern-form-card" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="form-card-heading">
+      <span class="form-icon purple"><svg viewBox="0 0 24 24"><path d="M3 4h18v14H3V4Zm2 2v10h14V6H5Zm3 13h8v2H8v-2Z"/></svg></span>
+      <div><span class="eyebrow">New classroom</span><h2>Create a classroom</h2><p>Choose the instructor and one project shared by every student in this classroom.</p></div>
+    </div>
+    <div class="modern-form-grid">
+      <label><span>Classroom name</span><input type="text" name="name" required placeholder="Spring 2027 · Class A"></label>
+      <label><span>Instructor</span><select name="instructor_id" required><option value="">Select instructor</option>{% for instructor in instructors %}<option value="{{ instructor.id }}">{{ instructor.name }}{% if clean_email(instructor.email) %} · {{ clean_email(instructor.email) }}{% endif %}</option>{% endfor %}</select></label>
+      <label class="field-span-two"><span>Shared project</span><select name="project_id" required><option value="">Select project</option>{% for project in projects %}<option value="{{ project.id }}">{{ project.industry }} · {{ project.title }}</option>{% endfor %}</select></label>
+      <label class="field-span-two"><span>Description</span><textarea name="description" rows="4" placeholder="Schedule, goals, classroom notes, or cohort details"></textarea></label>
+    </div>
+    <button class="button button-dark full-width" type="submit">Create classroom</button>
+  </form>
+
+  <article class="classroom-model-card">
+    <span class="classroom-model-badge">Classroom model</span>
+    <h2>One classroom.<br>One instructor.<br>Many students.<br>One shared project.</h2>
+    <p>Instructor ownership and project selection are managed once at the classroom level. Every student in that classroom follows the same guided application track.</p>
+    <ul>
+      <li>One private review queue per instructor</li>
+      <li>Multiple students in the same classroom</li>
+      <li>One shared industry project</li>
+      <li>Individual homework, grades, and feedback</li>
+    </ul>
+  </article>
+</section>
+{% endif %}
+
+<section class="classroom-card-grid reveal">
+{% for room in classrooms %}
+  <article class="classroom-card project-{{ room.accent }} {% if not room.is_active %}inactive{% endif %}">
+    <header>
+      <div class="classroom-icon"><svg viewBox="0 0 24 24"><path d="M3 4h18v14H3V4Zm2 2v10h14V6H5Zm3 13h8v2H8v-2Z"/></svg></div>
+      <div><span class="eyebrow">{{ room.industry }}</span><h2>{{ room.name }}</h2><p>{{ room.project_title }}</p></div>
+      <span class="status {{ 'approved' if room.is_active else 'late' }}"><i></i>{{ 'Active' if room.is_active else 'Inactive' }}</span>
+    </header>
+    <div class="classroom-metrics">
+      <div><strong>{{ room.student_count }}</strong><span>Students</span></div>
+      <div><strong>16</strong><span>Weeks</span></div>
+      <div><strong>48</strong><span>Deliverables each</span></div>
+    </div>
+    <div class="classroom-instructor">
+      <img src="{{ avatar_src(room.instructor_avatar) }}" alt="">
+      <div><span>Instructor</span><strong>{{ room.instructor_name }}</strong><small>{{ clean_email(room.instructor_email) }}</small></div>
+    </div>
+    {% if room.description %}<p class="classroom-description">{{ room.description }}</p>{% endif %}
+    <footer>
+      <a class="text-action" href="{{ url_for('manage_students') }}">View students <span>→</span></a>
+      <a class="text-action" href="{{ url_for('project_week', project_id=room.project_id, week_number=1) }}">Open guided project <span>→</span></a>
+    </footer>
+    {% if page_is_admin %}
+    <details class="classroom-edit-details">
+      <summary>Edit classroom <span>+</span></summary>
+      <form method="post" action="{{ url_for('update_classroom', classroom_id=room.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label><span>Name</span><input type="text" name="name" value="{{ room.name }}" required></label>
+        <label><span>Instructor</span><select name="instructor_id" required>{% for instructor in instructors %}<option value="{{ instructor.id }}" {% if instructor.id == room.instructor_id %}selected{% endif %}>{{ instructor.name }}</option>{% endfor %}</select></label>
+        <label><span>Project</span><select name="project_id" required>{% for project in projects %}<option value="{{ project.id }}" {% if project.id == room.project_id %}selected{% endif %}>{{ project.industry }} · {{ project.title }}</option>{% endfor %}</select></label>
+        <label><span>Description</span><textarea name="description" rows="3">{{ room.description or '' }}</textarea></label>
+        <button class="button button-primary" type="submit">Save classroom</button>
+      </form>
+      <form method="post" action="{{ url_for('toggle_classroom', classroom_id=room.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="button button-secondary" type="submit">{{ 'Deactivate' if room.is_active else 'Activate' }}</button>
+      </form>
+    </details>
+    {% endif %}
+  </article>
+{% else %}
+  <div class="empty-state-card"><strong>No classrooms yet</strong><p>Create the first classroom to assign an instructor, students, and one shared project.</p></div>
+{% endfor %}
+</section>
+{% endblock %}

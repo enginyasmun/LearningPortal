@@ -2,19 +2,19 @@
 {% block title %}Instructors | Developer Academy{% endblock %}
 {% block content %}
 <section class="page-heading">
-  <div><span class="eyebrow">Academy management</span><h1>Instructors</h1><p>Create instructor accounts, define administrative access, and maintain clear student ownership.</p></div>
-  <div class="page-actions"><a class="button button-secondary" href="{{ url_for('manage_students') }}">Assign students</a></div>
+  <div><span class="eyebrow">Academy management</span><h1>Instructors</h1><p>Create instructor accounts, define administrative access, and manage classroom ownership.</p></div>
+  <div class="page-actions"><a class="button button-secondary" href="{{ url_for('manage_classrooms') }}">Manage classrooms</a></div>
 </section>
 
 <section class="management-layout reveal">
   <form class="surface-card modern-form-card" method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-    <div class="form-card-heading"><span class="form-icon mint"><svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM4 21a8 8 0 0 1 16 0H4Zm14-8h2v3h3v2h-3v3h-2v-3h-3v-2h3v-3Z"/></svg></span><div><span class="eyebrow">New instructor</span><h2>Create an instructor account</h2><p>Regular instructors only see students assigned to them.</p></div></div>
+    <div class="form-card-heading"><span class="form-icon mint"><svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM4 21a8 8 0 0 1 16 0H4Zm14-8h2v3h3v2h-3v3h-2v-3h-3v-2h3v-3Z"/></svg></span><div><span class="eyebrow">New instructor</span><h2>Create an instructor account</h2><p>Regular instructors only see classrooms assigned to them and the students inside those classrooms.</p></div></div>
     <div class="form-grid">
       <label class="modern-field"><span>Full name</span><input type="text" name="name" required placeholder="Instructor name"></label>
       <label class="modern-field"><span>Email address</span><input type="email" name="email" required placeholder="instructor@example.com"></label>
       <label class="modern-field"><span>Temporary password</span><input type="text" name="password" required placeholder="Create a secure password"></label>
-      <label class="modern-checkbox"><input type="checkbox" name="is_admin" value="1"><span class="checkbox-ui">✓</span><span><strong>Academy administrator</strong><small>Can see all students, assign projects and instructors, and manage instructor accounts.</small></span></label>
+      <label class="modern-checkbox"><input type="checkbox" name="is_admin" value="1"><span class="checkbox-ui">✓</span><span><strong>Academy administrator</strong><small>Can see all classrooms, assign projects and instructors, and manage instructor accounts.</small></span></label>
     </div>
     <button class="button button-primary full-width" type="submit">Create instructor account</button>
   </form>
@@ -23,7 +23,7 @@
     <span class="model-status"><i></i> Private by default</span>
     <h2>Two access levels.<br>One secure workflow.</h2>
     <p>Regular instructors receive a focused workspace. Academy administrators retain complete oversight.</p>
-    <div class="access-comparison"><div><span>Instructor</span><strong>Assigned students only</strong><small>Private submissions, files, grades, and feedback</small></div><div><span>Administrator</span><strong>Academy-wide access</strong><small>Instructor management and student reassignment</small></div></div>
+    <div class="access-comparison"><div><span>Instructor</span><strong>Assigned classrooms only</strong><small>Students, submissions, files, grades, and feedback inside assigned classrooms</small></div><div><span>Administrator</span><strong>Academy-wide access</strong><small>Instructor and classroom management</small></div></div>
   </article>
 </section>
 
@@ -31,13 +31,13 @@
   <div class="catalog-toolbar"><div><span class="eyebrow">Instructor team</span><h2>{{ instructors|length }} instructors</h2></div><label class="modern-search"><svg viewBox="0 0 24 24"><path d="m21 20-5.2-5.2a7 7 0 1 0-1.4 1.4L20 21l1-1ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"/></svg><input type="search" placeholder="Search instructors" data-table-search="instructor-roster"></label></div>
   <div class="modern-table-wrap">
     <table class="modern-table" id="instructor-roster">
-      <thead><tr><th>Instructor</th><th>Access</th><th>Students</th><th>Created</th><th>Status</th><th></th></tr></thead>
+      <thead><tr><th>Instructor</th><th>Access</th><th>Classrooms</th><th>Students</th><th>Created</th><th>Status</th><th></th></tr></thead>
       <tbody>
       {% for instructor in instructors %}
         <tr>
           <td><div class="identity-cell"><img class="mini-avatar mini-avatar-photo" src="{{ avatar_src(instructor.avatar_filename) }}" alt=""><div><strong>{{ instructor.name }}</strong><small>{{ clean_email(instructor.email) or 'Email not updated' }}</small></div></div></td>
-          <td>{% if instructor.is_admin %}<span class="access-pill admin">Academy admin</span>{% else %}<span class="access-pill instructor">Assigned students only</span>{% endif %}</td>
-          <td><div class="stacked-number"><strong>{{ instructor.assigned_students }}</strong><small>assigned students</small></div></td>
+          <td>{% if instructor.is_admin %}<span class="access-pill admin">Academy admin</span>{% else %}<span class="access-pill instructor">Assigned classrooms only</span>{% endif %}</td>
+          <td><div class="stacked-number"><strong>{{ instructor.classroom_count }}</strong><small>classrooms</small></div></td><td><div class="stacked-number"><strong>{{ instructor.assigned_students }}</strong><small>students</small></div></td>
           <td><span class="date-value">{{ instructor.created_at[:10] if instructor.created_at else 'Not available' }}</span></td>
           <td><span class="status-pill {{ 'approved' if instructor.is_active else 'late' }}"><i></i>{{ 'Active' if instructor.is_active else 'Inactive' }}</span></td>
           <td>{% if instructor.id == current_user.id %}<span class="current-user-pill">Current account</span>{% else %}<form method="post" action="{{ url_for('toggle_instructor', user_id=instructor.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="row-action subtle" type="submit">{{ 'Deactivate' if instructor.is_active else 'Activate' }}</button></form>{% endif %}</td>

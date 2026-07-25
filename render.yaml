@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: salesforce-junior-academy
+    name: salesforce-developer-academy
     runtime: python
     buildCommand: pip install -r requirements.txt
     startCommand: python seed.py && gunicorn app:app

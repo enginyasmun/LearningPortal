@@ -1,142 +1,69 @@
-# Fresh GitHub and PythonAnywhere Setup
+# Fresh LearningPortal Setup
 
-This package is complete. You do not need any older update ZIP.
+## Upload to GitHub
 
-## Part 1: Upload the complete project to GitHub
+Upload every file and folder from this package to:
 
-1. Extract `Coaching_Complete_Modern_v7_GitHub_Ready.zip` on your computer.
-2. Open your GitHub repository: `enginyasmun/Coaching`.
-3. Remove old repository files if you want a completely clean installation.
-4. Click **Add file**, then **Upload files**.
-5. Select every extracted file and folder, including `templates`, `static`, `uploads`, and all root files.
-6. Do not upload only the ZIP. GitHub does not automatically extract it.
-7. Commit with this message:
+`enginyasmun/LearningPortal`
 
-```text
-Install complete modern Salesforce Developer Academy
-```
+Do not upload only the ZIP file.
 
-## Part 2: Clone the complete project on PythonAnywhere
-
-Open a Bash console and run:
+## Clone on PythonAnywhere
 
 ```bash
 cd ~
-rm -rf Coaching
-git clone https://github.com/enginyasmun/Coaching.git
-cd Coaching
-```
-
-## Part 3: Create the virtual environment
-
-Run:
-
-```bash
-mkvirtualenv --python=/usr/bin/python3.13 coaching-env
+rm -rf LearningPortal
+git clone https://github.com/enginyasmun/LearningPortal.git
+cd LearningPortal
+workon coaching-env
 pip install -r requirements.txt
 ```
 
-If `coaching-env` already exists, use:
+## Create a fresh database
+
+Use this only for a new installation:
 
 ```bash
-workon coaching-env
-cd ~/Coaching
-pip install -r requirements.txt
-```
-
-## Part 4: Create the database and your administrator
-
-Choose your administrator email and a strong password. Then run:
-
-```bash
-cd ~/Coaching
-workon coaching-env
 export ADMIN_NAME='Engin Yasmun'
 export ADMIN_EMAIL='YOUR_EMAIL_ADDRESS'
 export ADMIN_PASSWORD='YOUR_NEW_STRONG_PASSWORD'
 python seed.py
 ```
 
-The database will be created at:
+The fresh database creates one demo classroom with one instructor, one student, and the Warehouse Management & Logistics project.
 
-```text
-/home/enginyasmun/Coaching/academy.db
-```
-
-Do not upload `academy.db` to GitHub.
-
-## Part 5: Configure the PythonAnywhere web app
-
-1. Open the PythonAnywhere **Web** tab.
-2. Add a new web app or open the existing web app.
-3. Select **Manual configuration** and Python 3.13.
-4. Set the virtualenv path to:
-
-```text
-/home/enginyasmun/.virtualenvs/coaching-env
-```
-
-5. Open the WSGI configuration file.
-6. Replace its contents with:
+## WSGI configuration
 
 ```python
 import os
 import sys
 
-PROJECT_HOME = "/home/enginyasmun/Coaching"
+PROJECT_HOME = "/home/enginyasmun/LearningPortal"
 if PROJECT_HOME not in sys.path:
     sys.path.insert(0, PROJECT_HOME)
 
-os.environ["SECRET_KEY"] = "REPLACE_THIS_WITH_A_LONG_RANDOM_SECRET"
+os.environ["SECRET_KEY"] = "REPLACE_WITH_A_LONG_RANDOM_SECRET"
 
 from app import app as application
 ```
 
-7. Save the WSGI file.
-8. Click **Reload** on the Web tab.
+Set the PythonAnywhere static mapping to:
 
-## Part 6: Test the website
+- URL: `/static/`
+- Directory: `/home/enginyasmun/LearningPortal/static`
 
-Open:
+Set the virtual environment to:
 
-```text
-https://enginyasmun.pythonanywhere.com
-```
+`/home/enginyasmun/.virtualenvs/coaching-env`
 
-Sign in with the administrator email and password used before running `python seed.py`.
+Click Reload.
 
-Test these pages:
+## Existing database
 
-- landing page
-- login page
-- instructor dashboard
-- project plans
-- curriculum
-- Week 5 guided lab
-- students
-- instructors
-- submissions
-
-## Updating later
-
-After future GitHub changes, run:
+For an existing installation, do not run `seed.py`. Run:
 
 ```bash
-cd ~/Coaching
-git pull origin main
-workon coaching-env
-pip install -r requirements.txt
-python -m py_compile app.py guided_labs.py curriculum_data.py
+python migrate_v14.py
 ```
 
-Then click **Reload** in PythonAnywhere.
-
-## Important database warning
-
-After the site contains real students or homework, never run:
-
-```bash
-RESET_DB=1 python seed.py
-```
-
-That command intentionally resets the database.
+The migration creates a timestamped backup before changing the schema.

@@ -41,7 +41,6 @@ app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 AVATAR_DIR.mkdir(parents=True, exist_ok=True)
-
 PASSWORD_ITERATIONS = 260_000
 
 
@@ -168,24 +167,6 @@ def avatar_src(filename=None):
     return url_for("static", filename="images/default-avatar.webp")
 
 
-def ensure_runtime_schema():
-    if not DB_PATH.exists():
-        return
-    with sqlite3.connect(DB_PATH) as conn:
-        users_exists = conn.execute(
-            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='users'"
-        ).fetchone()
-        if not users_exists:
-            return
-        columns = {row[1] for row in conn.execute("PRAGMA table_info(users)")}
-        if "avatar_filename" not in columns:
-            conn.execute("ALTER TABLE users ADD COLUMN avatar_filename TEXT")
-            conn.commit()
-
-
-ensure_runtime_schema()
-
-
 def current_user():
     if "user_id" not in session:
         return None
@@ -197,6 +178,33 @@ def user_is_admin(user=None):
     return bool(user and user["role"] == "instructor" and user["is_admin"])
 
 
+def classroom_for_student(student_id):
+    return query_one(
+        """
+        SELECT c.*,i.name AS instructor_name,i.email AS instructor_email,
+               i.avatar_filename AS instructor_avatar,
+               p.id AS project_id,p.project_number,p.industry,p.title AS project_title,
+               p.summary AS project_summary,p.entities,p.personas,p.process,p.integration,
+               p.integration_name,p.integration_base_url,p.integration_docs_url,
+               p.integration_auth,p.integration_operation,p.integration_path,
+               p.workspace,p.agent,p.accent
+        FROM users u
+        LEFT JOIN classrooms c ON c.id=u.classroom_id
+        LEFT JOIN users i ON i.id=c.instructor_id
+        LEFT JOIN projects p ON p.id=c.project_id
+        WHERE u.id=? AND u.role='student'
+        """,
+        (student_id,),
+    )
+
+
+def project_for_student(student_id):
+    classroom = classroom_for_student(student_id)
+    if not classroom or classroom["project_id"] is None:
+        return None
+    return query_one("SELECT * FROM projects WHERE id=?", (classroom["project_id"],))
+
+
 def instructor_can_access_student(student_id, user=None):
     user = user or current_user()
     if not user:
@@ -205,37 +213,38 @@ def instructor_can_access_student(student_id, user=None):
         return user["id"] == student_id
     if user_is_admin(user):
         return True
-    student = query_one(
-        "SELECT assigned_instructor_id FROM users WHERE id=? AND role='student'",
+    row = query_one(
+        """
+        SELECT c.instructor_id
+        FROM users s JOIN classrooms c ON c.id=s.classroom_id
+        WHERE s.id=? AND s.role='student'
+        """,
         (student_id,),
     )
-    return bool(student and student["assigned_instructor_id"] == user["id"])
+    return bool(row and row["instructor_id"] == user["id"])
 
 
-def student_has_v5_work(student_id):
+def instructor_can_access_classroom(classroom_id, user=None):
+    user = user or current_user()
+    if not user or user["role"] != "instructor":
+        return False
+    if user_is_admin(user):
+        return True
+    row = query_one("SELECT instructor_id FROM classrooms WHERE id=?", (classroom_id,))
+    return bool(row and row["instructor_id"] == user["id"])
+
+
+def classroom_has_work(classroom_id):
     row = query_one(
         """
         SELECT COUNT(*) AS total
         FROM submissions s
-        JOIN assignments a ON a.id=s.assignment_id
-        WHERE s.student_id=? AND a.program_version='v5'
+        JOIN users u ON u.id=s.student_id
+        WHERE u.classroom_id=?
         """,
-        (student_id,),
+        (classroom_id,),
     )
     return bool(row and row["total"])
-
-
-def project_for_student(student_id):
-    row = query_one(
-        """
-        SELECT p.*
-        FROM users u
-        LEFT JOIN projects p ON p.id=u.selected_project_id
-        WHERE u.id=? AND u.role='student'
-        """,
-        (student_id,),
-    )
-    return row if row and row["id"] is not None else None
 
 
 def now_iso():
@@ -298,10 +307,7 @@ def profile():
         if not name or not email:
             flash("Name and email are required.", "danger")
             return redirect(url_for("profile"))
-        duplicate = query_one(
-            "SELECT id FROM users WHERE lower(email)=? AND id<>?",
-            (email, user["id"]),
-        )
+        duplicate = query_one("SELECT id FROM users WHERE lower(email)=? AND id<>?", (email, user["id"]))
         if duplicate:
             flash("Another account already uses that email address.", "danger")
             return redirect(url_for("profile"))
@@ -334,10 +340,7 @@ def profile():
             remove_custom_avatar(avatar_filename)
             avatar_filename = new_filename
 
-        execute(
-            "UPDATE users SET name=?,email=?,avatar_filename=? WHERE id=?",
-            (name, email, avatar_filename, user["id"]),
-        )
+        execute("UPDATE users SET name=?,email=?,avatar_filename=? WHERE id=?", (name, email, avatar_filename, user["id"]))
         session["name"] = name
         flash("Your profile has been updated.", "success")
         return redirect(url_for("profile"))
@@ -358,75 +361,32 @@ def projects():
     milestones = query_all(
         """
         SELECT pm.*,p.project_number,p.title AS project_title
-        FROM project_milestones pm
-        JOIN projects p ON p.id=pm.project_id
+        FROM project_milestones pm JOIN projects p ON p.id=pm.project_id
         ORDER BY p.project_number,pm.week_number
         """
     )
     selected_project = None
-    locked = False
+    classroom = None
     if user["role"] == "student":
+        classroom = classroom_for_student(user["id"])
         selected_project = project_for_student(user["id"])
-        locked = student_has_v5_work(user["id"])
     return render_template(
-        "projects.html",
-        projects=rows,
-        milestones=milestones,
-        selected_project=selected_project,
-        project_locked=locked,
+        "projects.html", projects=rows, milestones=milestones,
+        selected_project=selected_project, classroom=classroom,
     )
 
 
 @app.route("/student/select-project", methods=["GET", "POST"])
 @role_required("student")
 def select_project():
-    user = current_user()
-    current_project = project_for_student(user["id"])
-    locked = student_has_v5_work(user["id"])
-    projects = query_all("SELECT * FROM projects ORDER BY project_number")
-
-    if request.method == "POST":
-        raw_project = request.form.get("project_id", "").strip()
-        try:
-            project_id = int(raw_project)
-        except ValueError:
-            project_id = 0
-        project = query_one("SELECT * FROM projects WHERE id=?", (project_id,))
-        if not project:
-            flash("Select a valid project.", "danger")
-        elif locked and current_project and current_project["id"] != project_id:
-            flash(
-                "Your project is locked because project work has already been submitted. "
-                "Contact the academy administrator if this must be changed.",
-                "warning",
-            )
-        else:
-            execute(
-                "UPDATE users SET selected_project_id=? WHERE id=?",
-                (project_id, user["id"]),
-            )
-            flash(f"{project['title']} is now your 16-week project.", "success")
-            return redirect(url_for("student_dashboard"))
-
-    return render_template(
-        "project_selection.html",
-        projects=projects,
-        selected_project=current_project,
-        project_locked=locked,
-    )
+    flash("Your project is assigned through your classroom. Contact your instructor if the classroom is incorrect.", "info")
+    return redirect(url_for("projects"))
 
 
 @app.route("/curriculum")
 @login_required
 def curriculum():
-    weeks = query_all(
-        """
-        SELECT *
-        FROM weeks
-        WHERE week_number BETWEEN 1 AND 16
-        ORDER BY week_number
-        """
-    )
+    weeks = query_all("SELECT * FROM weeks WHERE week_number BETWEEN 1 AND 16 ORDER BY week_number")
     return render_template("curriculum.html", weeks=weeks)
 
 
@@ -435,44 +395,15 @@ def curriculum():
 def curriculum_week(week_number):
     if not 1 <= week_number <= 16:
         abort(404)
-
-    # Preserve compatibility with links created by earlier versions.
-    legacy_project = request.args.get("project", "").strip()
-    if legacy_project:
-        try:
-            project_id = int(legacy_project)
-        except ValueError:
-            project_id = 0
-        if project_id:
-            return redirect(
-                url_for(
-                    "project_week",
-                    project_id=project_id,
-                    week_number=week_number,
-                )
-            )
-
-    week = query_one(
-        """
-        SELECT *
-        FROM weeks
-        WHERE week_number=?
-        """,
-        (week_number,),
-    )
+    week = query_one("SELECT * FROM weeks WHERE week_number=?", (week_number,))
     if not week:
         abort(404)
-
-    user = current_user()
-    selected_project = None
-    if user["role"] == "student":
-        selected_project = project_for_student(user["id"])
-
-    return render_template(
-        "curriculum_week_overview.html",
-        week=week,
-        selected_project=selected_project,
-    )
+    project = None
+    classroom = None
+    if current_user()["role"] == "student":
+        classroom = classroom_for_student(current_user()["id"])
+        project = project_for_student(current_user()["id"])
+    return render_template("curriculum_week_overview.html", week=week, project=project, selected_project=project, classroom=classroom)
 
 
 @app.route("/projects/<int:project_id>/week/<int:week_number>")
@@ -480,148 +411,93 @@ def curriculum_week(week_number):
 def project_week(project_id, week_number):
     if not 1 <= week_number <= 16:
         abort(404)
-
     user = current_user()
     if user["role"] == "student":
-        if not user["selected_project_id"]:
-            flash("Choose one industry project before opening guided project labs.", "info")
-            return redirect(url_for("select_project"))
-        if user["selected_project_id"] != project_id:
-            flash(
-                "Guided build labs are available for your selected project. "
-                "You can still compare the other project overviews.",
-                "warning",
-            )
-            return redirect(url_for("projects"))
-
-    week = query_one(
-        """
-        SELECT w.*,p.id AS project_id,p.project_number,p.industry,
-               p.title AS project_title,p.summary AS project_summary,p.accent,
-               p.entities,p.personas,p.process,p.integration,p.workspace,p.agent,
-               pm.title AS milestone_title,pm.instructions AS milestone_instructions,
-               pm.deliverable AS milestone_deliverable,pm.is_final
-        FROM weeks w
-        JOIN project_milestones pm ON pm.week_number=w.week_number
-        JOIN projects p ON p.id=pm.project_id
-        WHERE w.week_number=? AND p.id=?
-        """,
-        (week_number, project_id),
+        classroom = classroom_for_student(user["id"])
+        if not classroom or classroom["project_id"] != project_id:
+            abort(403)
+    project = query_one("SELECT * FROM projects WHERE id=?", (project_id,))
+    week = query_one("SELECT * FROM weeks WHERE week_number=?", (week_number,))
+    milestone = query_one(
+        "SELECT * FROM project_milestones WHERE project_id=? AND week_number=?",
+        (project_id, week_number),
     )
-    if not week:
+    if not project or not week or not milestone:
         abort(404)
-
     assignments = query_all(
         """
-        SELECT * FROM assignments
-        WHERE week_id=(SELECT id FROM weeks WHERE week_number=?)
-          AND program_version='v5' AND is_published=1
-        ORDER BY CASE category
-          WHEN 'Hands-On' THEN 1 WHEN 'Research' THEN 2
+        SELECT a.* FROM assignments a JOIN weeks w ON w.id=a.week_id
+        WHERE w.week_number=? AND a.is_published=1
+        ORDER BY CASE a.category WHEN 'Hands-On' THEN 1 WHEN 'Research' THEN 2
           WHEN 'LinkedIn' THEN 3 WHEN 'Capstone' THEN 4 ELSE 5 END
         """,
         (week_number,),
     )
-    guided_lab = build_guided_lab(
-        week,
-        week_number,
-        week["research_topic"],
-        week["linkedin_topic"],
-    )
-    return render_template(
-        "week_detail.html",
-        week=week,
-        assignments=assignments,
-        guided_lab=guided_lab,
-    )
+    context = dict(project)
+    context.update({
+        "project_id": project["id"], "project_number": project["project_number"], "project_title": project["title"],
+        "project_summary": project["summary"], "milestone_title": milestone["title"],
+        "milestone_instructions": milestone["instructions"],
+        "milestone_deliverable": milestone["deliverable"], "is_final": milestone["is_final"],
+        "week_number": week["week_number"], "stage": week["stage"], "topics": week["topics"],
+        "research_topic": week["research_topic"], "linkedin_topic": week["linkedin_topic"],
+    })
+    guide = build_guided_lab(context, week_number, week["research_topic"], week["linkedin_topic"])
+    return render_template("week_detail.html", week=context, assignments=assignments, guide=guide)
 
 
 @app.route("/student")
 @role_required("student")
 def student_dashboard():
     user = current_user()
-    if not user["selected_project_id"]:
-        flash("Choose one industry project to begin your 16-week program.", "info")
-        return redirect(url_for("select_project"))
-
+    classroom = classroom_for_student(user["id"])
     project = project_for_student(user["id"])
+    if not classroom or not project:
+        return render_template("error.html", code=409, message="Your classroom assignment is pending. Ask the academy administrator to place you in a classroom.")
+
     rows = query_all(
         """
         SELECT a.*,w.week_number,w.title AS week_title,
-               CASE WHEN a.category IN ('Hands-On','Capstone')
-                    THEN pm.title ELSE a.title END AS display_title,
-               CASE WHEN a.category IN ('Hands-On','Capstone')
-                    THEN pm.instructions ELSE a.instructions END AS display_instructions,
-               CASE WHEN a.category IN ('Hands-On','Capstone')
-                    THEN pm.deliverable ELSE a.deliverable END AS display_deliverable,
-               s.id AS submission_id,s.status AS submission_status,
-               s.score,s.submitted_at,s.updated_at,s.mentor_feedback
+               CASE WHEN a.category IN ('Hands-On','Capstone') THEN pm.title ELSE a.title END AS display_title,
+               CASE WHEN a.category IN ('Hands-On','Capstone') THEN pm.instructions ELSE a.instructions END AS display_instructions,
+               CASE WHEN a.category IN ('Hands-On','Capstone') THEN pm.deliverable ELSE a.deliverable END AS display_deliverable,
+               s.id AS submission_id,s.status AS submission_status,s.score,s.submitted_at,s.updated_at,s.mentor_feedback
         FROM assignments a
         JOIN weeks w ON w.id=a.week_id
-        LEFT JOIN project_milestones pm
-          ON pm.project_id=? AND pm.week_number=w.week_number
-        LEFT JOIN submissions s
-          ON s.assignment_id=a.id AND s.student_id=?
-        WHERE a.program_version='v5' AND a.is_published=1
-          AND w.week_number BETWEEN 1 AND 16
-        ORDER BY w.week_number,
-          CASE a.category WHEN 'Hands-On' THEN 1 WHEN 'Research' THEN 2
-          WHEN 'LinkedIn' THEN 3 WHEN 'Capstone' THEN 4 ELSE 5 END
+        LEFT JOIN project_milestones pm ON pm.project_id=? AND pm.week_number=w.week_number
+        LEFT JOIN submissions s ON s.assignment_id=a.id AND s.student_id=?
+        WHERE a.is_published=1 AND w.week_number BETWEEN 1 AND 16
+        ORDER BY w.week_number,CASE a.category WHEN 'Hands-On' THEN 1 WHEN 'Research' THEN 2 WHEN 'LinkedIn' THEN 3 WHEN 'Capstone' THEN 4 ELSE 5 END
         """,
         (project["id"], user["id"]),
     )
     summary = query_one(
         """
         SELECT COUNT(a.id) AS total,
-               SUM(CASE WHEN s.status IN
-                 ('Submitted','Under Review','Revision Required','Approved')
-                 THEN 1 ELSE 0 END) AS submitted,
+               SUM(CASE WHEN s.status IN ('Submitted','Under Review','Revision Required','Approved') THEN 1 ELSE 0 END) AS submitted,
                SUM(CASE WHEN s.status='Approved' THEN 1 ELSE 0 END) AS approved,
-               COALESCE(ROUND(AVG(CASE WHEN s.score IS NOT NULL THEN s.score END),1),0)
-                 AS avg_score
-        FROM assignments a
-        JOIN weeks w ON w.id=a.week_id
-        LEFT JOIN submissions s
-          ON s.assignment_id=a.id AND s.student_id=?
-        WHERE a.program_version='v5' AND a.is_published=1
-          AND w.week_number BETWEEN 1 AND 16
+               COALESCE(ROUND(AVG(CASE WHEN s.score IS NOT NULL THEN s.score END),1),0) AS avg_score
+        FROM assignments a JOIN weeks w ON w.id=a.week_id
+        LEFT JOIN submissions s ON s.assignment_id=a.id AND s.student_id=?
+        WHERE a.is_published=1 AND w.week_number BETWEEN 1 AND 16
         """,
         (user["id"],),
     )
     project_progress = query_all(
         """
-        SELECT w.week_number,pm.title,
-               a.id AS assignment_id,a.category,
-               s.status,s.score
+        SELECT w.week_number,pm.title,a.id AS assignment_id,a.category,s.status,s.score
         FROM weeks w
-        JOIN project_milestones pm
-          ON pm.week_number=w.week_number AND pm.project_id=?
-        JOIN assignments a ON a.week_id=w.id
-          AND a.program_version='v5'
-          AND a.category IN ('Hands-On','Capstone')
-        LEFT JOIN submissions s
-          ON s.assignment_id=a.id AND s.student_id=?
-        WHERE w.week_number BETWEEN 1 AND 16
-        ORDER BY w.week_number
+        JOIN project_milestones pm ON pm.week_number=w.week_number AND pm.project_id=?
+        JOIN assignments a ON a.week_id=w.id AND a.is_published=1 AND a.category IN ('Hands-On','Capstone')
+        LEFT JOIN submissions s ON s.assignment_id=a.id AND s.student_id=?
+        WHERE w.week_number BETWEEN 1 AND 16 ORDER BY w.week_number
         """,
         (project["id"], user["id"]),
     )
-    mentor = query_one(
-        """
-        SELECT mentor.id,mentor.name,mentor.email,mentor.avatar_filename
-        FROM users student
-        LEFT JOIN users mentor ON mentor.id=student.assigned_instructor_id
-        WHERE student.id=?
-        """,
-        (user["id"],),
-    )
+    mentor = query_one("SELECT id,name,email,avatar_filename FROM users WHERE id=?", (classroom["instructor_id"],))
     return render_template(
-        "student_dashboard.html",
-        rows=rows,
-        summary=summary,
-        project=project,
-        project_progress=project_progress,
-        mentor=mentor,
+        "student_dashboard.html", rows=rows, summary=summary, project=project,
+        project_progress=project_progress, mentor=mentor, classroom=classroom,
     )
 
 
@@ -629,37 +505,27 @@ def student_dashboard():
 @role_required("student")
 def student_assignment(assignment_id):
     user = current_user()
-    if not user["selected_project_id"]:
-        return redirect(url_for("select_project"))
-
+    classroom = classroom_for_student(user["id"])
+    project = project_for_student(user["id"])
+    if not classroom or not project:
+        abort(409)
     assignment = query_one(
         """
         SELECT a.*,w.week_number,w.title AS week_title,w.topics,
-               p.id AS project_id,p.project_number,p.industry,p.title AS project_title,
-               CASE WHEN a.category IN ('Hands-On','Capstone')
-                    THEN pm.title ELSE a.title END AS display_title,
-               CASE WHEN a.category IN ('Hands-On','Capstone')
-                    THEN pm.instructions ELSE a.instructions END AS display_instructions,
-               CASE WHEN a.category IN ('Hands-On','Capstone')
-                    THEN pm.deliverable ELSE a.deliverable END AS display_deliverable
-        FROM assignments a
-        JOIN weeks w ON w.id=a.week_id
+               p.project_number,p.industry,p.title AS project_title,
+               CASE WHEN a.category IN ('Hands-On','Capstone') THEN pm.title ELSE a.title END AS display_title,
+               CASE WHEN a.category IN ('Hands-On','Capstone') THEN pm.instructions ELSE a.instructions END AS display_instructions,
+               CASE WHEN a.category IN ('Hands-On','Capstone') THEN pm.deliverable ELSE a.deliverable END AS display_deliverable
+        FROM assignments a JOIN weeks w ON w.id=a.week_id
         JOIN projects p ON p.id=?
-        LEFT JOIN project_milestones pm
-          ON pm.project_id=p.id AND pm.week_number=w.week_number
-        WHERE a.id=? AND a.program_version='v5' AND a.is_published=1
-          AND w.week_number BETWEEN 1 AND 16
+        LEFT JOIN project_milestones pm ON pm.project_id=p.id AND pm.week_number=w.week_number
+        WHERE a.id=? AND a.is_published=1 AND w.week_number BETWEEN 1 AND 16
         """,
-        (user["selected_project_id"], assignment_id),
+        (project["id"], assignment_id),
     )
     if not assignment:
         abort(404)
-
-    submission = query_one(
-        "SELECT * FROM submissions WHERE assignment_id=? AND student_id=?",
-        (assignment_id, user["id"]),
-    )
-
+    submission = query_one("SELECT * FROM submissions WHERE assignment_id=? AND student_id=?", (assignment_id, user["id"]))
     if request.method == "POST":
         status = request.form.get("status", "Draft")
         if status not in {"Draft", "Submitted"}:
@@ -668,7 +534,6 @@ def student_assignment(assignment_id):
         submission_url = request.form.get("submission_url", "").strip()
         linkedin_url = request.form.get("linkedin_url", "").strip()
         student_note = request.form.get("student_note", "").strip()
-
         filename = submission["file_name"] if submission else None
         uploaded = request.files.get("file")
         if uploaded and uploaded.filename:
@@ -679,50 +544,30 @@ def student_assignment(assignment_id):
             timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
             filename = f"{user['id']}_{assignment_id}_{timestamp}_{safe}"
             uploaded.save(UPLOAD_DIR / filename)
-
         now = now_iso()
-        submitted_at = (
-            now if status == "Submitted"
-            else (submission["submitted_at"] if submission else None)
-        )
-
+        submitted_at = now if status == "Submitted" else (submission["submitted_at"] if submission else None)
         if submission:
             execute(
                 """
-                UPDATE submissions
-                SET status=?,submission_text=?,submission_url=?,linkedin_url=?,
+                UPDATE submissions SET status=?,submission_text=?,submission_url=?,linkedin_url=?,
                     student_note=?,file_name=?,submitted_at=?,updated_at=?,
-                    revision_number=revision_number +
-                      CASE WHEN status='Revision Required' AND ?='Submitted'
-                      THEN 1 ELSE 0 END
+                    revision_number=revision_number+CASE WHEN status='Revision Required' AND ?='Submitted' THEN 1 ELSE 0 END
                 WHERE id=? AND student_id=?
                 """,
-                (
-                    status, submission_text, submission_url, linkedin_url,
-                    student_note, filename, submitted_at, now, status,
-                    submission["id"], user["id"],
-                ),
+                (status,submission_text,submission_url,linkedin_url,student_note,filename,submitted_at,now,status,submission["id"],user["id"]),
             )
         else:
             execute(
                 """
                 INSERT INTO submissions
-                (assignment_id,student_id,status,submission_text,submission_url,
-                 linkedin_url,student_note,file_name,submitted_at,updated_at,revision_number)
+                (assignment_id,student_id,status,submission_text,submission_url,linkedin_url,student_note,file_name,submitted_at,updated_at,revision_number)
                 VALUES (?,?,?,?,?,?,?,?,?,?,0)
                 """,
-                (
-                    assignment_id, user["id"], status, submission_text,
-                    submission_url, linkedin_url, student_note, filename,
-                    submitted_at, now,
-                ),
+                (assignment_id,user["id"],status,submission_text,submission_url,linkedin_url,student_note,filename,submitted_at,now),
             )
         flash("Your work has been saved.", "success")
         return redirect(url_for("student_assignment", assignment_id=assignment_id))
-
-    return render_template(
-        "student_assignment.html", assignment=assignment, submission=submission
-    )
+    return render_template("student_assignment.html", assignment=assignment, submission=submission, classroom=classroom)
 
 
 @app.route("/uploads/<path:filename>")
@@ -730,9 +575,9 @@ def student_assignment(assignment_id):
 def uploaded_file(filename):
     record = query_one(
         """
-        SELECT s.student_id,u.assigned_instructor_id
-        FROM submissions s
-        JOIN users u ON u.id=s.student_id
+        SELECT s.student_id,c.instructor_id
+        FROM submissions s JOIN users u ON u.id=s.student_id
+        LEFT JOIN classrooms c ON c.id=u.classroom_id
         WHERE s.file_name=?
         """,
         (filename,),
@@ -742,11 +587,7 @@ def uploaded_file(filename):
     user = current_user()
     if user["role"] == "student" and record["student_id"] != user["id"]:
         abort(403)
-    if (
-        user["role"] == "instructor"
-        and not user_is_admin(user)
-        and record["assigned_instructor_id"] != user["id"]
-    ):
+    if user["role"] == "instructor" and not user_is_admin(user) and record["instructor_id"] != user["id"]:
         abort(403)
     return send_from_directory(UPLOAD_DIR, filename, as_attachment=True)
 
@@ -755,88 +596,51 @@ def uploaded_file(filename):
 @role_required("instructor")
 def instructor_dashboard():
     user = current_user()
-    scope_sql = ""
-    params = []
-    if not user_is_admin(user):
-        scope_sql = " AND u.assigned_instructor_id=?"
-        params.append(user["id"])
-
+    class_scope = "" if user_is_admin(user) else " AND c.instructor_id=?"
+    params = [] if user_is_admin(user) else [user["id"]]
+    classroom_count = query_one("SELECT COUNT(*) AS total FROM classrooms c WHERE c.is_active=1" + class_scope, params)["total"]
     students = query_one(
-        "SELECT COUNT(*) AS total FROM users u "
-        "WHERE u.role='student' AND u.is_active=1" + scope_sql,
+        "SELECT COUNT(*) AS total FROM users u JOIN classrooms c ON c.id=u.classroom_id WHERE u.role='student' AND u.is_active=1" + class_scope,
         params,
     )["total"]
     awaiting = query_one(
         """
-        SELECT COUNT(*) AS total
-        FROM submissions s
-        JOIN users u ON u.id=s.student_id
-        JOIN assignments a ON a.id=s.assignment_id
-        WHERE a.program_version='v5'
-          AND s.status IN ('Submitted','Under Review')
-        """ + scope_sql,
+        SELECT COUNT(*) AS total FROM submissions s
+        JOIN users u ON u.id=s.student_id JOIN classrooms c ON c.id=u.classroom_id
+        WHERE s.status IN ('Submitted','Under Review')
+        """ + class_scope,
         params,
     )["total"]
     revisions = query_one(
         """
-        SELECT COUNT(*) AS total
-        FROM submissions s
-        JOIN users u ON u.id=s.student_id
-        JOIN assignments a ON a.id=s.assignment_id
-        WHERE a.program_version='v5'
-          AND s.status='Revision Required'
-        """ + scope_sql,
+        SELECT COUNT(*) AS total FROM submissions s
+        JOIN users u ON u.id=s.student_id JOIN classrooms c ON c.id=u.classroom_id
+        WHERE s.status='Revision Required'
+        """ + class_scope,
         params,
     )["total"]
-    assignments = query_one(
-        """
-        SELECT COUNT(*) AS total
-        FROM assignments a JOIN weeks w ON w.id=a.week_id
-        WHERE a.program_version='v5' AND a.is_published=1
-          AND w.week_number BETWEEN 1 AND 16
-        """
-    )["total"]
-
+    assignments = query_one("SELECT COUNT(*) AS total FROM assignments WHERE is_published=1")["total"]
     recent_sql = """
-        SELECT s.*,u.name AS student_name,u.email AS student_email,
-               u.avatar_filename AS student_avatar,
-               p.title AS project_title,p.industry,
-               w.week_number,a.category,
-               CASE WHEN a.category IN ('Hands-On','Capstone')
-                    THEN pm.title ELSE a.title END AS assignment_title
-        FROM submissions s
-        JOIN users u ON u.id=s.student_id
-        JOIN assignments a ON a.id=s.assignment_id
-        JOIN weeks w ON w.id=a.week_id
-        LEFT JOIN projects p ON p.id=u.selected_project_id
-        LEFT JOIN project_milestones pm
-          ON pm.project_id=u.selected_project_id
-         AND pm.week_number=w.week_number
-        WHERE a.program_version='v5'
+        SELECT s.*,u.name AS student_name,u.email AS student_email,u.avatar_filename AS student_avatar,
+               c.name AS classroom_name,p.title AS project_title,p.industry,w.week_number,a.category,
+               CASE WHEN a.category IN ('Hands-On','Capstone') THEN pm.title ELSE a.title END AS assignment_title
+        FROM submissions s JOIN users u ON u.id=s.student_id
+        JOIN classrooms c ON c.id=u.classroom_id JOIN projects p ON p.id=c.project_id
+        JOIN assignments a ON a.id=s.assignment_id JOIN weeks w ON w.id=a.week_id
+        LEFT JOIN project_milestones pm ON pm.project_id=p.id AND pm.week_number=w.week_number
+        WHERE 1=1
     """
     recent_params = []
     if not user_is_admin(user):
-        recent_sql += " AND u.assigned_instructor_id=?"
+        recent_sql += " AND c.instructor_id=?"
         recent_params.append(user["id"])
     recent_sql += " ORDER BY COALESCE(s.submitted_at,s.updated_at) DESC LIMIT 12"
     recent = query_all(recent_sql, recent_params)
-
-    stats = {
-        "students": students,
-        "assignments": assignments,
-        "awaiting_review": awaiting,
-        "revisions": revisions,
-    }
+    stats = {"classrooms": classroom_count, "students": students, "assignments": assignments, "awaiting_review": awaiting, "revisions": revisions}
     return render_template(
-        "instructor_dashboard.html",
-        stats=stats,
-        recent=recent,
-        scope_title="Academy overview" if user_is_admin(user) else "My students",
-        scope_note=(
-            "All students and program activity"
-            if user_is_admin(user)
-            else "Only students assigned to you"
-        ),
+        "instructor_dashboard.html", stats=stats, recent=recent,
+        scope_title="Academy overview" if user_is_admin(user) else "My classrooms",
+        scope_note="All classrooms and program activity" if user_is_admin(user) else "Only classrooms assigned to you",
     )
 
 
@@ -847,64 +651,39 @@ def submissions_list():
     status = request.args.get("status", "").strip()
     student_id = request.args.get("student_id", "").strip()
     category = request.args.get("category", "").strip()
-
+    classroom_id = request.args.get("classroom_id", "").strip()
     sql = """
-        SELECT s.*,u.name AS student_name,u.email AS student_email,
-               u.avatar_filename AS student_avatar,
-               u.assigned_instructor_id,p.title AS project_title,p.industry,
-               a.category,a.max_score,w.week_number,w.title AS week_title,
-               CASE WHEN a.category IN ('Hands-On','Capstone')
-                    THEN pm.title ELSE a.title END AS assignment_title
-        FROM submissions s
-        JOIN users u ON u.id=s.student_id
-        JOIN assignments a ON a.id=s.assignment_id
-        JOIN weeks w ON w.id=a.week_id
-        LEFT JOIN projects p ON p.id=u.selected_project_id
-        LEFT JOIN project_milestones pm
-          ON pm.project_id=u.selected_project_id
-         AND pm.week_number=w.week_number
-        WHERE a.program_version='v5'
+        SELECT s.*,u.name AS student_name,u.email AS student_email,u.avatar_filename AS student_avatar,
+               c.id AS classroom_id,c.name AS classroom_name,c.instructor_id,
+               p.title AS project_title,p.industry,a.category,a.max_score,w.week_number,w.title AS week_title,
+               CASE WHEN a.category IN ('Hands-On','Capstone') THEN pm.title ELSE a.title END AS assignment_title
+        FROM submissions s JOIN users u ON u.id=s.student_id
+        JOIN classrooms c ON c.id=u.classroom_id JOIN projects p ON p.id=c.project_id
+        JOIN assignments a ON a.id=s.assignment_id JOIN weeks w ON w.id=a.week_id
+        LEFT JOIN project_milestones pm ON pm.project_id=p.id AND pm.week_number=w.week_number
+        WHERE 1=1
     """
     params = []
     if not user_is_admin(user):
-        sql += " AND u.assigned_instructor_id=?"
+        sql += " AND c.instructor_id=?"
         params.append(user["id"])
     if status:
-        sql += " AND s.status=?"
-        params.append(status)
+        sql += " AND s.status=?"; params.append(status)
     if student_id:
-        sql += " AND s.student_id=?"
-        params.append(student_id)
+        sql += " AND s.student_id=?"; params.append(student_id)
     if category:
-        sql += " AND a.category=?"
-        params.append(category)
-    sql += """
-        ORDER BY w.week_number,u.name,
-          CASE a.category WHEN 'Hands-On' THEN 1 WHEN 'Research' THEN 2
-          WHEN 'LinkedIn' THEN 3 WHEN 'Capstone' THEN 4 ELSE 5 END
-    """
+        sql += " AND a.category=?"; params.append(category)
+    if classroom_id:
+        sql += " AND c.id=?"; params.append(classroom_id)
+    sql += " ORDER BY c.name,w.week_number,u.name,CASE a.category WHEN 'Hands-On' THEN 1 WHEN 'Research' THEN 2 WHEN 'LinkedIn' THEN 3 WHEN 'Capstone' THEN 4 ELSE 5 END"
     rows = query_all(sql, params)
-
-    if user_is_admin(user):
-        students = query_all(
-            "SELECT id,name FROM users WHERE role='student' ORDER BY name"
-        )
-    else:
-        students = query_all(
-            """
-            SELECT id,name FROM users
-            WHERE role='student' AND assigned_instructor_id=?
-            ORDER BY name
-            """,
-            (user["id"],),
-        )
+    scope = "" if user_is_admin(user) else " WHERE c.instructor_id=?"
+    scope_params = [] if user_is_admin(user) else [user["id"]]
+    students = query_all("SELECT u.id,u.name FROM users u JOIN classrooms c ON c.id=u.classroom_id" + scope + " AND u.role='student' ORDER BY u.name" if scope else "SELECT u.id,u.name FROM users u JOIN classrooms c ON c.id=u.classroom_id WHERE u.role='student' ORDER BY u.name", scope_params)
+    classrooms = query_all("SELECT c.id,c.name FROM classrooms c" + scope + " ORDER BY c.name", scope_params)
     return render_template(
-        "submissions_list.html",
-        rows=rows,
-        students=students,
-        selected_status=status,
-        selected_student=student_id,
-        selected_category=category,
+        "submissions_list.html", rows=rows, students=students, classrooms=classrooms,
+        selected_status=status, selected_student=student_id, selected_category=category, selected_classroom=classroom_id,
     )
 
 
@@ -914,33 +693,24 @@ def grade_submission(submission_id):
     user = current_user()
     row = query_one(
         """
-        SELECT s.*,u.name AS student_name,u.email AS student_email,
-               u.avatar_filename AS student_avatar,
-               u.assigned_instructor_id,p.title AS project_title,p.industry,
+        SELECT s.*,u.name AS student_name,u.email AS student_email,u.avatar_filename AS student_avatar,
+               c.name AS classroom_name,c.instructor_id,p.title AS project_title,p.industry,
                a.category,a.max_score,w.week_number,w.title AS week_title,
-               CASE WHEN a.category IN ('Hands-On','Capstone')
-                    THEN pm.title ELSE a.title END AS assignment_title,
-               CASE WHEN a.category IN ('Hands-On','Capstone')
-                    THEN pm.instructions ELSE a.instructions END AS instructions,
-               CASE WHEN a.category IN ('Hands-On','Capstone')
-                    THEN pm.deliverable ELSE a.deliverable END AS deliverable
-        FROM submissions s
-        JOIN users u ON u.id=s.student_id
-        JOIN assignments a ON a.id=s.assignment_id
-        JOIN weeks w ON w.id=a.week_id
-        LEFT JOIN projects p ON p.id=u.selected_project_id
-        LEFT JOIN project_milestones pm
-          ON pm.project_id=u.selected_project_id
-         AND pm.week_number=w.week_number
-        WHERE s.id=? AND a.program_version='v5'
+               CASE WHEN a.category IN ('Hands-On','Capstone') THEN pm.title ELSE a.title END AS assignment_title,
+               CASE WHEN a.category IN ('Hands-On','Capstone') THEN pm.instructions ELSE a.instructions END AS instructions,
+               CASE WHEN a.category IN ('Hands-On','Capstone') THEN pm.deliverable ELSE a.deliverable END AS deliverable
+        FROM submissions s JOIN users u ON u.id=s.student_id
+        JOIN classrooms c ON c.id=u.classroom_id JOIN projects p ON p.id=c.project_id
+        JOIN assignments a ON a.id=s.assignment_id JOIN weeks w ON w.id=a.week_id
+        LEFT JOIN project_milestones pm ON pm.project_id=p.id AND pm.week_number=w.week_number
+        WHERE s.id=?
         """,
         (submission_id,),
     )
     if not row:
         abort(404)
-    if not user_is_admin(user) and row["assigned_instructor_id"] != user["id"]:
+    if not user_is_admin(user) and row["instructor_id"] != user["id"]:
         abort(403)
-
     if request.method == "POST":
         status = request.form.get("status", "Under Review")
         if status not in {"Under Review", "Revision Required", "Approved", "Late"}:
@@ -957,335 +727,270 @@ def grade_submission(submission_id):
         feedback = request.form.get("mentor_feedback", "").strip()
         now = now_iso()
         execute(
-            """
-            UPDATE submissions
-            SET status=?,score=?,mentor_feedback=?,graded_by=?,graded_at=?,updated_at=?
-            WHERE id=?
-            """,
-            (status, score, feedback, user["id"], now, now, submission_id),
+            "UPDATE submissions SET status=?,score=?,mentor_feedback=?,graded_by=?,graded_at=?,updated_at=? WHERE id=?",
+            (status,score,feedback,user["id"],now,now,submission_id),
         )
         flash("Grade and feedback saved.", "success")
         return redirect(url_for("grade_submission", submission_id=submission_id))
-
     return render_template("grade_submission.html", row=row)
+
+
+@app.route("/instructor/classrooms", methods=["GET", "POST"])
+@role_required("instructor")
+def manage_classrooms():
+    user = current_user()
+    is_admin = user_is_admin(user)
+    instructors = query_all("SELECT id,name,email FROM users WHERE role='instructor' AND is_active=1 ORDER BY name") if is_admin else []
+    projects = query_all("SELECT id,industry,title FROM projects ORDER BY project_number")
+    if request.method == "POST":
+        if not is_admin:
+            abort(403)
+        name = request.form.get("name", "").strip()
+        description = request.form.get("description", "").strip()
+        try:
+            instructor_id = int(request.form.get("instructor_id", "0"))
+            project_id = int(request.form.get("project_id", "0"))
+        except ValueError:
+            instructor_id = project_id = 0
+        instructor = query_one("SELECT id FROM users WHERE id=? AND role='instructor' AND is_active=1", (instructor_id,))
+        project = query_one("SELECT id FROM projects WHERE id=?", (project_id,))
+        if not name or not instructor or not project:
+            flash("Classroom name, active instructor, and project are required.", "danger")
+        elif query_one("SELECT id FROM classrooms WHERE lower(name)=? AND instructor_id=?", (name.lower(), instructor_id)):
+            flash("This instructor already has a classroom with that name.", "danger")
+        else:
+            execute(
+                "INSERT INTO classrooms(name,instructor_id,project_id,description,is_active,created_at) VALUES (?,?,?,?,1,?)",
+                (name,instructor_id,project_id,description,now_iso()),
+            )
+            flash("Classroom created.", "success")
+            return redirect(url_for("manage_classrooms"))
+    sql = """
+        SELECT c.*,i.name AS instructor_name,i.email AS instructor_email,i.avatar_filename AS instructor_avatar,
+               p.industry,p.title AS project_title,p.accent,COUNT(u.id) AS student_count
+        FROM classrooms c JOIN users i ON i.id=c.instructor_id JOIN projects p ON p.id=c.project_id
+        LEFT JOIN users u ON u.classroom_id=c.id AND u.role='student'
+        WHERE 1=1
+    """
+    params=[]
+    if not is_admin:
+        sql += " AND c.instructor_id=?"; params.append(user["id"])
+    sql += " GROUP BY c.id ORDER BY c.is_active DESC,c.name"
+    classrooms=query_all(sql,params)
+    return render_template("manage_classrooms.html", classrooms=classrooms, instructors=instructors, projects=projects, page_is_admin=is_admin)
+
+
+@app.route("/instructor/classroom/<int:classroom_id>/update", methods=["POST"])
+@admin_required
+def update_classroom(classroom_id):
+    classroom = query_one("SELECT * FROM classrooms WHERE id=?", (classroom_id,))
+    if not classroom:
+        abort(404)
+    name = request.form.get("name", "").strip()
+    description = request.form.get("description", "").strip()
+    try:
+        instructor_id = int(request.form.get("instructor_id", "0"))
+        project_id = int(request.form.get("project_id", "0"))
+    except ValueError:
+        instructor_id = project_id = 0
+    if not query_one("SELECT id FROM users WHERE id=? AND role='instructor' AND is_active=1", (instructor_id,)) or not query_one("SELECT id FROM projects WHERE id=?", (project_id,)):
+        flash("Select a valid instructor and project.", "danger")
+        return redirect(url_for("manage_classrooms"))
+    if project_id != classroom["project_id"] and classroom_has_work(classroom_id):
+        flash("The classroom project cannot change after students have submitted work.", "warning")
+        return redirect(url_for("manage_classrooms"))
+    execute("UPDATE classrooms SET name=?,instructor_id=?,project_id=?,description=? WHERE id=?", (name,instructor_id,project_id,description,classroom_id))
+    flash("Classroom updated.", "success")
+    return redirect(url_for("manage_classrooms"))
+
+
+@app.route("/instructor/classroom/<int:classroom_id>/toggle", methods=["POST"])
+@admin_required
+def toggle_classroom(classroom_id):
+    row=query_one("SELECT * FROM classrooms WHERE id=?",(classroom_id,))
+    if not row: abort(404)
+    execute("UPDATE classrooms SET is_active=? WHERE id=?",(0 if row["is_active"] else 1,classroom_id))
+    flash("Classroom status updated.","success")
+    return redirect(url_for("manage_classrooms"))
 
 
 @app.route("/instructor/students", methods=["GET", "POST"])
 @role_required("instructor")
 def manage_students():
-    user = current_user()
-    is_admin = user_is_admin(user)
-    instructors = (
-        query_all(
-            """
-            SELECT id,name,email,avatar_filename FROM users
-            WHERE role='instructor' AND is_active=1
-            ORDER BY name
-            """
-        )
-        if is_admin else []
-    )
-    projects = query_all("SELECT id,industry,title FROM projects ORDER BY project_number")
-
-    if request.method == "POST":
-        name = request.form.get("name", "").strip()
-        email = request.form.get("email", "").strip().lower()
-        password = request.form.get("password", "").strip()
-        class_name = request.form.get("class_name", "").strip()
-        assigned_instructor_id = user["id"]
-
-        if is_admin:
-            raw_instructor = request.form.get("assigned_instructor_id", "").strip()
-            try:
-                candidate = int(raw_instructor)
-            except ValueError:
-                candidate = 0
-            valid = query_one(
-                """
-                SELECT id FROM users
-                WHERE id=? AND role='instructor' AND is_active=1
-                """,
-                (candidate,),
-            )
-            if not valid:
-                flash("Select a valid active instructor.", "danger")
-                return redirect(url_for("manage_students"))
-            assigned_instructor_id = candidate
-
-        if not name or not email or not password:
-            flash("Name, email, and temporary password are required.", "danger")
-        elif query_one("SELECT id FROM users WHERE lower(email)=?", (email,)):
-            flash("A user with this email already exists.", "danger")
+    user=current_user(); is_admin=user_is_admin(user)
+    class_sql="SELECT c.id,c.name,p.industry,p.title AS project_title FROM classrooms c JOIN projects p ON p.id=c.project_id WHERE c.is_active=1"
+    class_params=[]
+    if not is_admin:
+        class_sql += " AND c.instructor_id=?"; class_params.append(user["id"])
+    class_sql += " ORDER BY c.name"
+    classrooms=query_all(class_sql,class_params)
+    if request.method=="POST":
+        name=request.form.get("name","").strip(); email=request.form.get("email","").strip().lower(); password=request.form.get("password","").strip()
+        try: classroom_id=int(request.form.get("classroom_id","0"))
+        except ValueError: classroom_id=0
+        classroom=query_one("SELECT * FROM classrooms WHERE id=? AND is_active=1",(classroom_id,))
+        if not classroom or (not is_admin and classroom["instructor_id"]!=user["id"]):
+            flash("Select a classroom you can manage.","danger")
+        elif not name or not email or not password:
+            flash("Name, email, and temporary password are required.","danger")
+        elif query_one("SELECT id FROM users WHERE lower(email)=?",(email,)):
+            flash("A user with this email already exists.","danger")
         else:
             execute(
-                """
-                INSERT INTO users
-                (name,email,password_hash,role,cohort,assigned_instructor_id,
-                 selected_project_id,is_admin,is_active,created_at)
-                VALUES (?,?,?,'student',?,?,NULL,0,1,?)
-                """,
-                (
-                    name, email, generate_password_hash(password),
-                    class_name, assigned_instructor_id, now_iso(),
-                ),
+                "INSERT INTO users(name,email,avatar_filename,password_hash,role,classroom_id,is_admin,is_active,created_at) VALUES (?,?,NULL,?,'student',?,0,1,?)",
+                (name,email,generate_password_hash(password),classroom_id,now_iso()),
             )
-            flash(
-                "Student account created. The student will choose one 16-week project.",
-                "success",
-            )
+            flash("Student account created and added to the classroom.","success")
             return redirect(url_for("manage_students"))
-
-    sql = """
-        SELECT u.*,mentor.name AS instructor_name,
-               p.title AS project_title,p.industry,
-               COUNT(s.id) AS submissions,
+    sql="""
+        SELECT u.*,c.name AS classroom_name,c.instructor_id,i.name AS instructor_name,
+               p.industry,p.title AS project_title,COUNT(s.id) AS submissions,
                SUM(CASE WHEN s.status='Approved' THEN 1 ELSE 0 END) AS approved,
-               COALESCE(ROUND(AVG(CASE WHEN s.score IS NOT NULL THEN s.score END),1),0)
-                 AS avg_score
-        FROM users u
-        LEFT JOIN users mentor ON mentor.id=u.assigned_instructor_id
-        LEFT JOIN projects p ON p.id=u.selected_project_id
-        LEFT JOIN submissions s ON s.student_id=u.id
+               COALESCE(ROUND(AVG(CASE WHEN s.score IS NOT NULL THEN s.score END),1),0) AS avg_score
+        FROM users u JOIN classrooms c ON c.id=u.classroom_id JOIN users i ON i.id=c.instructor_id
+        JOIN projects p ON p.id=c.project_id LEFT JOIN submissions s ON s.student_id=u.id
         WHERE u.role='student'
     """
-    params = []
+    params=[]
     if not is_admin:
-        sql += " AND u.assigned_instructor_id=?"
-        params.append(user["id"])
-    sql += " GROUP BY u.id ORDER BY u.name"
-    students = query_all(sql, params)
-
-    return render_template(
-        "manage_students.html",
-        students=students,
-        instructors=instructors,
-        projects=projects,
-        page_is_admin=is_admin,
-    )
+        sql += " AND c.instructor_id=?"; params.append(user["id"])
+    sql += " GROUP BY u.id ORDER BY c.name,u.name"
+    students=query_all(sql,params)
+    return render_template("manage_students.html",students=students,classrooms=classrooms,page_is_admin=is_admin)
 
 
+@app.route("/instructor/student/<int:user_id>/classroom", methods=["POST"])
+@role_required("instructor")
+def assign_student_classroom(user_id):
+    user=current_user()
+    student=query_one("SELECT * FROM users WHERE id=? AND role='student'",(user_id,))
+    if not student or not instructor_can_access_student(user_id,user): abort(403)
+    try: classroom_id=int(request.form.get("classroom_id","0"))
+    except ValueError: classroom_id=0
+    classroom=query_one("SELECT * FROM classrooms WHERE id=? AND is_active=1",(classroom_id,))
+    if not classroom or (not user_is_admin(user) and classroom["instructor_id"]!=user["id"]):
+        flash("Select a classroom you can manage.","danger")
+        return redirect(url_for("manage_students"))
+    if student["classroom_id"] != classroom_id and query_one("SELECT COUNT(*) AS total FROM submissions WHERE student_id=?",(user_id,))["total"]:
+        flash("Move is blocked because this student already has submitted work. An administrator should archive or review the work first.","warning")
+        return redirect(url_for("manage_students"))
+    execute("UPDATE users SET classroom_id=? WHERE id=?",(classroom_id,user_id))
+    flash("Student classroom updated.","success")
+    return redirect(url_for("manage_students"))
+
+
+# Legacy URLs retained so old links do not fail.
 @app.route("/instructor/student/<int:user_id>/class", methods=["POST"])
 @role_required("instructor")
 def update_student_class(user_id):
-    user = current_user()
-    if not instructor_can_access_student(user_id, user):
-        abort(403)
-    class_name = request.form.get("class_name", "").strip()
-    execute(
-        "UPDATE users SET cohort=? WHERE id=? AND role='student'",
-        (class_name, user_id),
-    )
-    flash("Student class updated.", "success")
+    flash("Classes are now managed as classrooms. Choose a classroom from the student roster.","info")
     return redirect(url_for("manage_students"))
 
 
 @app.route("/instructor/student/<int:user_id>/assign", methods=["POST"])
-@admin_required
+@role_required("instructor")
 def assign_student_instructor(user_id):
-    raw = request.form.get("assigned_instructor_id", "").strip()
-    try:
-        instructor_id = int(raw)
-    except ValueError:
-        instructor_id = 0
-    instructor = query_one(
-        """
-        SELECT id FROM users
-        WHERE id=? AND role='instructor' AND is_active=1
-        """,
-        (instructor_id,),
-    )
-    student = query_one("SELECT id FROM users WHERE id=? AND role='student'", (user_id,))
-    if not student or not instructor:
-        flash("Select a valid active instructor.", "danger")
-        return redirect(url_for("manage_students"))
-    execute(
-        "UPDATE users SET assigned_instructor_id=? WHERE id=?",
-        (instructor_id, user_id),
-    )
-    flash("Student instructor assignment updated.", "success")
+    flash("Instructor ownership is defined by the classroom, not by the individual student.","info")
     return redirect(url_for("manage_students"))
 
 
 @app.route("/instructor/student/<int:user_id>/project", methods=["POST"])
-@admin_required
+@role_required("instructor")
 def assign_student_project(user_id):
-    student = query_one("SELECT * FROM users WHERE id=? AND role='student'", (user_id,))
-    if not student:
-        abort(404)
-    raw = request.form.get("selected_project_id", "").strip()
-    try:
-        project_id = int(raw)
-    except ValueError:
-        project_id = 0
-    project = query_one("SELECT id,title FROM projects WHERE id=?", (project_id,))
-    if not project:
-        flash("Select a valid project.", "danger")
-        return redirect(url_for("manage_students"))
-    if (
-        student["selected_project_id"]
-        and student["selected_project_id"] != project_id
-        and student_has_v5_work(user_id)
-    ):
-        flash(
-            "This student's project is locked because project work has already "
-            "been submitted.",
-            "warning",
-        )
-        return redirect(url_for("manage_students"))
-    execute(
-        "UPDATE users SET selected_project_id=? WHERE id=?",
-        (project_id, user_id),
-    )
-    flash(f"Student project updated to {project['title']}.", "success")
+    flash("Project selection is defined by the classroom, not by the individual student.","info")
     return redirect(url_for("manage_students"))
 
 
 @app.route("/instructor/instructors", methods=["GET", "POST"])
 @admin_required
 def manage_instructors():
-    if request.method == "POST":
-        name = request.form.get("name", "").strip()
-        email = request.form.get("email", "").strip().lower()
-        password = request.form.get("password", "").strip()
-        is_admin = 1 if request.form.get("is_admin") == "1" else 0
-
-        if not name or not email or not password:
-            flash("Name, email, and temporary password are required.", "danger")
-        elif query_one("SELECT id FROM users WHERE lower(email)=?", (email,)):
-            flash("A user with this email already exists.", "danger")
+    if request.method=="POST":
+        name=request.form.get("name","").strip(); email=request.form.get("email","").strip().lower(); password=request.form.get("password","").strip(); is_admin=1 if request.form.get("is_admin")=="1" else 0
+        if not name or not email or not password: flash("Name, email, and temporary password are required.","danger")
+        elif query_one("SELECT id FROM users WHERE lower(email)=?",(email,)): flash("A user with this email already exists.","danger")
         else:
-            execute(
-                """
-                INSERT INTO users
-                (name,email,password_hash,role,cohort,assigned_instructor_id,
-                 selected_project_id,is_admin,is_active,created_at)
-                VALUES (?,?,?,'instructor',NULL,NULL,NULL,?,1,?)
-                """,
-                (name, email, generate_password_hash(password), is_admin, now_iso()),
-            )
-            flash("Instructor account created.", "success")
-            return redirect(url_for("manage_instructors"))
-
-    instructors = query_all(
+            execute("INSERT INTO users(name,email,avatar_filename,password_hash,role,classroom_id,is_admin,is_active,created_at) VALUES (?,?,NULL,?,'instructor',NULL,?,1,?)",(name,email,generate_password_hash(password),is_admin,now_iso()))
+            flash("Instructor account created.","success"); return redirect(url_for("manage_instructors"))
+    instructors=query_all(
         """
-        SELECT i.*,
-               COUNT(CASE WHEN s.role='student' THEN s.id END) AS assigned_students
-        FROM users i
-        LEFT JOIN users s ON s.assigned_instructor_id=i.id
-        WHERE i.role='instructor'
-        GROUP BY i.id
+        SELECT i.*,COUNT(DISTINCT c.id) AS classroom_count,COUNT(DISTINCT s.id) AS assigned_students
+        FROM users i LEFT JOIN classrooms c ON c.instructor_id=i.id
+        LEFT JOIN users s ON s.classroom_id=c.id AND s.role='student'
+        WHERE i.role='instructor' GROUP BY i.id
         ORDER BY i.is_active DESC,i.is_admin DESC,i.name
         """
     )
-    return render_template("manage_instructors.html", instructors=instructors)
+    return render_template("manage_instructors.html",instructors=instructors)
 
 
 @app.route("/instructor/instructor/<int:user_id>/toggle", methods=["POST"])
 @admin_required
 def toggle_instructor(user_id):
-    instructor = query_one(
-        "SELECT * FROM users WHERE id=? AND role='instructor'", (user_id,)
-    )
-    if not instructor:
-        abort(404)
-    if user_id == session["user_id"]:
-        flash("You cannot deactivate your own instructor account.", "warning")
-        return redirect(url_for("manage_instructors"))
-
+    instructor=query_one("SELECT * FROM users WHERE id=? AND role='instructor'",(user_id,))
+    if not instructor: abort(404)
+    if user_id==session["user_id"]:
+        flash("You cannot deactivate your own instructor account.","warning"); return redirect(url_for("manage_instructors"))
     if instructor["is_active"]:
-        assigned_count = query_one(
-            """
-            SELECT COUNT(*) AS total FROM users
-            WHERE role='student' AND is_active=1 AND assigned_instructor_id=?
-            """,
-            (user_id,),
-        )["total"]
-        if assigned_count:
-            flash("Reassign this instructor's active students first.", "warning")
-            return redirect(url_for("manage_instructors"))
+        active_classrooms=query_one("SELECT COUNT(*) AS total FROM classrooms WHERE instructor_id=? AND is_active=1",(user_id,))["total"]
+        if active_classrooms:
+            flash("Reassign or deactivate this instructor's classrooms first.","warning"); return redirect(url_for("manage_instructors"))
         if instructor["is_admin"]:
-            admin_count = query_one(
-                """
-                SELECT COUNT(*) AS total FROM users
-                WHERE role='instructor' AND is_active=1 AND is_admin=1
-                """
-            )["total"]
-            if admin_count <= 1:
-                flash("At least one active academy administrator is required.", "warning")
-                return redirect(url_for("manage_instructors"))
-
-    execute(
-        "UPDATE users SET is_active=? WHERE id=?",
-        (0 if instructor["is_active"] else 1, user_id),
-    )
-    flash("Instructor status updated.", "success")
-    return redirect(url_for("manage_instructors"))
+            admin_count=query_one("SELECT COUNT(*) AS total FROM users WHERE role='instructor' AND is_active=1 AND is_admin=1")["total"]
+            if admin_count<=1:
+                flash("At least one active academy administrator is required.","warning"); return redirect(url_for("manage_instructors"))
+    execute("UPDATE users SET is_active=? WHERE id=?",(0 if instructor["is_active"] else 1,user_id))
+    flash("Instructor status updated.","success"); return redirect(url_for("manage_instructors"))
 
 
 @app.route("/instructor/student/<int:user_id>/toggle", methods=["POST"])
 @role_required("instructor")
 def toggle_student(user_id):
-    user = current_user()
-    if not instructor_can_access_student(user_id, user):
-        abort(403)
-    student = query_one("SELECT * FROM users WHERE id=? AND role='student'", (user_id,))
-    if not student:
-        abort(404)
-    execute(
-        "UPDATE users SET is_active=? WHERE id=?",
-        (0 if student["is_active"] else 1, user_id),
-    )
-    flash("Student status updated.", "success")
-    return redirect(url_for("manage_students"))
+    user=current_user()
+    if not instructor_can_access_student(user_id,user): abort(403)
+    student=query_one("SELECT * FROM users WHERE id=? AND role='student'",(user_id,))
+    if not student: abort(404)
+    execute("UPDATE users SET is_active=? WHERE id=?",(0 if student["is_active"] else 1,user_id))
+    flash("Student status updated.","success"); return redirect(url_for("manage_students"))
 
 
 @app.route("/instructor/assignments")
 @role_required("instructor")
 def manage_assignments():
-    user = current_user()
-    sql = """
-        SELECT a.*,w.week_number,w.title AS week_title,
-               COUNT(s.id) AS submissions
-        FROM assignments a
-        JOIN weeks w ON w.id=a.week_id
+    user=current_user()
+    sql="""
+        SELECT a.*,w.week_number,w.title AS week_title,COUNT(s.id) AS submissions
+        FROM assignments a JOIN weeks w ON w.id=a.week_id
         LEFT JOIN submissions s ON s.assignment_id=a.id
         LEFT JOIN users u ON u.id=s.student_id
-        WHERE a.program_version='v5' AND a.is_published=1
+        LEFT JOIN classrooms c ON c.id=u.classroom_id
+        WHERE a.is_published=1
     """
-    params = []
+    params=[]
     if not user_is_admin(user):
-        sql += " AND (u.assigned_instructor_id=? OR s.id IS NULL)"
-        params.append(user["id"])
-    sql += """
-        GROUP BY a.id
-        ORDER BY w.week_number,
-          CASE a.category WHEN 'Hands-On' THEN 1 WHEN 'Research' THEN 2
-          WHEN 'LinkedIn' THEN 3 WHEN 'Capstone' THEN 4 ELSE 5 END
-    """
-    rows = query_all(sql, params)
-    return render_template("manage_assignments.html", rows=rows)
+        sql += " AND (c.instructor_id=? OR s.id IS NULL)"; params.append(user["id"])
+    sql += " GROUP BY a.id ORDER BY w.week_number,CASE a.category WHEN 'Hands-On' THEN 1 WHEN 'Research' THEN 2 WHEN 'LinkedIn' THEN 3 WHEN 'Capstone' THEN 4 ELSE 5 END"
+    return render_template("manage_assignments.html",rows=query_all(sql,params))
 
 
 @app.errorhandler(400)
 def bad_request(_):
-    return render_template(
-        "error.html", code=400, message="The request could not be validated."
-    ), 400
+    return render_template("error.html",code=400,message="The request could not be validated."),400
 
 
 @app.errorhandler(403)
 def forbidden(_):
-    return render_template(
-        "error.html", code=403, message="You do not have access to this page."
-    ), 403
+    return render_template("error.html",code=403,message="You do not have access to this page."),403
 
 
 @app.errorhandler(404)
 def not_found(_):
-    return render_template(
-        "error.html", code=404, message="The requested page was not found."
-    ), 404
+    return render_template("error.html",code=404,message="The requested page was not found."),404
 
 
-if __name__ == "__main__":
+@app.errorhandler(409)
+def conflict(_):
+    return render_template("error.html",code=409,message="This account is not assigned to a classroom yet."),409
+
+
+if __name__=="__main__":
     app.run(debug=True)

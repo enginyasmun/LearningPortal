@@ -15,9 +15,9 @@
   <div class="student-hero-copy">
     <span class="spotlight-label"><i></i> Student workspace</span>
     <h1>Welcome back, {{ current_user.name.split(' ')[0] }}.</h1>
-    <p>Keep moving one application from idea to production through guided labs, research, and professional communication.</p>
-    <div class="student-meta-chips"><span>Project <strong>{{ project.industry }}</strong></span>{% if mentor and mentor.name %}<span>Instructor <strong>{{ mentor.name }}</strong></span>{% endif %}</div>
-    <div class="spotlight-actions"><a class="button button-light" href="{{ url_for('curriculum') }}">View class curriculum</a><a class="text-action light" href="{{ url_for('projects') }}#project-{{ project.id }}">Open guided project <span>→</span></a></div>
+    <p>Your classroom is building one shared application. Complete your own guided work, research, and professional communication while the class follows the same project roadmap.</p>
+    <div class="student-meta-chips"><span>Classroom <strong>{{ classroom.name }}</strong></span><span>Project <strong>{{ project.industry }}</strong></span>{% if mentor and mentor.name %}<span>Instructor <strong>{{ mentor.name }}</strong></span>{% endif %}</div>
+    <div class="spotlight-actions"><a class="button button-light" href="{{ url_for('curriculum') }}">View class curriculum</a><a class="text-action light" href="{{ url_for('projects') }}#project-{{ project.id }}">Open classroom project <span>→</span></a></div>
   </div>
   <div class="student-hero-visual"><img src="{{ url_for('static', filename='images/guided-learning-hero.webp') }}" alt="Guided learning workspace illustration"><div class="progress-orb" style="--progress:{{ project_percent }}%"><div><strong>{{ project_percent }}%</strong><span>project build</span></div></div></div>
 </section>
@@ -31,9 +31,9 @@
 
 <section class="student-dashboard-grid reveal">
   <article class="surface-card selected-project-card project-{{ project.accent }}">
-    <div class="selected-project-top"><div><span class="eyebrow">Your selected project</span><h2>{{ project.title }}</h2><p>{{ project.summary }}</p></div><span class="project-number">{{ '%02d'|format(project.project_number) }}</span></div>
+    <div class="selected-project-top"><div><span class="eyebrow">Your classroom project</span><h2>{{ project.title }}</h2><p>{{ project.summary }}</p></div><span class="project-number">{{ '%02d'|format(project.project_number) }}</span></div>
     <div class="project-progress-row"><div><strong>{{ project_approved }} of {{ project_total }}</strong><span>build milestones approved</span></div><div class="modern-progress"><i style="width:{{ project_percent }}%"></i></div></div>
-    <a class="text-action" href="{{ url_for('projects') }}#project-{{ project.id }}">Open guided project plan <span>→</span></a>
+    <a class="text-action" href="{{ url_for('projects') }}#project-{{ project.id }}">Open classroom project plan <span>→</span></a>
   </article>
 
   <article class="surface-card next-action-card">
@@ -43,7 +43,7 @@
       <h2>{{ ns.next_item.display_title }}</h2><p>{{ ns.next_item.week_title }}</p>
       <a class="button button-primary full-width" href="{{ url_for('student_assignment', assignment_id=ns.next_item.id) }}">Continue assignment</a>
     {% else %}
-      <div class="completion-state"><span>✓</span><h2>Your application is complete.</h2><p>All sixteen weeks have been approved.</p></div>
+      <div class="completion-state"><span>✓</span><h2>Your classroom project work is complete.</h2><p>All sixteen weeks of your individual work have been approved.</p></div>
     {% endif %}
   </article>
 </section>

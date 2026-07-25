@@ -2,12 +2,12 @@
 {% block title %}Project Plans | Developer Academy{% endblock %}
 {% block content %}
 <section class="project-plans-hero reveal">
-  <div class="project-plans-copy"><span class="eyebrow">Five guided industry tracks</span><h1>Choose one application.<br>Build it with confidence.</h1><p>Every student follows a clear 16-week roadmap. The technology path is consistent, while the objects, business process, integration, workspace, and Agentforce use case match the selected industry.</p><div class="hero-feature-list"><span><i>01</i> Step-by-step guided labs</span><span><i>02</i> Weekly research practice</span><span><i>03</i> Weekly LinkedIn communication</span><span><i>04</i> One portfolio-ready application</span></div>{% if current_user.role == 'student' and not selected_project %}<a class="button button-primary" href="{{ url_for('select_project') }}">Choose my project</a>{% endif %}</div>
+  <div class="project-plans-copy"><span class="eyebrow">Five guided classroom projects</span><h1>Assign one application.<br>Build it together.</h1><p>Each classroom follows one shared 16-week project. The instructor and all students work through the same industry-specific objects, business process, live integration, workspace, and Agentforce use case.</p><div class="hero-feature-list"><span><i>01</i> Step-by-step guided labs</span><span><i>02</i> Weekly research practice</span><span><i>03</i> Weekly LinkedIn communication</span><span><i>04</i> One shared classroom application</span></div></div>
   <figure><img src="{{ url_for('static', filename='images/project-plans-hero.webp') }}" alt="Illustration of guided project plans and a 16-week learning roadmap"></figure>
 </section>
 
 {% if current_user.role == 'student' and selected_project %}
-<section class="selected-track-banner reveal project-{{ selected_project.accent }}"><div><span class="eyebrow">Your selected track</span><h2>{{ selected_project.title }}</h2><p>{{ 'Your project is locked because submitted work already exists.' if project_locked else 'You may change this selection before your first submission.' }}</p></div>{% if not project_locked %}<a class="button button-secondary" href="{{ url_for('select_project') }}">Change project</a>{% endif %}</section>
+<section class="selected-track-banner reveal project-{{ selected_project.accent }}"><div><span class="eyebrow">Your classroom project</span><h2>{{ selected_project.title }}</h2><p>{{ classroom.name }} · Instructor: {{ classroom.instructor_name }}. Every student in this classroom follows this same guided project.</p></div><a class="button button-secondary" href="{{ url_for('project_week', project_id=selected_project.id, week_number=1) }}">Open classroom project</a></section>
 {% endif %}
 
 <section class="project-track-list project-track-list-readable reveal">
@@ -28,7 +28,7 @@
 
     <details class="complete-roadmap-details complete-roadmap-v11"><summary>See all 16 weekly milestones <span>+</span></summary><div class="track-roadmap">{% for m in milestones %}{% if m.project_id == p.id %}<a href="{{ url_for('project_week', project_id=p.id, week_number=m.week_number) }}" class="roadmap-node {% if m.is_final %}final{% endif %}"><span>{{ '%02d'|format(m.week_number) }}</span><strong>{{ m.title }}</strong>{% if m.is_final %}<small>Final application</small>{% endif %}</a>{% endif %}{% endfor %}</div></details>
 
-    <div class="track-footer"><span>{{ p.process }}</span>{% if current_user.role == 'student' and selected_project and selected_project.id == p.id %}<a class="text-action" href="{{ url_for('project_week', project_id=p.id, week_number=1) }}">Open guided project <span>→</span></a>{% elif current_user.role == 'instructor' %}<a class="text-action" href="{{ url_for('project_week', project_id=p.id, week_number=1) }}">Review guided project <span>→</span></a>{% endif %}</div>
+    <div class="track-footer"><span>{{ p.process }}</span>{% if current_user.role == 'student' and selected_project and selected_project.id == p.id %}<a class="text-action" href="{{ url_for('project_week', project_id=p.id, week_number=1) }}">Open classroom project <span>→</span></a>{% elif current_user.role == 'instructor' %}<a class="text-action" href="{{ url_for('project_week', project_id=p.id, week_number=1) }}">Review classroom project <span>→</span></a>{% endif %}</div>
   </article>
 {% endfor %}
 </section>

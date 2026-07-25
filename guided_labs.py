@@ -5,48 +5,48 @@ import re
 
 PROJECT_DETAILS = {
     1: {
-        "specialized_fields": "Requested_Amount__c (Currency), Monthly_Revenue__c (Currency), Risk_Score__c (Number), and Decision__c (Picklist)",
-        "automation_related_record": "an Underwriting Review and the required Document request records",
-        "business_rule": "Return Eligible when Monthly_Revenue__c is greater than zero, Requested_Amount__c is no more than 1.5 times Monthly_Revenue__c, and at least two required documents exist; otherwise return specific warnings",
-        "queue_filter": "Application records in Underwriting status, ordered by incomplete data first, then highest requested amount, then oldest submitted date",
-        "aggregate_metric": "application count and total requested amount grouped by Status__c",
-        "trigger_event": "When an Underwriting Review Decision__c changes to Approved or Declined, update the related Application decision fields exactly once",
-        "workspace_action": "Request an additional document for the selected Application",
-        "file_owner": "Application",
-        "integration_operation": "send the Application and Business identifiers to the instructor-provided bank-data or identity verification endpoint and store the verification result",
+        "specialized_fields": "Capacity__c (Number), Available_Quantity__c (Number), Reorder_Point__c (Number), Pick_Status__c (Picklist), and Validated_Destination__c (Text)",
+        "automation_related_record": "a Putaway Task for received stock or a Fulfillment Exception when the requested inventory is unavailable",
+        "business_rule": "Return Ready to Pick when every Shipment Line quantity is available in an eligible Bin; otherwise return shortage and replenishment warnings by Product",
+        "queue_filter": "Shipment records in Planning or Exception status, ordered by requested ship date, shortage severity, and oldest created date",
+        "aggregate_metric": "available quantity and reserved quantity grouped by Warehouse, Zone, and Product",
+        "trigger_event": "When a Stock Movement posts, update the related Inventory Item balance and reevaluate open Shipment Lines exactly once",
+        "workspace_action": "reserve inventory and create the next Pick Task for the selected Shipment",
+        "file_owner": "Shipment or Stock Movement",
+        "integration_operation": "send a Shipment country code and postal code to the live Zippopotam.us API, store city, state, latitude, and longitude, and record the HTTP result",
     },
     2: {
-        "specialized_fields": "Priority__c (Picklist), Referral_Date__c (Date), Eligibility_Status__c (Picklist), Authorization_Required__c (Checkbox), and Follow_Up_Due_Date__c (Date)",
+        "specialized_fields": "Priority__c (Picklist), Referral_Date__c (Date), Provider_NPI__c (Text), Provider_Validated__c (Checkbox), and Follow_Up_Due_Date__c (Date)",
         "automation_related_record": "an Eligibility Review and an initial Care Task assigned to the referral coordinator",
-        "business_rule": "Return Ready for Review when Patient, Provider, Referral_Date__c, and insurance identifier are present; add a warning when Authorization_Required__c is true and no approved Authorization exists",
+        "business_rule": "Return Ready for Review when Patient, Provider, Referral_Date__c, and provider NPI are present; add a warning when authorization is required and no approved Authorization exists",
         "queue_filter": "Referral records that are Open or Eligibility Review, ordered by urgent priority, overdue follow-up date, and referral date",
         "aggregate_metric": "referral count grouped by Eligibility_Status__c and assigned care coordinator",
         "trigger_event": "When an Authorization Status__c changes to Approved, update the related Referral and create one Care Task for the next coordination step",
-        "workspace_action": "Assign the selected Referral to a care coordinator and set the next follow-up date",
+        "workspace_action": "assign the selected Referral to a care coordinator and set the next follow-up date",
         "file_owner": "Referral",
-        "integration_operation": "send patient and coverage identifiers to the instructor-provided eligibility or provider-directory endpoint and store the response",
+        "integration_operation": "send a training provider NPI to the live CMS NPI Registry API, store provider identity and practice-location data, and record the HTTP result",
     },
     3: {
-        "specialized_fields": "Donation_Amount__c (Currency), Campaign_Goal__c (Currency), Volunteer_Skills__c (Multi-Select Picklist), Engagement_Score__c (Number), and Acknowledgement_Status__c (Picklist)",
+        "specialized_fields": "Donation_Amount__c (Currency), Campaign_Goal__c (Currency), Volunteer_Skills__c (Multi-Select Picklist), Engagement_Score__c (Number), and Standardized_Address__c (Text)",
         "automation_related_record": "an Acknowledgement for a new Donation and a follow-up Outreach Activity for the donor",
         "business_rule": "Calculate an engagement result using lifetime donation amount, recent volunteer participation, and open outreach; return High, Medium, or Standard engagement with reasons",
         "queue_filter": "Donor and Volunteer records with missing acknowledgements or overdue outreach, ordered by engagement score and oldest required action",
         "aggregate_metric": "donation total and volunteer-hour total grouped by Campaign",
         "trigger_event": "When a Donation is inserted or updated to Posted, recalculate the related Donor engagement score without creating duplicate acknowledgements",
-        "workspace_action": "Create an approved acknowledgement or outreach task for the selected donor",
+        "workspace_action": "create an approved acknowledgement or outreach task for the selected donor",
         "file_owner": "Campaign or Volunteer record selected by the instructor",
-        "integration_operation": "send the acknowledgement or volunteer-screening request to the instructor-provided email, payment, or screening endpoint and store the result",
+        "integration_operation": "send a fictional outreach address to the live US Census geocoder, store the matched address and coordinates, and record the HTTP result",
     },
     4: {
-        "specialized_fields": "Quantity__c (Number), Unit_Price__c (Currency), Available_Quantity__c (Number), Requested_Ship_Date__c (Date), and Exception_Type__c (Picklist)",
-        "automation_related_record": "a Fulfillment Exception when inventory is insufficient, otherwise an initial Shipment planning record",
-        "business_rule": "Return Ready to Fulfill when every Order Line quantity is less than or equal to available inventory; otherwise return the shortage by product and mark the order for backorder review",
-        "queue_filter": "Order records in Submitted or Exception status, ordered by requested ship date, exception severity, and total order value",
-        "aggregate_metric": "order count and total value grouped by fulfillment status, plus shortage quantity grouped by Product",
-        "trigger_event": "When Inventory Item Available_Quantity__c changes, reevaluate open Order Lines and create or close one Fulfillment Exception per shortage",
-        "workspace_action": "Reserve available inventory for the selected Order and create the next fulfillment task",
-        "file_owner": "Order",
-        "integration_operation": "send shipment or inventory details to the instructor-provided warehouse or carrier endpoint and store tracking or availability data",
+        "specialized_fields": "Planned_Quantity__c (Number), Completed_Quantity__c (Number), Material_Ready__c (Checkbox), Quality_Status__c (Picklist), and Downtime_Minutes__c (Number)",
+        "automation_related_record": "a Material Readiness Task before release and a Quality Inspection after a Production Run completes",
+        "business_rule": "Return Ready to Run when required materials are available, the Work Center is active, and no quality hold exists; otherwise return specific blocking reasons",
+        "queue_filter": "Production Orders in Planned, At Risk, or Quality Hold status, ordered by scheduled start, shortage severity, and priority",
+        "aggregate_metric": "planned versus completed quantity, downtime, and quality failures grouped by Work Center and Production Order",
+        "trigger_event": "When a Production Run completes, update the Production Order totals and create exactly one required Quality Inspection",
+        "workspace_action": "release the selected Production Order or record a downtime event",
+        "file_owner": "Production Order or Quality Inspection",
+        "integration_operation": "call the live NHTSA vPIC API, store manufacturer reference data on the Supplier or Manufacturer record, and record the HTTP result",
     },
     5: {
         "specialized_fields": "Budget__c (Currency), Billable_Rate__c (Currency), Planned_Hours__c (Number), Actual_Hours__c (Number), Health_Score__c (Number), and Risk_Severity__c (Picklist)",
@@ -55,9 +55,9 @@ PROJECT_DETAILS = {
         "queue_filter": "Project records with Amber or Red health, overdue milestones, or missing client updates, ordered by health severity and next milestone date",
         "aggregate_metric": "planned versus actual hours and budget grouped by Project and resource",
         "trigger_event": "When an approved Time Entry changes, recalculate Project actual hours and health without double-counting the entry",
-        "workspace_action": "Update the selected Milestone status and create the next client-update task",
+        "workspace_action": "update the selected Milestone status and create the next client-update task",
         "file_owner": "Project or Deliverable record selected by the instructor",
-        "integration_operation": "send approved time, document, or project-finance data to the instructor-provided endpoint and store the result",
+        "integration_operation": "call the live GitHub REST API for a public classroom repository, map issues or milestones into Salesforce Project Risks and Milestones, and record the HTTP result",
     },
 }
 
@@ -174,7 +174,7 @@ def _research_guide(project, week_number, topic):
                 "instructions": [
                     "Create columns: Claim, Evidence, Source, Project Application.",
                     "Add at least five claims supported by the sources.",
-                    "For every claim, explain how it changes a design decision in the selected project.",
+                    "For every claim, explain how it changes a design decision in the classroom project.",
                     "Record disagreements between sources instead of hiding them.",
                 ],
                 "output": "A five-row claim-evidence-project table.",
@@ -1945,6 +1945,176 @@ WEEK_GUIDES = {1: {'estimated_time': '4 to 6 hours',
                 'Presentation software']}}
 
 
+
+def _live_integration_guide(context):
+    named_credential = f"{context['prefix']}_Live_API"
+    external_credential = f"{context['prefix']}_External_Credential"
+    request_class = f"{context['prefix']}LiveApiRequest"
+    response_class = f"{context['prefix']}LiveApiResponse"
+    service_class = f"{context['prefix']}LiveApiService"
+    test_class = f"{context['prefix']}LiveApiServiceTest"
+    endpoint = context.get('integration_base_url') or 'the instructor-approved API base URL'
+    path = context.get('integration_path') or 'the documented resource path'
+    docs = context.get('integration_docs_url') or 'the provider documentation'
+    auth = context.get('integration_auth') or 'the instructor-approved authentication method'
+    return {
+        'title': 'Guided Lab: Connect Salesforce to a live external API',
+        'estimated_time': '7 to 10 hours',
+        'objectives': [
+            'Configure a modern Named Credential and External Credential.',
+            'Execute a genuine HTTP call from the training org using safe training data.',
+            'Map a successful live response into Salesforce records and integration logs.',
+            'Use HttpCalloutMock only in automated Apex tests.',
+        ],
+        'prerequisites': [
+            'Use the classroom Salesforce org and repository assigned by the instructor.',
+            f'Review the live API documentation: {docs}.',
+            f'Use this approved base URL: {endpoint}.',
+            f'Authentication model: {auth}.',
+            'Use only fictional or public training data. Never send customer, patient, donor, employee, token, or password data.',
+            'The instructor confirms that the external endpoint is available before the lab begins.',
+        ],
+        'tools': ['Salesforce Setup', 'Named Credentials', 'External Credentials', 'Permission Sets', 'Apex', 'Queueable Apex', 'Execute Anonymous', 'Debug Logs', 'HttpCalloutMock', 'GitHub'],
+        'steps': [
+            {
+                'title': 'Read the live API contract',
+                'purpose': 'Understand exactly what the real service accepts and returns before writing code.',
+                'actions': [
+                    f'Open {docs}.',
+                    f'Record the classroom operation: {context["integration_operation"]}.',
+                    f'Record the base URL `{endpoint}` and resource path `{path}`.',
+                    'Copy one documented success response and one documented error response into `docs/live-integration-contract.md`.',
+                    'List request parameters, response fields, status codes, rate limits, and data that must never be sent.',
+                ],
+                'checkpoint': 'The contract identifies a safe real request and the exact Salesforce fields that receive the response.',
+                'evidence': 'Completed integration contract with source links.',
+                'commands': [f'git checkout -b {context["branch"]}', 'mkdir -p docs', 'touch docs/live-integration-contract.md'],
+                'caution': 'Do not invent undocumented fields or place secrets in Git.',
+            },
+            {
+                'title': 'Create the External Credential',
+                'purpose': 'Keep authentication and principals outside Apex.',
+                'actions': [
+                    'In Setup, open Named Credentials, then External Credentials.',
+                    f'Create `{external_credential}` using the approved authentication model.',
+                    'For a no-auth public training endpoint, select the no-authentication option supported by the org.',
+                    'For a token or OAuth endpoint, the instructor enters the credential securely. Students never copy the secret.',
+                    'Create a named principal and save.',
+                ],
+                'checkpoint': 'The External Credential and principal exist without any secret in source code.',
+                'evidence': 'Redacted Setup screenshot.',
+                'commands': [],
+                'caution': 'Never include passwords, tokens, client secrets, or authentication headers in screenshots.',
+            },
+            {
+                'title': 'Grant principal access',
+                'purpose': 'Authorize only the classroom users who need the live integration.',
+                'actions': [
+                    f'Create permission set `Use_{context["prefix"]}_Live_API`.',
+                    'Open External Credential Principal Access and enable the principal.',
+                    'Assign the permission set to the instructor-approved integration test user.',
+                    'Confirm a user without the permission cannot execute the integration.',
+                ],
+                'checkpoint': 'The approved user has access and an unassigned user does not.',
+                'evidence': 'Permission-set assignment and access test.',
+                'commands': [],
+                'caution': None,
+            },
+            {
+                'title': 'Create and verify the Named Credential',
+                'purpose': 'Define the reusable endpoint alias for the real service.',
+                'actions': [
+                    f'Create Named Credential `{named_credential}`.',
+                    f'Use endpoint `{endpoint}`.',
+                    f'Link `{external_credential}`.',
+                    'Enable callouts and save.',
+                    'Record the Apex endpoint format `callout:' + named_credential + path + '`.',
+                ],
+                'checkpoint': 'The Named Credential is enabled and points to the approved live base URL.',
+                'evidence': 'Redacted Named Credential screenshot.',
+                'commands': [],
+                'caution': 'Do not hard-code the base URL in Apex.',
+            },
+            {
+                'title': 'Build typed request, response, and service classes',
+                'purpose': 'Keep JSON handling and live-call logic structured and reviewable.',
+                'actions': [
+                    f'Generate `{request_class}`, `{response_class}`, and `{service_class}`.',
+                    'Model only documented request and response fields.',
+                    'Create HttpRequest using the Named Credential alias and documented resource path.',
+                    'Set method, headers, timeout, and body from the contract.',
+                    'Handle 2xx, validation, authentication, rate-limit, and server responses separately.',
+                    'Return a structured result instead of raw response text.',
+                ],
+                'checkpoint': 'The service compiles and contains no URL, token, or secret.',
+                'evidence': 'Apex classes and code review notes.',
+                'commands': [
+                    f'sf apex generate class --name {request_class} --output-dir force-app/main/default/classes',
+                    f'sf apex generate class --name {response_class} --output-dir force-app/main/default/classes',
+                    f'sf apex generate class --name {service_class} --output-dir force-app/main/default/classes',
+                ],
+                'caution': None,
+            },
+            {
+                'title': 'Execute a real call in the training org',
+                'purpose': 'Prove that Salesforce reaches the real endpoint and receives live data.',
+                'actions': [
+                    'Create one fictional classroom record containing safe request values.',
+                    'Run the service from Execute Anonymous or an instructor-approved screen action.',
+                    'Confirm the debug log contains the actual HTTP status code and a redacted response summary.',
+                    'Confirm the response is mapped onto the correct Salesforce record.',
+                    'Save an Integration Log with request ID, endpoint alias, timestamp, status code, outcome, and safe message.',
+                ],
+                'checkpoint': 'The org receives an actual successful response from the live endpoint and updates Salesforce.',
+                'evidence': 'Screenshot of HTTP 2xx evidence, mapped record, and integration log with sensitive data removed.',
+                'commands': ['sf apex run --file scripts/apex/run-live-integration.apex --target-org PROJECT_ORG'],
+                'caution': 'A live call is required. Do not submit a fabricated response or Postman-only result.',
+            },
+            {
+                'title': 'Add asynchronous processing and recovery',
+                'purpose': 'Make the live integration safe for user transactions and operational failures.',
+                'actions': [
+                    'Wrap the service in Queueable Apex implementing Database.AllowsCallouts.',
+                    'Create an idempotency key using the Salesforce record and operation.',
+                    'Retry only transient failures with a capped attempt count.',
+                    'Do not retry business-validation or permission failures.',
+                    'Add a manual retry action available only to an approved persona.',
+                    'Run one controlled error scenario without exposing secrets.',
+                ],
+                'checkpoint': 'Duplicate work is skipped, transient failure is logged, and manual recovery is available.',
+                'evidence': 'Queueable code, logs, and recovery demonstration.',
+                'commands': [],
+                'caution': None,
+            },
+            {
+                'title': 'Test with HttpCalloutMock and commit',
+                'purpose': 'Keep automated tests reliable while production code performs genuine callouts.',
+                'actions': [
+                    f'Create `{test_class}` and mock classes for success, validation error, rate limit, server error, and malformed JSON.',
+                    'Use Test.setMock inside tests. Do not call the live service from Apex tests.',
+                    'Assert mapped records, integration logs, retry counts, and duplicate prevention.',
+                    'Run local tests and commit the credential metadata, Apex code, documentation, and redacted live-call evidence.',
+                ],
+                'checkpoint': 'All automated tests pass with mocks, and separate evidence proves the real training call succeeded.',
+                'evidence': 'Test results, live-call proof, sequence diagram, and Git commit.',
+                'commands': [
+                    f'sf apex generate class --name {test_class} --output-dir force-app/main/default/classes',
+                    'sf apex run test --test-level RunLocalTests --result-format human --code-coverage --wait 30 --target-org PROJECT_ORG',
+                    'git add force-app docs scripts',
+                    'git commit -m "Connect classroom project to live external API"',
+                ],
+                'caution': 'Mocks belong in tests only; they are not a substitute for the required real callout demonstration.',
+            },
+        ],
+        'final_check': [
+            'The Named Credential and External Credential are configured without secrets in Apex or Git.',
+            'A genuine HTTP call succeeded from the Salesforce training org.',
+            'The live response was mapped into the classroom project record.',
+            'Integration logs, idempotency, retry, and recovery behavior are visible.',
+            'Automated Apex tests use HttpCalloutMock and do not depend on the live service.',
+        ],
+    }
+
 def build_guided_lab(project, week_number, research_topic, linkedin_topic):
     project = dict(project)
 
@@ -1969,8 +2139,11 @@ def build_guided_lab(project, week_number, research_topic, linkedin_topic):
         )
 
     context = _context(project, week_number)
-    blueprint = WEEK_GUIDES[week_number]
-    guide = _format(blueprint, context)
+    if week_number == 11:
+        guide = _live_integration_guide(context)
+    else:
+        blueprint = WEEK_GUIDES[week_number]
+        guide = _format(blueprint, context)
     prerequisites = list(COMMON_PREREQUISITES)
     prerequisites.extend(guide.pop('extra_prerequisites', []))
     guide['prerequisites'] = prerequisites
