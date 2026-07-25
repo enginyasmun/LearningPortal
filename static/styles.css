@@ -389,3 +389,290 @@ body{font-size:16px;line-height:1.62}
 @media(max-width:1350px){.avatar-option-grid{grid-template-columns:repeat(5,1fr)}}
 @media(max-width:1150px){.workspace-content{padding-left:28px;padding-right:28px}.project-phase-grid-v11{grid-template-columns:1fr 1fr}.profile-v11-bottom{grid-template-columns:1fr}.complete-roadmap-v11 .track-roadmap{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:760px){body{font-size:15px}.workspace-content{padding:28px 17px 60px}.track-header-readable{padding:25px 22px}.track-copy h2{font-size:29px}.project-phase-grid-v11{grid-template-columns:1fr;padding:0 17px 20px}.project-phase-grid-v11>article{min-height:auto}.complete-roadmap-v11{margin:0 17px 20px}.complete-roadmap-v11 .track-roadmap{grid-template-columns:1fr 1fr}.avatar-studio-card{padding:22px}.avatar-studio-intro{grid-template-columns:1fr;text-align:center}.avatar-preview-v11{margin:auto}.avatar-studio-actions{justify-content:center}.avatar-choice-heading{align-items:flex-start;flex-direction:column}.avatar-option-grid{grid-template-columns:repeat(2,1fr)}.avatar-option-copy strong{font-size:11px}.profile-v11-tip h2{font-size:29px}}
+
+
+/* =========================================================
+   Version 12: large-screen readability system
+   Default target: comfortable reading at 100% browser zoom
+   ========================================================= */
+
+/* Global reading scale and line length */
+body{
+  font-size:18px;
+  line-height:1.68;
+}
+.workspace-content{
+  width:min(1370px,100%);
+  padding-top:42px;
+}
+p{line-height:1.72}
+
+/* Navigation, top bar, buttons and common labels */
+.brand-text strong{font-size:16px}
+.brand-text small{font-size:12px}
+.nav-label{font-size:11px}
+.workspace-link{font-size:14px;min-height:50px}
+.nav-copy{line-height:1.2}
+.profile-meta strong{font-size:14px}
+.profile-meta small{font-size:11px}
+.topbar-location span{font-size:11px}
+.topbar-location strong{font-size:18px}
+.command-trigger span{font-size:14px}
+.command-trigger kbd,.command-search kbd{font-size:11px}
+.topbar-link{font-size:14px}
+.workspace-footer{font-size:11px}
+.button{font-size:14px;min-height:48px;padding-inline:19px}
+.large-button{min-height:54px;font-size:15px}
+.text-action{font-size:14px}
+.soft-badge,.type-pill,.status-pill,.access-pill,.score-chip,.current-user-pill,.selected-badge,.lock-badge,.industry-chip{font-size:12px}
+.flash{font-size:14px}
+.breadcrumb-modern{font-size:14px}
+.eyebrow{font-size:12px!important}
+.page-heading p{font-size:17px}
+.page-heading h1{font-size:clamp(44px,4.5vw,68px)}
+
+/* Dashboard and general cards */
+.dashboard-spotlight p,.student-hero p,.curriculum-hero-modern p{font-size:17px}
+.spotlight-label{font-size:11px}
+.metric-card>span{font-size:13px}
+.metric-card>small{font-size:11px}
+.card-heading h2{font-size:28px}
+.action-list strong,.quick-action-row strong,.quick-action-card h3{font-size:17px!important}
+.action-list small,.quick-action-row small,.quick-action-card p{font-size:14px!important}
+.program-card p,.selected-project-card p,.next-action-card p{font-size:14px}
+
+/* Tables and forms */
+.modern-table th{font-size:12px;padding:16px 18px}
+.modern-table td{font-size:14px;padding:19px 18px}
+.modern-table td>strong{font-size:15px}
+.modern-table td>small,.identity-cell small,.stacked-number small{font-size:12px}
+.row-action{font-size:13px}
+.date-value,.muted-value{font-size:13px}
+.points-value{font-size:15px}
+.modern-search input,.modern-select select,.filter-controls select{font-size:14px}
+.modern-field{font-size:14px}
+.modern-field input,.modern-field select,.modern-field textarea{font-size:16px;min-height:48px}
+.modern-field small{font-size:12px}
+.form-card-heading p{font-size:15px}
+.model-card p{font-size:15px}
+.model-card li{font-size:14px}
+.inline-editor input,.inline-editor select{font-size:13px;height:42px}
+.inline-editor button{font-size:12px}
+.filter-title strong{font-size:15px}
+.filter-title small{font-size:12px}
+
+/* Project and curriculum readability */
+.track-copy p{font-size:16px}
+.track-tags span{font-size:13px}
+.project-phase-grid-v11>article>span{font-size:13px}
+.project-phase-grid-v11>article>strong{font-size:26px}
+.project-phase-grid-v11>article>p{font-size:15px}
+.project-phase-grid-v11 li{font-size:14px;line-height:1.58}
+.project-phase-grid-v11 li b{font-size:13px}
+.complete-roadmap-v11 summary{font-size:18px}
+.complete-roadmap-v11 .roadmap-node{min-height:145px;padding:19px 17px}
+.complete-roadmap-v11 .roadmap-node span{font-size:13px}
+.complete-roadmap-v11 .roadmap-node strong{font-size:15px;line-height:1.48}
+.complete-roadmap-v11 .roadmap-node small{font-size:11px}
+.track-footer>span{font-size:14px}
+.curriculum-week-card p{font-size:14px}
+.curriculum-week-card h3{font-size:23px}
+.class-phase-card p,.stream-card p{font-size:15px}
+.class-phase-card li,.stream-card li{font-size:14px}
+
+/* Week navigation */
+.week-tabs{
+  padding:9px;
+  gap:8px;
+  margin-bottom:22px;
+}
+.week-tabs a{
+  padding:12px 14px;
+  font-size:13px;
+  min-height:45px;
+  display:grid;
+  place-items:center;
+}
+
+/* Guided lab hero */
+.guided-lab-modern,.research-lab-modern,.linkedin-lab-modern{
+  max-width:1320px;
+  margin-left:auto;
+  margin-right:auto;
+}
+.guided-lab-hero{
+  grid-template-columns:minmax(0,1fr) 280px;
+  padding:42px 44px;
+  gap:36px;
+}
+.guided-lab-hero h2{
+  font-size:clamp(42px,4vw,58px);
+  line-height:1.06;
+  max-width:950px;
+}
+.guided-lab-hero p{
+  font-size:16px;
+  line-height:1.75;
+  max-width:900px;
+}
+.lab-progress-card{padding:22px;border-radius:21px}
+.lab-progress-card>span{font-size:11px}
+.lab-progress-card>strong{font-size:24px}
+.lab-progress-card>small{font-size:12px}
+
+/* Guided lab overview */
+.lab-overview-modern article{
+  gap:16px;
+  padding:28px 27px;
+}
+.overview-icon{width:46px;height:46px;border-radius:15px}
+.overview-icon svg{width:21px;height:21px}
+.lab-overview-modern .eyebrow{font-size:12px!important}
+.lab-overview-modern ul{padding-left:20px;margin-top:13px}
+.lab-overview-modern li{
+  font-size:14px;
+  line-height:1.72;
+  margin:3px 0;
+}
+.tool-list{gap:8px;margin-top:14px}
+.tool-list span{
+  padding:9px 11px;
+  border-radius:10px;
+  font-size:13px;
+}
+
+/* Guided steps */
+.guided-step-stack{
+  gap:15px;
+  padding:22px;
+}
+.guided-step-modern{
+  grid-template-columns:112px minmax(0,1fr);
+  border-radius:23px;
+}
+.step-number-column{padding:24px 13px}
+.step-number-column>span{font-size:36px}
+.step-number-column i{width:34px;height:34px;border-radius:11px;font-size:13px}
+.step-number-column small{font-size:11px}
+.guided-step-modern summary{
+  padding:25px 27px;
+  min-height:112px;
+}
+.guided-step-modern summary span{font-size:11px}
+.guided-step-modern summary strong{
+  font-size:25px;
+  line-height:1.22;
+  margin-top:7px;
+}
+.guided-step-modern summary small{
+  font-size:14px;
+  line-height:1.6;
+  margin-top:7px;
+}
+.guided-step-modern summary b{width:38px;height:38px;border-radius:12px;font-size:21px}
+.step-content{padding:0 27px 28px}
+.caution-card{padding:17px;border-radius:16px}
+.caution-card>span{width:32px;height:32px}
+.caution-card strong{font-size:14px}
+.caution-card p{font-size:13px;line-height:1.65}
+.action-steps{gap:11px}
+.action-steps li{
+  gap:13px;
+  padding:16px 17px;
+  border-radius:16px;
+}
+.action-steps li:before{
+  width:31px;
+  height:31px;
+  border-radius:10px;
+  font-size:12px;
+}
+.action-steps li span{
+  font-size:15px;
+  line-height:1.68;
+}
+.command-card{margin-top:20px;border-radius:18px}
+.command-card>div{height:48px;padding-inline:17px}
+.command-card>div span{font-size:11px}
+.command-card button{font-size:11px;padding:7px 10px}
+.command-card pre{
+  padding:22px;
+  font-size:14px;
+  line-height:1.72;
+}
+.verification-grid{gap:14px;margin-top:20px}
+.verification-grid article{padding:20px;border-radius:17px}
+.verification-grid h3{font-size:19px}
+.verification-grid p{font-size:14px;line-height:1.7}
+.quality-gate{padding:31px 34px;gap:28px}
+.quality-gate h3{font-size:29px}
+.quality-gate li{font-size:14px;line-height:1.55}
+
+/* Research and LinkedIn labs */
+.research-lab-modern>header,.linkedin-lab-modern>header{padding:33px 35px}
+.research-mark,.linkedin-mark{width:54px;height:54px;border-radius:17px;font-size:18px}
+.research-lab-modern h2,.linkedin-lab-modern h2{font-size:36px}
+.research-lab-modern header p,.linkedin-lab-modern header p{font-size:15px;line-height:1.7}
+.time-chip{font-size:12px;padding:9px 12px}
+.search-query-panel{padding:27px 30px;gap:25px}
+.search-query-panel p{font-size:14px}
+.search-query-panel code{font-size:13px;padding:12px 13px}
+.research-method-grid{gap:14px;padding:22px}
+.research-method-grid article{padding:21px;border-radius:19px}
+.method-index{width:38px;height:38px;font-size:12px}
+.research-method-grid h3{font-size:20px}
+.research-method-grid li{font-size:14px;line-height:1.72}
+.method-output{padding:14px;border-radius:13px}
+.method-output span{font-size:11px}
+.method-output p{font-size:13px;line-height:1.65}
+.source-scorecard{padding:29px 31px}
+.source-scorecard h3{font-size:27px}
+.source-scorecard li{font-size:14px;line-height:1.58}
+.linkedin-method-grid{gap:16px;padding:22px}
+.linkedin-method-grid article{padding:23px;border-radius:19px}
+.linkedin-method-grid li{font-size:14px;line-height:1.72}
+
+/* Submission cards */
+.assignment-card-grid{gap:18px}
+.modern-assignment-card{min-height:440px;padding:27px;border-radius:25px}
+.assignment-type-icon{width:48px;height:48px;border-radius:15px;font-size:13px}
+.modern-assignment-card h3{font-size:28px}
+.modern-assignment-card>p{font-size:15px;line-height:1.72}
+.deliverable-box{padding:17px;border-radius:16px}
+.deliverable-box p{font-size:14px;line-height:1.68}
+
+/* Profile avatars */
+.avatar-option-copy strong{font-size:13px}
+.avatar-option-copy small{font-size:11px}
+
+@media(max-width:1150px){
+  body{font-size:17px}
+  .workspace-content{width:100%}
+  .guided-lab-hero{grid-template-columns:1fr}
+  .lab-progress-card{max-width:420px}
+  .research-method-grid{grid-template-columns:1fr 1fr}
+}
+
+@media(max-width:760px){
+  body{font-size:16px}
+  .workspace-content{padding:28px 17px 60px}
+  .workspace-link{font-size:14px}
+  .page-heading p{font-size:16px}
+  .week-tabs a{font-size:12px;min-width:125px}
+  .guided-lab-hero{padding:30px 24px}
+  .guided-lab-hero h2{font-size:36px}
+  .guided-lab-hero p{font-size:15px}
+  .lab-overview-modern li{font-size:14px}
+  .guided-step-stack{padding:13px}
+  .guided-step-modern{grid-template-columns:1fr}
+  .step-number-column{padding:16px 18px}
+  .guided-step-modern summary{padding:21px 19px}
+  .guided-step-modern summary strong{font-size:22px}
+  .guided-step-modern summary small{font-size:14px}
+  .step-content{padding:0 19px 22px}
+  .action-steps li span{font-size:15px}
+  .verification-grid,.research-method-grid,.linkedin-method-grid{grid-template-columns:1fr}
+  .command-card pre{font-size:13px}
+  .modern-table th{font-size:11px}
+  .modern-table td{font-size:14px}
+}
