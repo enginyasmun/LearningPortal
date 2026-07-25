@@ -2,7 +2,7 @@
 {% block title %}Profile Settings | Developer Academy{% endblock %}
 {% block content %}
 <section class="page-heading profile-page-heading profile-heading-v11">
-  <div><span class="eyebrow">Account settings</span><h1>Make the workspace yours.</h1><p>Choose one of ten illustrated avatars or upload a personal photo. Your profile appears across mentoring, submissions, grading, and navigation.</p></div>
+  <div><span class="eyebrow">Account settings</span><h1>Make the workspace yours.</h1><p>Choose one of ten realistic illustrated portraits or upload a personal photo. Your profile appears across mentoring, submissions, grading, and navigation.</p></div>
 </section>
 
 <form class="profile-v11-form reveal" method="post" enctype="multipart/form-data">
@@ -10,9 +10,9 @@
   <section class="surface-card avatar-studio-card">
     <div class="avatar-studio-intro">
       <div class="avatar-preview-shell avatar-preview-v11"><img src="{{ avatar_src(user.avatar_filename) }}" alt="Current profile picture" data-avatar-preview></div>
-      <div><span class="eyebrow">Profile identity</span><h2>Pick an avatar that feels like you.</h2><p>Five male and five female illustrated options are included. A custom square photo is also supported.</p><div class="avatar-studio-actions"><label class="button button-secondary avatar-upload-button">Upload my photo<input type="file" name="avatar" accept="image/png,image/jpeg,image/webp" data-avatar-input hidden></label>{% if user.avatar_filename %}<label class="remove-avatar"><input type="checkbox" name="remove_avatar" value="1"> Use default avatar</label>{% endif %}</div></div>
+      <div><span class="eyebrow">Profile identity</span><h2>Pick an avatar that feels like you.</h2><p>Five male and five female semi-realistic portrait options are included. A custom square photo is also supported.</p><div class="avatar-studio-actions"><label class="button button-secondary avatar-upload-button">Upload my photo<input type="file" name="avatar" accept="image/png,image/jpeg,image/webp" data-avatar-input hidden></label>{% if user.avatar_filename %}<label class="remove-avatar"><input type="checkbox" name="remove_avatar" value="1"> Use default avatar</label>{% endif %}</div></div>
     </div>
-    <div class="avatar-choice-heading"><div><span class="eyebrow">Built-in choices</span><h3>Ten friendly avatar styles</h3></div><span>Select one and save your profile</span></div>
+    <div class="avatar-choice-heading"><div><span class="eyebrow">Built-in choices</span><h3>Ten realistic portrait options</h3></div><span>Select one and save your profile</span></div>
     <div class="avatar-option-grid">
       {% for preset in avatar_presets %}
       <label class="avatar-option {% if user.avatar_filename == preset.filename %}selected{% endif %}">

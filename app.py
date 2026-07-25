@@ -22,13 +22,17 @@ DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 ALLOWED_EXTENSIONS = {"pdf", "doc", "docx", "txt", "md", "png", "jpg", "jpeg", "zip"}
 AVATAR_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
 AVATAR_PRESETS = [
-    {"filename": f"avatar-male-{index:02d}.svg", "label": f"Male avatar {index}", "group": "Male"}
+    {"filename": f"realistic-male-{index:02d}.png", "label": f"Male portrait {index}", "group": "Male"}
     for index in range(1, 6)
 ] + [
-    {"filename": f"avatar-female-{index:02d}.svg", "label": f"Female avatar {index}", "group": "Female"}
+    {"filename": f"realistic-female-{index:02d}.png", "label": f"Female portrait {index}", "group": "Female"}
     for index in range(1, 6)
 ]
-AVATAR_PRESET_FILES = {item["filename"] for item in AVATAR_PRESETS}
+LEGACY_AVATAR_PRESET_FILES = {
+    *(f"avatar-male-{index:02d}.svg" for index in range(1, 6)),
+    *(f"avatar-female-{index:02d}.svg" for index in range(1, 6)),
+}
+AVATAR_PRESET_FILES = {item["filename"] for item in AVATAR_PRESETS} | LEGACY_AVATAR_PRESET_FILES
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "change-this-secret-in-production")
