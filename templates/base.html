@@ -9,9 +9,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='22') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='23') }}">
 </head>
-<body class="{% if current_user %}app-body{% else %}public-body{% endif %}">
+<body class="{% if current_user %}app-body{% else %}public-body{% if request.endpoint in ['login','register'] %} auth-page{% endif %}{% endif %}">
 {% if current_user %}
 {% set endpoint = request.endpoint %}
 {% if endpoint == 'instructor_dashboard' %}{% set page_title = 'Overview' %}{% set page_area = 'Instructor' %}
@@ -167,11 +167,11 @@
   <nav class="pub-nav"><a href="{{ url_for('home') }}#program">Program</a><a href="{{ url_for('home') }}#weeks">16 weeks</a><a href="{{ url_for('login') }}">Sign in</a><a class="btn btn-sm btn-primary" href="{{ url_for('register') }}">Create account</a></nav>
 </header>
 <main class="pub-main">
-  {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="pub-wrap" style="padding-top:20px"><div class="flash-stack">{% for category,message in messages %}<div class="flash {{ category }}"><span>{{ message }}</span></div>{% endfor %}</div></div>{% endif %}{% endwith %}
+  {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="auth-flash"><div class="flash-stack">{% for category,message in messages %}<div class="flash {{ category }}"><span>{{ message }}</span><button type="button" data-flash-close aria-label="Dismiss">&times;</button></div>{% endfor %}</div></div>{% endif %}{% endwith %}
   {% block public_content %}{% block content_public %}{% endblock %}{% endblock %}
 </main>
 <footer class="pub-foot"><span><strong>Salesforce Developer Academy</strong> · One classroom project, built together over sixteen weeks.</span><span>Build · Research · Explain · Deliver</span></footer>
 {% endif %}
-<script src="{{ url_for('static', filename='app.js', v='22') }}" defer></script>
+<script src="{{ url_for('static', filename='app.js', v='23') }}" defer></script>
 </body>
 </html>

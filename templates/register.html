@@ -6,7 +6,13 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     <span class="brand-mark">SF</span>
     <h1>Create your account</h1>
-    <p>Register below. An academy instructor reviews every request before your workspace opens.</p>
+    <p>Takes a minute. An instructor reviews your request and assigns your classroom.</p>
+
+    <ol class="reg-flow">
+      <li><b>1</b><span>You register</span></li>
+      <li><b>2</b><span>Instructor approves</span></li>
+      <li><b>3</b><span>You start Week 1</span></li>
+    </ol>
 
     <label class="field"><span>Full name</span>
       <input type="text" name="name" required autocomplete="name" placeholder="Jordan Ellis">
@@ -19,13 +25,13 @@
     <div class="field-grid">
       <label class="field"><span>Password</span>
         <div class="input-shell">
-          <input type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters">
+          <input type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="8+ characters">
           <button type="button" data-password-toggle aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M12 5c5.5 0 9.4 4.2 10 7-.6 2.8-4.5 7-10 7S2.6 14.8 2 12c.6-2.8 4.5-7 10-7Zm0 2c-4 0-7 2.9-7.8 5 .8 2.1 3.8 5 7.8 5s7-2.9 7.8-5C19 9.9 16 7 12 7Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z"/></svg></button>
         </div>
       </label>
       <label class="field"><span>Confirm password</span>
         <div class="input-shell">
-          <input type="password" name="confirm_password" required minlength="8" autocomplete="new-password" placeholder="Repeat your password">
+          <input type="password" name="confirm_password" required minlength="8" autocomplete="new-password" placeholder="Repeat it">
           <button type="button" data-password-toggle aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M12 5c5.5 0 9.4 4.2 10 7-.6 2.8-4.5 7-10 7S2.6 14.8 2 12c.6-2.8 4.5-7 10-7Zm0 2c-4 0-7 2.9-7.8 5 .8 2.1 3.8 5 7.8 5s7-2.9 7.8-5C19 9.9 16 7 12 7Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z"/></svg></button>
         </div>
       </label>
