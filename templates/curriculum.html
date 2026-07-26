@@ -1,69 +1,34 @@
 {% extends "base.html" %}
 {% block title %}Curriculum | Developer Academy{% endblock %}
 {% block content %}
-<section class="curriculum-overview-hero reveal">
-  <div class="curriculum-overview-copy">
-    <span class="spotlight-label"><i></i> Academy-wide curriculum</span>
-    <h1>The complete 16-week Salesforce developer class.</h1>
-    <p>This syllabus is shared by every student. It explains what the class learns each week, how technical depth progresses, how research skills are developed, and how students communicate what they learned. Industry-specific build instructions live under Project Plans.</p>
-    <div class="curriculum-actions">
-      <a class="button button-light" href="#class-roadmap">Explore the class</a>
-      <a class="text-action light" href="{{ url_for('projects') }}">View guided project choices <span>→</span></a>
-    </div>
-  </div>
-  <figure class="curriculum-overview-visual">
-    <img src="{{ url_for('static', filename='images/guided-learning-hero.webp') }}" alt="Illustration of a guided Salesforce learning program">
-  </figure>
-  <div class="curriculum-overview-stats">
-    <article><strong>16</strong><span>common class weeks</span></article>
-    <article><strong>16</strong><span>research assignments</span></article>
-    <article><strong>16</strong><span>LinkedIn assignments</span></article>
-    <article><strong>5</strong><span>guided project choices</span></article>
+<section class="head-row">
+  <div>
+    <span class="k">Shared class syllabus</span>
+    <h1 class="page-head">The sixteen weeks</h1>
+    <p class="lede">Every classroom follows the same engineering path. The application each class builds differs by industry — the skills do not.</p>
   </div>
 </section>
 
-<section class="curriculum-separation-note reveal">
-  <article>
-    <span class="separation-icon curriculum-icon">01</span>
-    <div><span class="eyebrow">Curriculum</span><h2>What the entire class learns</h2><p>Salesforce concepts, tools, architecture, research methods, professional communication, and the progression from foundation to delivery.</p></div>
-  </article>
-  <article>
-    <span class="separation-icon project-icon">02</span>
-    <div><span class="eyebrow">Project plans</span><h2>How each classroom builds</h2><p>One shared classroom industry application with exact, step-by-step guided labs, checkpoints, tests, and evidence requirements.</p></div>
-  </article>
-</section>
+<div class="stage-strip">
+  <article><span>Weeks 01–02</span><strong>Source control gate</strong><p>Git and GitHub fluency before project work begins.</p></article>
+  <article><span>Weeks 03–10</span><strong>Design and engineer</strong><p>Data model, security, Flow, Apex, queries, and testing.</p></article>
+  <article><span>Weeks 11–13</span><strong>Integrate and build UI</strong><p>External APIs and Lightning Web Components.</p></article>
+  <article><span>Weeks 14–16</span><strong>AI and delivery</strong><p>Claude Code, MCP, Agentforce, and the final delivery.</p></article>
+</div>
 
-<section class="class-phase-section reveal">
-  <div class="section-heading-modern"><div><span class="eyebrow">Program progression</span><h2>Git readiness first, then engineering, AI, and delivery</h2></div><p>The class follows the same learning sequence regardless of the classroom industry project.</p></div>
-  <section class="curriculum-git-gate-v15"><span class="eyebrow">Weeks 1–2 · Required readiness gate</span><h3>Git, GitHub, VS Code, pull requests, review, and merge conflicts come first.</h3><p>Students must prove the complete source-control workflow before the classroom begins industry functionality.</p></section>
-  <section class="ai-intensive-banner-v17">
-    <div><span class="eyebrow">Required AI engineering sequence</span><h3>Two dedicated weeks for Claude, Salesforce CLI, and MCP.</h3><p>Students first learn how to use Claude Code with deterministic Salesforce CLI verification, then connect Claude to instructor-approved MCP servers with least privilege and human approval.</p></div>
-    <div class="ai-intensive-weeks-v17"><article><b>14</b><span>Claude AI + Salesforce CLI</span><small>Plan, build, review, test, analyze, and validate.</small></article><article><b>15</b><span>MCP servers + secure tools</span><small>Connect, scope, approve, verify, audit, and disable.</small></article></div>
-  </section>
-  <div class="class-phase-grid">
-    <article><span>Weeks 3–6</span><strong>Understand and design</strong><p>Discovery, architecture, data modeling, data quality, and access control.</p></article>
-    <article><span>Weeks 7–10</span><strong>Automate and engineer</strong><p>Flow, Apex services, queries, triggers, secure code, and automated testing.</p></article>
-    <article><span>Weeks 11–13</span><strong>Integrate and build experience</strong><p>Real external integrations, LWC foundations, files, communication, and performance.</p></article>
-    <article><span>Weeks 14–16</span><strong>Develop with AI and agents</strong><p>Claude AI with Salesforce CLI, MCP servers and secure tools, Agentforce governance, and final delivery.</p></article>
-  </div>
-</section>
-
-<section class="roadmap-section reveal" id="class-roadmap">
-  <div class="section-heading-modern">
-    <div><span class="eyebrow">Class roadmap</span><h2>Sixteen weeks of shared learning</h2></div>
-    <p>Open a week to see the class topic, research homework, communication goal, and how it connects to the classroom project.</p>
-  </div>
-  <div class="curriculum-grid curriculum-overview-grid">
-  {% for week in weeks %}
-    <a class="curriculum-week-card stage-{{ week.stage|lower|replace(' ','-') }}" href="{{ url_for('curriculum_week', week_number=week.week_number) }}">
-      <div class="week-card-header"><span class="week-index">{{ '%02d'|format(week.week_number) }}</span><span class="stage-chip">{{ week.stage }}</span></div>
-      <span class="eyebrow">Class topic</span>
-      <h3>{{ week.title }}</h3>
-      <p>{{ week.topics[:185] }}{% if week.topics|length > 185 %}…{% endif %}</p>
-      <div class="curriculum-card-streams"><span>Research</span><span>LinkedIn</span><span>Project application</span></div>
-      <div class="week-card-footer"><span>Shared by every student</span><b>View overview →</b></div>
+<section class="panel">
+  <div class="panel-head"><div><span class="k">Week by week</span><h2>Curriculum</h2></div></div>
+  <div class="rows">
+    {% for week in weeks %}
+    <a class="row" href="{{ url_for('curriculum_week', week_number=week.week_number) }}">
+      <span class="num">{{ '%02d'|format(week.week_number) }}</span>
+      <div class="row-main">
+        <strong>{{ week.title }}</strong>
+        <small class="week-row-topics">{{ week.topics }}</small>
+      </div>
+      <div class="row-side"><span class="pill">{{ week.stage }}</span><span class="row-arr">→</span></div>
     </a>
-  {% endfor %}
+    {% endfor %}
   </div>
 </section>
 {% endblock %}

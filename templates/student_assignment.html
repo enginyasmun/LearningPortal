@@ -1,38 +1,86 @@
 {% extends "base.html" %}
 {% block title %}{{ assignment.display_title }} | Developer Academy{% endblock %}
 {% block content %}
-<a class="breadcrumb-modern" href="{{ url_for('student_dashboard') }}"><span>←</span> Back to my dashboard</a>
+<a class="back" href="{{ url_for('student_dashboard') }}">← My dashboard</a>
 
-<section class="assignment-header reveal">
-  <div><div class="review-header-meta"><span class="type-pill {{ assignment.category|lower|replace(' ','-') }}">{{ 'Final Project' if assignment.category == 'Capstone' else assignment.category }}</span><span>Week {{ assignment.week_number }} of 16</span></div><h1>{{ assignment.display_title }}</h1><p>{{ assignment.display_instructions }}</p><span class="project-context-chip">{{ assignment.industry }} · {{ assignment.project_title }}</span></div>
-  <span class="status-pill large-status {{ (submission.status if submission else 'not-started')|lower|replace(' ','-') }}"><i></i>{{ submission.status if submission else 'Not Started' }}</span>
+<section class="head-row">
+  <div>
+    <div class="meta" style="display:flex;gap:8px;margin-bottom:8px">
+      <span class="pill">Week {{ '%02d'|format(assignment.week_number) }}</span>
+      <span class="pill {{ assignment.category|lower|replace(' ','-') }}">{{ 'Final Project' if assignment.category == 'Capstone' else assignment.category }}</span>
+      {% if submission %}<span class="pill {{ submission.status|lower|replace(' ','-') }}"><i></i>{{ submission.status }}</span>{% endif %}
+    </div>
+    <h1 class="page-head">{{ assignment.display_title }}</h1>
+    <p class="lede">{{ assignment.week_title }} · {{ assignment.project_title }}</p>
+  </div>
+  {% if assignment.category in ['Hands-On','Capstone'] %}
+  <div class="actions"><a class="btn" href="{{ url_for('project_week', project_id=classroom.project_id, week_number=assignment.week_number) }}">Open guided lab →</a></div>
+  {% endif %}
 </section>
 
-<section class="submission-workspace reveal">
-  <aside class="assignment-context">
-    <article class="surface-card sticky-context-card">
-      <div class="context-icon"><svg viewBox="0 0 24 24"><path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm2 4v2h10V7H7Zm0 4v2h10v-2H7Zm0 4v2h7v-2H7Z"/></svg></div>
-      <span class="eyebrow">Assignment details</span><h2>Required deliverable</h2><p>{{ assignment.display_deliverable }}</p>
-      <a class="guide-link" href="{{ url_for('project_week', project_id=assignment.project_id, week_number=assignment.week_number) }}#guided-lab"><span>Open step-by-step guide</span><b>→</b></a>
-      <div class="context-facts"><div><span>Maximum score</span><strong>{{ assignment.max_score }}</strong></div><div><span>Due date</span><strong>{{ assignment.due_date or 'To be assigned' }}</strong></div><div><span>Current status</span><strong>{{ submission.status if submission else 'Not Started' }}</strong></div></div>
-      {% if submission and submission.mentor_feedback %}<section class="feedback-panel"><div><span>✓</span><strong>Instructor feedback</strong></div><p>{{ submission.mentor_feedback }}</p>{% if submission.score is not none %}<b>{{ submission.score }} / {{ assignment.max_score }}</b>{% endif %}</section>{% endif %}
-    </article>
-  </aside>
+<div class="split">
+  <div>
+    <section class="panel">
+      <div class="doc-block"><span class="k">Instructions</span><p>{{ assignment.display_instructions }}</p></div>
+      <div class="doc-block"><span class="k">Deliverable</span><p>{{ assignment.display_deliverable }}</p></div>
+      <div class="doc-block"><span class="k">Details</span>
+        <div class="facts" style="margin:8px 0 0;border:0">
+          <div><span>Max score</span><strong class="num">{{ assignment.max_score }}</strong></div>
+          <div><span>Due date</span><strong>{{ assignment.due_date or 'Set by instructor' }}</strong></div>
+          <div><span>Type</span><strong>{{ 'Final Project' if assignment.category == 'Capstone' else assignment.category }}</strong></div>
+        </div>
+      </div>
+    </section>
 
-  <form class="surface-card submission-editor" method="post" enctype="multipart/form-data">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-    <div class="form-card-heading compact"><span class="form-icon purple"><svg viewBox="0 0 24 24"><path d="M3 17.3V21h3.7L17.8 9.9l-3.7-3.7L3 17.3ZM20.7 7c.4-.4.4-1 0-1.4l-2.3-2.3a1 1 0 0 0-1.4 0l-1.8 1.8 3.7 3.7L20.7 7Z"/></svg></span><div><span class="eyebrow">Your work</span><h2>Assignment submission</h2><p>Your classroom instructor will review this work.</p></div></div>
-    <div class="form-grid form-grid-two"><label class="modern-field"><span>Submission status</span><select name="status">{% for status in ['Draft','Submitted'] %}<option value="{{ status }}" {% if submission and submission.status == status %}selected{% endif %}>{{ status }}</option>{% endfor %}</select></label><div class="submission-guidance"><strong>Draft</strong><span>Stays editable</span><strong>Submitted</strong><span>Enters the review queue</span></div></div>
-    <label class="modern-field"><span>Written response</span><textarea name="submission_text" rows="13" placeholder="Explain your work, decisions, testing, research, or final demonstration.">{{ submission.submission_text if submission else '' }}</textarea><small>Use clear headings and cite sources where required.</small></label>
-    {% if assignment.category == 'LinkedIn' %}
-      <label class="modern-field linkedin-field"><span>LinkedIn post URL</span><input type="url" name="linkedin_url" value="{{ submission.linkedin_url if submission else '' }}" placeholder="https://www.linkedin.com/posts/..."><small>Submit the draft first, then add the published URL after approval.</small></label><input type="hidden" name="submission_url" value="{{ submission.submission_url if submission else '' }}">
-    {% else %}
-      <label class="modern-field"><span>Repository or submission URL</span><input type="url" name="submission_url" value="{{ submission.submission_url if submission else '' }}" placeholder="https://github.com/..."></label><input type="hidden" name="linkedin_url" value="{{ submission.linkedin_url if submission else '' }}">
+    {% if submission and submission.mentor_feedback %}
+    <section class="panel" style="margin-top:20px">
+      <div class="doc-block">
+        <span class="k">Instructor feedback</span>
+        <p>{{ submission.mentor_feedback }}</p>
+        {% if submission.score is not none %}<p style="margin-top:10px"><strong class="num">Score: {{ submission.score }} / {{ assignment.max_score }}</strong></p>{% endif %}
+      </div>
+    </section>
     {% endif %}
-    <label class="file-drop"><span class="file-icon">↑</span><span><strong>Upload supporting file</strong><small>PDF, document, image, text file, or ZIP. Maximum 12 MB.</small></span><input type="file" name="file"></label>
-    {% if submission and submission.file_name %}<a class="existing-file-link" href="{{ url_for('uploaded_file', filename=submission.file_name) }}">Download current uploaded file <span>↓</span></a>{% endif %}
-    <label class="modern-field"><span>Note to instructor</span><textarea name="student_note" rows="4" placeholder="Add context, questions, or anything your instructor should know.">{{ submission.student_note if submission else '' }}</textarea></label>
-    <div class="editor-footer"><p>Visible only to you, your classroom instructor, and academy administrators.</p><button class="button button-primary" type="submit">Save submission</button></div>
-  </form>
-</section>
+  </div>
+
+  <div class="sticky">
+    <form class="panel panel-pad" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <span class="k" style="margin-bottom:14px">My submission</span>
+
+      <label class="field"><span>Status</span>
+        <select name="status">
+          <option value="Draft" {% if not submission or submission.status == 'Draft' %}selected{% endif %}>Draft — keep working</option>
+          <option value="Submitted" {% if submission and submission.status in ['Submitted','Under Review','Revision Required','Approved','Late'] %}selected{% endif %}>Submitted — ready for review</option>
+        </select>
+      </label>
+
+      <label class="field"><span>Work notes</span>
+        <textarea name="submission_text" rows="6" placeholder="Describe what you built, learned, or concluded...">{{ submission.submission_text if submission else '' }}</textarea>
+      </label>
+
+      {% if assignment.category == 'LinkedIn' %}
+      <label class="field"><span>LinkedIn post URL</span>
+        <input type="url" name="linkedin_url" placeholder="https://www.linkedin.com/posts/..." value="{{ submission.linkedin_url if submission else '' }}">
+      </label>
+      {% else %}
+      <label class="field"><span>Link (GitHub, doc, or org)</span>
+        <input type="url" name="submission_url" placeholder="https://github.com/you/repo" value="{{ submission.submission_url if submission else '' }}">
+      </label>
+      {% endif %}
+
+      <label class="field"><span>Attach a file</span>
+        <input type="file" name="file">
+        {% if submission and submission.file_name %}<small>Current file: {{ submission.file_name }}</small>{% endif %}
+      </label>
+
+      <label class="field"><span>Note to instructor (optional)</span>
+        <textarea name="student_note" rows="2" placeholder="Anything your instructor should know">{{ submission.student_note if submission else '' }}</textarea>
+      </label>
+
+      <button class="btn btn-primary btn-full" type="submit">Save my work</button>
+      <p class="privacy">Feedback and scores are private between you and your instructor.</p>
+    </form>
+  </div>
+</div>
 {% endblock %}

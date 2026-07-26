@@ -1,45 +1,47 @@
 {% extends "base.html" %}
 {% block title %}Salesforce Developer Academy{% endblock %}
 {% block public_content %}
-<section class="marketing-hero">
-  <div class="marketing-copy">
-    <span class="marketing-pill"><i></i> 16-week Salesforce engineering academy</span>
-    <h1>Build developers who can move from <em>learning</em> to production-ready delivery.</h1>
-    <p>One selected industry application, sixteen guided build labs, weekly technical research, professional communication, MCP, AI-assisted development, and Agentforce.</p>
-    <div class="marketing-actions"><a class="button button-primary large-button" href="{{ url_for('login') }}">Enter the academy <span>→</span></a><a class="text-action" href="#program">Explore the program <span>↓</span></a></div>
-    <div class="marketing-proof"><div><strong>16</strong><span>guided weeks</span></div><div><strong>80</strong><span>project-specific labs</span></div><div><strong>48</strong><span>deliverables per student</span></div><div><strong>5</strong><span>industry choices</span></div></div>
-  </div>
-  <div class="product-stage" aria-label="Academy dashboard preview">
-    <div class="preview-glow"></div>
-    <div class="product-window">
-      <div class="product-window-bar"><span></span><span></span><span></span><small>Developer Academy</small></div>
-      <div class="product-window-body">
-        <aside><b>SF</b><i class="active"></i><i></i><i></i><i></i><i></i></aside>
-        <main><div class="preview-heading"><div><small>STUDENT DASHBOARD</small><strong>Good morning, developer.</strong><span>Your progress this week</span></div><em>72%</em></div><div class="preview-stats"><span><small>Completed</small><b>32</b></span><span><small>Approved</small><b>24</b></span><span><small>Average</small><b>91</b></span></div><div class="preview-progress"><i></i></div><div class="preview-list"><article><span class="preview-dot build"></span><div><strong>Apex service layer</strong><small>Hands-On · Week 6</small></div><em>Approved</em></article><article><span class="preview-dot research"></span><div><strong>Secure Apex research</strong><small>Research · Week 9</small></div><em class="review">Review</em></article><article><span class="preview-dot linkedin"></span><div><strong>Learning reflection</strong><small>LinkedIn · Week 9</small></div><em class="draft">Draft</em></article></div></main>
-      </div>
+<div class="pub-wrap">
+  <section class="hero">
+    <span class="k">16-week Salesforce engineering academy</span>
+    <h1>Learn Salesforce by building <em>one real application</em>, start to finish.</h1>
+    <p>Each classroom builds a single industry application together across sixteen guided weeks — from Git and data modeling to Apex, integrations, and governed AI agents.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="{{ url_for('login') }}">Enter the academy →</a>
+      <a class="btn" href="#program">See how it works</a>
     </div>
-    <div class="preview-float float-top"><span>✓</span><div><strong>Feedback received</strong><small>Clear technical explanation</small></div></div>
-    <div class="preview-float float-bottom"><strong>3</strong><span>deliverables<br>every week</span></div>
-  </div>
-</section>
+    <div class="hero-stats">
+      <div><b>16</b><span>guided weeks</span></div>
+      <div><b>80</b><span>project-specific labs</span></div>
+      <div><b>48</b><span>deliverables per student</span></div>
+      <div><b>5</b><span>industry projects</span></div>
+    </div>
+  </section>
 
-<section class="brand-ribbon"><span>Salesforce Platform</span><i></i><span>Apex</span><i></i><span>LWC</span><i></i><span>Security</span><i></i><span>Git & DevOps</span><i></i><span>MCP</span><i></i><span>Agentforce</span></section>
+  <section class="pub-section" id="program">
+    <span class="k">The program</span>
+    <h2>Three deliverables every week: build, research, and explain.</h2>
+    <div class="feat-grid">
+      <article class="feat"><b>01 / Build</b><h3>Guided hands-on labs</h3><p>Exact steps, terminal commands, checkpoints, and evidence for every part of the application — from data model to deployment.</p></article>
+      <article class="feat"><b>02 / Research</b><h3>Learn to find real answers</h3><p>Weekly research homework teaches search strategy, source evaluation, and defensible technical conclusions.</p></article>
+      <article class="feat"><b>03 / Explain</b><h3>A public learning portfolio</h3><p>Instructor-reviewed LinkedIn posts turn each week's lesson into credible professional communication.</p></article>
+    </div>
+  </section>
 
-<section class="marketing-section" id="program">
-  <div class="marketing-section-heading"><span>01</span><div><small>THE PROGRAM</small><h2>One project becomes the operating system for sixteen weeks of growth.</h2></div><p>Students do not complete disconnected exercises. Every lab advances the same application until it becomes a complete portfolio-ready Salesforce solution.</p></div>
-  <div class="marketing-bento">
-    <article class="bento-large"><span class="bento-icon">01</span><small>GUIDED ENGINEERING</small><h3>Exact build steps, checkpoints, testing, and evidence.</h3><p>Students receive a Trailhead-style path for every hands-on lab. They execute the work, verify the expected result, and learn why each decision matters.</p><div class="bento-tags"><span>Data model</span><span>Flow</span><span>Apex</span><span>LWC</span><span>Integrations</span><span>Agentforce</span></div></article>
-    <article class="bento-card bento-research"><span class="bento-icon">02</span><small>RESEARCH SKILL</small><h3>Teach students how to find and evaluate technical answers.</h3><p>Every week includes guided search strategy, source evaluation, claim-evidence mapping, and a defensible recommendation.</p></article>
-    <article class="bento-card bento-linkedin"><span class="bento-icon linkedin">in</span><small>PROFESSIONAL COMMUNICATION</small><h3>Turn learning into a credible public portfolio.</h3><p>Weekly mentor-reviewed posts help students explain technical decisions clearly without exposing confidential information.</p></article>
-  </div>
-</section>
+  <section class="pub-section" id="weeks">
+    <span class="k">The sixteen weeks</span>
+    <h2>Git first. Then engineering. Then AI and delivery.</h2>
+    <div class="timeline">
+      <article><span>Weeks 1–2</span><strong>Source control gate</strong><p>Git, GitHub, pull requests, reviews, and merge conflicts before any project code.</p></article>
+      <article><span>Weeks 3–10</span><strong>Design and engineer</strong><p>Data modeling, security, Flow, Apex services, queries, triggers, and testing.</p></article>
+      <article><span>Weeks 11–13</span><strong>Integrate and build UI</strong><p>Real API callouts and Lightning Web Components for the application workspace.</p></article>
+      <article><span>Weeks 14–16</span><strong>AI and delivery</strong><p>Claude Code with Salesforce CLI, secure MCP tooling, and a governed Agentforce launch.</p></article>
+    </div>
+  </section>
 
-<section class="marketing-section experience-marketing" id="experience">
-  <div class="experience-panel">
-    <div><span class="marketing-pill dark"><i></i> Connected learning experience</span><h2>Classrooms build together. Instructors review each student. Progress stays visible.</h2><p>Each classroom shares one instructor and one project, while every student keeps a private submission, grade, and feedback history.</p><div class="experience-checks"><span>Private student workspaces</span><span>Classroom-specific review queues</span><span>Grades and written feedback</span><span>Revision workflow</span><span>Classroom project progress</span><span>Academy administration</span></div></div>
-    <div class="workflow-steps"><article><span>01</span><div><strong>Learn</strong><p>Review the weekly objectives and guided lab.</p></div></article><article><span>02</span><div><strong>Build</strong><p>Complete the next part of the selected application.</p></div></article><article><span>03</span><div><strong>Research</strong><p>Investigate a deeper question using credible sources.</p></div></article><article><span>04</span><div><strong>Explain</strong><p>Publish the lesson professionally after mentor review.</p></div></article></div>
-  </div>
-</section>
-
-<section class="marketing-cta"><div><small>READY TO CONTINUE?</small><h2>Open your academy workspace.</h2><p>Continue learning, submit work, or review student progress.</p></div><a class="button button-dark large-button" href="{{ url_for('login') }}">Sign in to the portal <span>→</span></a></section>
+  <section class="cta-band">
+    <div><h2>Open your workspace.</h2><p>Continue learning, submit work, or review student progress.</p></div>
+    <a class="btn btn-primary" href="{{ url_for('login') }}">Sign in →</a>
+  </section>
+</div>
 {% endblock %}

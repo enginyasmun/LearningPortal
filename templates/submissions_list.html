@@ -1,41 +1,54 @@
 {% extends "base.html" %}
 {% block title %}Submissions | Developer Academy{% endblock %}
 {% block content %}
-<section class="page-heading">
-  <div><span class="eyebrow">Review workspace</span><h1>{% if is_academy_admin %}All submissions{% else %}My students' submissions{% endif %}</h1><p>{% if is_academy_admin %}Review academy-wide work, track feedback, and keep quality consistent.{% else %}Only work from classrooms assigned to you appears here.{% endif %}</p></div>
+<section class="head-row">
+  <div>
+    <span class="k">Review queue</span>
+    <h1 class="page-head">Submissions</h1>
+    <p class="lede">Individual homework from every student in your classrooms.</p>
+  </div>
 </section>
 
-<form class="surface-card filter-bar reveal" method="get">
-  <div class="filter-title"><span class="filter-symbol"><svg viewBox="0 0 24 24"><path d="M3 5h18v2H3V5Zm3 6h12v2H6v-2Zm4 6h4v2h-4v-2Z"/></svg></span><div><strong>Filter review queue</strong><small>Focus the list by classroom, status, student, or assignment type.</small></div></div>
-  <div class="filter-controls">
-    <select class="modern-select" name="classroom_id"><option value="">All classrooms</option>{% for room in classrooms %}<option value="{{ room.id }}" {% if selected_classroom|string == room.id|string %}selected{% endif %}>{{ room.name }}</option>{% endfor %}</select>
-    <select class="modern-select" name="status"><option value="">All statuses</option>{% for s in ['Draft','Submitted','Under Review','Revision Required','Approved','Late'] %}<option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
-    <select class="modern-select" name="student_id"><option value="">All students</option>{% for s in students %}<option value="{{ s.id }}" {% if selected_student|string == s.id|string %}selected{% endif %}>{{ s.name }}</option>{% endfor %}</select>
-    <select class="modern-select" name="category"><option value="">All assignment types</option>{% for c in ['Hands-On','Research','LinkedIn','Capstone'] %}<option value="{{ c }}" {% if selected_category == c %}selected{% endif %}>{{ 'Final Project' if c == 'Capstone' else c }}</option>{% endfor %}</select>
-    <button class="button button-primary" type="submit">Apply filters</button>
+<form class="panel panel-pad" method="get" style="margin-bottom:20px">
+  <div class="tbl-tools">
+    <select class="filter" name="classroom_id">
+      <option value="">All classrooms</option>
+      {% for c in classrooms %}<option value="{{ c.id }}" {% if selected_classroom == c.id|string %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+    <select class="filter" name="status">
+      <option value="">All statuses</option>
+      {% for s in ['Submitted','Under Review','Revision Required','Approved','Late','Draft'] %}<option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+    </select>
+    <select class="filter" name="category">
+      <option value="">All types</option>
+      {% for c in ['Hands-On','Research','LinkedIn','Capstone'] %}<option value="{{ c }}" {% if selected_category == c %}selected{% endif %}>{{ 'Final Project' if c == 'Capstone' else c }}</option>{% endfor %}
+    </select>
+    <select class="filter" name="student_id">
+      <option value="">All students</option>
+      {% for s in students %}<option value="{{ s.id }}" {% if selected_student == s.id|string %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-sm" type="submit">Apply filters</button>
+    <a class="btn btn-sm btn-ghost" href="{{ url_for('submissions_list') }}">Reset</a>
   </div>
 </form>
 
-<section class="surface-card roster-card reveal">
-  <div class="catalog-toolbar"><div><span class="eyebrow">Submission queue</span><h2>{{ rows|length }} results</h2></div><span class="soft-badge">Private review</span></div>
-  <div class="modern-table-wrap">
-    <table class="modern-table submission-table">
-      <thead><tr><th>Student</th><th>Classroom</th><th>Week</th><th>Assignment</th><th>Project</th><th>Type</th><th>Status</th><th>Score</th><th></th></tr></thead>
+<section class="panel">
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Student</th><th>Classroom</th><th>Assignment</th><th>Type</th><th>Status</th><th>Score</th><th></th></tr></thead>
       <tbody>
       {% for r in rows %}
         <tr>
-          <td><div class="identity-cell"><img class="mini-avatar mini-avatar-photo" src="{{ avatar_src(r.student_avatar) }}" alt=""><div><strong>{{ r.student_name }}</strong><small>{{ r.student_email }}</small></div></div></td>
-          <td><strong>{{ r.classroom_name }}</strong><small>Shared project classroom</small></td>
-          <td><span class="week-badge">{{ '%02d'|format(r.week_number) }}</span></td>
-          <td><strong>{{ r.assignment_title }}</strong><small>{{ r.week_title }}</small></td>
-          <td><strong>{{ r.industry or 'Not selected' }}</strong><small>{{ r.project_title or '' }}</small></td>
-          <td><span class="type-pill {{ r.category|lower|replace(' ','-') }}">{{ 'Final Project' if r.category == 'Capstone' else r.category }}</span></td>
-          <td><span class="status-pill {{ r.status|lower|replace(' ','-') }}"><i></i>{{ r.status }}</span></td>
-          <td>{% if r.score is not none %}<span class="score-chip">{{ r.score }} / {{ r.max_score }}</span>{% else %}<span class="muted-value">Not graded</span>{% endif %}</td>
+          <td><div class="who"><img src="{{ avatar_src(r.student_avatar) }}" alt=""><div><strong>{{ r.student_name }}</strong><small>{{ r.student_email }}</small></div></div></td>
+          <td><strong>{{ r.classroom_name }}</strong><small>{{ r.industry }}</small></td>
+          <td><strong>{{ r.assignment_title }}</strong><small>Week {{ r.week_number }} · {{ r.week_title }}</small></td>
+          <td><span class="pill {{ r.category|lower|replace(' ','-') }}">{{ 'Final Project' if r.category == 'Capstone' else r.category }}</span></td>
+          <td><span class="pill {{ r.status|lower|replace(' ','-') }}"><i></i>{{ r.status }}</span></td>
+          <td>{% if r.score is not none %}<span class="num">{{ r.score }} / {{ r.max_score }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
           <td><a class="row-action" href="{{ url_for('grade_submission', submission_id=r.id) }}">Review</a></td>
         </tr>
       {% else %}
-        <tr><td colspan="9"><div class="empty-state"><span class="empty-icon"><svg viewBox="0 0 24 24"><path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm2 5h10V6H7v2Zm0 5h10v-2H7v2Zm0 4h6v-2H7v2Z"/></svg></span><strong>No submissions match these filters</strong><p>Change one or more filters and try again.</p></div></td></tr>
+        <tr><td colspan="7"><div class="empty"><strong>No submissions match these filters</strong><p>Adjust the filters above or check back later.</p></div></td></tr>
       {% endfor %}
       </tbody>
     </table>

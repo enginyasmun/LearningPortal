@@ -1,39 +1,47 @@
 {% extends "base.html" %}
-{% block title %}Week {{ week.week_number }} Curriculum | Developer Academy{% endblock %}
+{% block title %}Week {{ week.week_number }} | Curriculum{% endblock %}
 {% block content %}
-<a class="breadcrumb-modern" href="{{ url_for('curriculum') }}"><span>←</span> Back to curriculum</a>
+<a class="back" href="{{ url_for('curriculum') }}">← Curriculum</a>
 
-<section class="class-week-hero reveal stage-{{ week.stage|lower|replace(' ','-') }}">
-  <div class="class-week-number"><strong>{{ '%02d'|format(week.week_number) }}</strong><span>Week of 16</span></div>
-  <div class="class-week-copy"><span class="spotlight-label"><i></i> {{ week.stage }}</span><h1>{{ week.title }}</h1><p>{{ week.topics }}</p></div>
+<section class="head-row">
+  <div>
+    <span class="k">Week {{ '%02d'|format(week.week_number) }} · {{ week.stage }}</span>
+    <h1 class="page-head">{{ week.title }}</h1>
+    <p class="lede">{{ week.topics }}</p>
+  </div>
 </section>
 
-<section class="curriculum-week-purpose reveal">
-  <div><span class="eyebrow">Purpose of this page</span><h2>This is the class overview, not the project build guide.</h2><p>Every student studies this topic. The detailed build steps change according to the industry project assigned to the classroom and are available under Project Plans.</p></div>
-  <a class="button button-secondary" href="{{ url_for('projects') }}">Compare project plans</a>
-</section>
+{% if selected_project %}
+<div class="selected-note">
+  <div>
+    <strong>Your classroom applies this week to {{ selected_project.title }}.</strong>
+    <p>Open the guided workspace for exact steps, commands, and this week's deliverables.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('project_week', project_id=selected_project.id, week_number=week.week_number) }}">Open week workspace →</a>
+</div>
+{% endif %}
 
-<section class="curriculum-week-streams reveal">
-  <article class="stream-card class-stream"><span class="stream-number">01</span><div><span class="eyebrow">Class lesson</span><h2>What students learn</h2><p>{{ week.topics }}</p></div></article>
-  <article class="stream-card research-stream"><span class="stream-number">02</span><div><span class="eyebrow">Research homework</span><h2>{{ week.research_topic }}</h2><p>Students learn to form a technical question, prioritize official Salesforce documentation, compare evidence, cite sources, and make a justified conclusion.</p></div></article>
-  <article class="stream-card linkedin-stream"><span class="stream-number">03</span><div><span class="eyebrow">LinkedIn homework</span><h2>{{ week.linkedin_topic }}</h2><p>Students explain the week’s lesson publicly in clear professional language after instructor review.</p></div></article>
-</section>
+<div class="streams">
+  <article>
+    <span class="tag lesson">HL</span>
+    <div><h2>Hands-on lesson</h2><p>{{ week.topics }}</p></div>
+  </article>
+  <article>
+    <span class="tag research">R</span>
+    <div><h2>Research homework</h2><p>{{ week.research_topic }}</p></div>
+  </article>
+  <article>
+    <span class="tag linkedin">in</span>
+    <div><h2>LinkedIn homework</h2><p>{{ week.linkedin_topic }}</p></div>
+  </article>
+</div>
 
-<section class="project-application-bridge reveal">
-  <div class="bridge-copy"><span class="eyebrow">Apply the lesson</span><h2>The same class topic becomes a different guided build in each industry.</h2><p>For example, data modeling is taught once in the curriculum, then applied to warehouse and logistics, healthcare, nonprofit, manufacturing, or professional-services objects inside the classroom project lab.</p></div>
-  {% if current_user.role == 'student' %}
-    {% if selected_project %}
-      <article class="selected-bridge-project project-{{ selected_project.accent }}"><span>Your classroom project</span><strong>{{ selected_project.title }}</strong><p>{{ selected_project.industry }}</p><a class="button button-primary" href="{{ url_for('project_week', project_id=selected_project.id, week_number=week.week_number) }}">Open Week {{ week.week_number }} guided lab</a></article>
-    {% else %}
-      <article class="selected-bridge-project"><span>Classroom required</span><strong>Your classroom assignment is pending</strong><p>Your exact step-by-step build lab appears after the academy assigns you to a classroom.</p><a class="button button-primary" href="{{ url_for('projects') }}">View project plans</a></article>
-    {% endif %}
-  {% else %}
-    <article class="selected-bridge-project"><span>Instructor view</span><strong>Open an industry project</strong><p>Review the five project-specific implementations of this class topic.</p><a class="button button-primary" href="{{ url_for('projects') }}">Open project plans</a></article>
+<nav class="week-nav">
+  {% if week.week_number > 1 %}
+  <a href="{{ url_for('curriculum_week', week_number=week.week_number - 1) }}"><span>← Previous</span><strong>Week {{ week.week_number - 1 }}</strong></a>
+  {% else %}<span></span>{% endif %}
+  {% if week.week_number < 16 %}
+  <a class="next" href="{{ url_for('curriculum_week', week_number=week.week_number + 1) }}"><span>Next →</span><strong>Week {{ week.week_number + 1 }}</strong></a>
   {% endif %}
-</section>
-
-<nav class="curriculum-week-navigation reveal">
-  {% if week.week_number > 1 %}<a href="{{ url_for('curriculum_week', week_number=week.week_number - 1) }}"><span>Previous</span><strong>Week {{ week.week_number - 1 }}</strong></a>{% else %}<span></span>{% endif %}
-  {% if week.week_number < 16 %}<a class="next" href="{{ url_for('curriculum_week', week_number=week.week_number + 1) }}"><span>Next</span><strong>Week {{ week.week_number + 1 }}</strong></a>{% endif %}
 </nav>
 {% endblock %}

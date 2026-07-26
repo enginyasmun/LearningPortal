@@ -1,141 +1,217 @@
 {% extends "base.html" %}
-{% block title %}Week {{ week.week_number }} | Developer Academy{% endblock %}
+{% block title %}Week {{ week.week_number }} | {{ week.project_title }}{% endblock %}
 {% block content %}
-<a class="breadcrumb-modern" href="{{ url_for('projects') }}#project-{{ week.project_id }}"><span>←</span> Back to project plans</a>
+<a class="back" href="{{ url_for('projects') }}">← Project roadmap</a>
 
-<section class="week-summary-v17 reveal project-{{ week.accent }}">
-  <div class="week-summary-index">
-    <strong>{{ '%02d'|format(week.week_number) }}</strong>
-    <span>Week {{ week.week_number }} of 16</span>
-  </div>
-  <div class="week-summary-copy">
-    <div class="week-summary-chips">
-      <span>{{ week.stage }}</span>
-      {% if week.week_number <= 2 %}<span>Readiness gate</span>{% else %}<span>{{ week.industry }}</span>{% endif %}
-    </div>
-    <h1>{{ week.milestone_title }}</h1>
-    <p>{{ week.milestone_instructions }}</p>
-    <div class="week-summary-project">
-      <strong>Classroom project</strong>
-      <span>{{ week.project_title }}</span>
-      {% if week.week_number <= 2 %}<em>Industry build begins in Week 3</em>{% endif %}
-    </div>
-  </div>
-  <aside class="week-summary-progress">
-    <span>Build progress</span>
-    <strong data-global-progress-count>0%</strong>
-    <div class="modern-progress"><i data-global-progress-bar style="width:0%"></i></div>
-    <small>Manual step checkmarks, saved in this browser</small>
-  </aside>
-</section>
+<div data-focus-workspace data-lab-id="{{ guided_lab.lab_id }}">
 
-<section class="week-focus-workspace week-focus-workspace-v17 reveal" data-focus-workspace>
-  <nav class="focus-tabs focus-tabs-v17" aria-label="Week workspace">
-    <button type="button" class="active" data-focus-tab="build"><span>1</span><strong>Build</strong></button>
-    <button type="button" data-focus-tab="research"><span>2</span><strong>Research</strong></button>
-    <button type="button" data-focus-tab="linkedin"><span>3</span><strong>LinkedIn</strong></button>
-    <button type="button" data-focus-tab="submit"><span>4</span><strong>Submit</strong></button>
-  </nav>
-
-  <section class="focus-panel focus-panel-v17 active" data-focus-panel="build">
-    <div class="task-bar-v17">
+  <header class="week-head">
+    <div class="top-line">
       <div>
-        <span class="eyebrow">Current task</span>
-        <h2>{{ guided_lab.title }}</h2>
-        <p>Finish one step, verify the checkpoint, save the evidence, then click <strong>Mark complete</strong>.</p>
+        <div class="meta">
+          <span class="pill">Week {{ '%02d'|format(week.week_number) }}</span>
+          <span class="pill">{{ week.stage }}</span>
+          {% if week.is_final %}<span class="pill capstone">Final delivery</span>{% endif %}
+          <span class="muted" style="font-size:12.5px">{{ week.project_title }} · {{ week.industry }}</span>
+        </div>
+        <h1>{{ week.milestone_title }}</h1>
+        <p class="lede">{{ week.milestone_instructions }}</p>
       </div>
-      <div class="manual-check-note-v17">
-        <strong>You control the checkmarks</strong>
-        <span>They save progress only. They do not submit or grade your homework.</span>
-      </div>
+      <aside class="week-progress">
+        <span class="k">Guided lab progress</span>
+        <b data-global-progress-count>0%</b>
+        <div class="prog"><i data-global-progress-bar style="width:0%"></i></div>
+        <small>Progress is saved on this device.</small>
+      </aside>
     </div>
+    <div class="week-strip-block">
+      <div class="weekstrip">
+        {% for n in range(1,17) %}<span class="seg {% if n < week.week_number %}done{% elif n == week.week_number %}now{% endif %}"></span>{% endfor %}
+      </div>
+      <div class="weekstrip-meta"><span>Week 1</span><b>You are in week {{ week.week_number }} of 16</b><span>Week 16</span></div>
+    </div>
+  </header>
 
-    <details class="lab-preflight-card lab-preflight-v17">
-      <summary><div><span>Preparation</span><strong>Objectives, tools, prerequisites, and official resources</strong></div><b>Open</b></summary>
-      <div class="lab-preflight-content">
-        <article><span class="eyebrow">Learning objectives</span><ul>{% for objective in guided_lab.objectives %}<li>{{ objective }}</li>{% endfor %}</ul></article>
-        <article><span class="eyebrow">Tools</span><div class="tool-list">{% for tool in guided_lab.tools %}<span>{{ tool }}</span>{% endfor %}</div></article>
-        <article><span class="eyebrow">Before you start</span><ul>{% for item in guided_lab.prerequisites %}<li>{{ item }}</li>{% endfor %}</ul></article>
-        {% if guided_lab.resources %}
-        <article class="preflight-resources"><span class="eyebrow">Official resources</span><div class="compact-resource-list">{% for resource in guided_lab.resources %}<a href="{{ resource.url }}" target="_blank" rel="noopener noreferrer"><strong>{{ resource.title }}</strong><span>{{ resource.note }}</span><b>Open ↗</b></a>{% endfor %}</div></article>
-        {% endif %}
+  <div class="tabs" role="tablist">
+    <button type="button" data-focus-tab="build" class="active" role="tab"><span>1</span>Build</button>
+    <button type="button" data-focus-tab="research" role="tab"><span>2</span>Research</button>
+    <button type="button" data-focus-tab="linkedin" role="tab"><span>3</span>LinkedIn</button>
+    <button type="button" data-focus-tab="submit" role="tab"><span>4</span>Submit</button>
+  </div>
+
+  <!-- ============ BUILD ============ -->
+  <section data-focus-panel="build">
+    <details class="prep">
+      <summary><span>Before you start · objectives, tools, prerequisites</span><span class="hint">{{ guided_lab.estimated_time }}</span></summary>
+      <div class="prep-grid">
+        <article>
+          <span class="k">This week you will</span>
+          <ul>{% for item in guided_lab.objectives %}<li>{{ item }}</li>{% endfor %}</ul>
+        </article>
+        <article>
+          <span class="k">Prerequisites</span>
+          <ul>{% for item in guided_lab.prerequisites %}<li>{{ item }}</li>{% endfor %}</ul>
+          <span class="k" style="margin-top:14px">Tools</span>
+          <div class="chips">{% for tool in guided_lab.tools %}<span>{{ tool }}</span>{% endfor %}</div>
+        </article>
       </div>
     </details>
 
-    <section class="guided-lab-focus guided-lab-focus-v17" data-lab-id="{{ guided_lab.lab_id }}">
-      <header class="focus-step-header focus-step-header-v17">
-        <div><span class="eyebrow">Build progress</span><strong data-lab-progress-text>0 of {{ guided_lab.steps|length }} steps completed</strong></div>
-        <div class="modern-progress"><i data-lab-progress-bar style="width:0%"></i></div>
-      </header>
+    <div class="lab-progress-row">
+      <strong data-lab-progress-text>0 of {{ guided_lab.steps|length }} steps completed</strong>
+      <div class="prog"><i data-lab-progress-bar style="width:0%"></i></div>
+    </div>
 
-      <div class="lab-focus-layout-v17">
-        <aside class="lab-step-sidebar-v17">
-          <span class="eyebrow">Steps</span>
-          <nav class="step-map step-map-v17" aria-label="Guided lab steps">
-            {% for step in guided_lab.steps %}
-            <button type="button" data-step-jump="{{ loop.index }}" {% if loop.first %}class="active"{% endif %}>
-              <span>{{ '%02d'|format(loop.index) }}</span>
-              <small>{{ step.title }}</small>
-            </button>
-            {% endfor %}
-          </nav>
-        </aside>
-
-        <div class="focus-step-stage focus-step-stage-v17">
+    <div class="lab">
+      <nav class="steps-nav" aria-label="Lab steps">
         {% for step in guided_lab.steps %}
-          <article class="focus-guided-step focus-guided-step-v17 {% if loop.first %}active{% endif %}" data-guided-step="{{ loop.index }}" {% if not loop.first %}hidden{% endif %}>
-            <header>
-              <div><span>Step {{ loop.index }} of {{ guided_lab.steps|length }}</span><h3>{{ step.title }}</h3><p>{{ step.purpose }}</p></div>
-              <strong>{{ '%02d'|format(loop.index) }}</strong>
-            </header>
-            {% if step.caution %}<div class="caution-card"><span>!</span><div><strong>Important</strong><p>{{ step.caution }}</p></div></div>{% endif %}
-            <section class="step-action-card"><span class="eyebrow">Do these actions</span><ol class="action-steps">{% for action in step.actions %}<li><span>{{ action }}</span></li>{% endfor %}</ol></section>
-            {% if step.commands %}<div class="command-card"><div><span>Terminal commands</span><button type="button" data-copy-command-group>Copy all</button></div><pre><code>{% for command in step.commands %}{{ command }}
-{% endfor %}</code></pre></div>{% endif %}
-            <div class="verification-grid focus-verification"><article><span class="eyebrow">Verify</span><h4>Expected checkpoint</h4><p>{{ step.checkpoint }}</p></article><article><span class="eyebrow">Save</span><h4>Evidence to keep</h4><p>{{ step.evidence }}</p></article></div>
-            <footer class="step-controls step-controls-v17">
-              <button type="button" class="button button-secondary" data-step-previous {% if loop.first %}disabled{% endif %}>← Previous</button>
-              <div><span data-step-save-status>Progress saves automatically in this browser.</span><button type="button" class="button button-primary" data-step-complete="{{ loop.index }}">Mark step complete ✓</button></div>
-              <button type="button" class="button button-secondary" data-step-next {% if loop.last %}disabled{% endif %}>Next →</button>
-            </footer>
-          </article>
+        <button type="button" data-step-jump="{{ loop.index }}" {% if loop.first %}class="active"{% endif %}>
+          <span>{{ loop.index }}</span><small>{{ step.title }}</small>
+        </button>
         {% endfor %}
+      </nav>
+
+      <div class="focus-step-stage">
+        {% for step in guided_lab.steps %}
+        <article class="focus-guided-step step-card" data-guided-step="{{ loop.index }}" {% if not loop.first %}hidden{% endif %}>
+          <header>
+            <div>
+              <span class="k">Step {{ loop.index }} of {{ guided_lab.steps|length }}</span>
+              <h3>{{ step.title }}</h3>
+              <p>{{ step.purpose }}</p>
+            </div>
+            <span class="step-no">{{ '%02d'|format(loop.index) }} / {{ '%02d'|format(guided_lab.steps|length) }}</span>
+          </header>
+
+          {% if step.caution %}
+          <div class="caution"><b>!</b><p>{{ step.caution }}</p></div>
+          {% endif %}
+
+          <ol class="todo">{% for action in step.actions %}<li>{{ action }}</li>{% endfor %}</ol>
+
+          {% for command in step.commands %}
+          <div class="command-card">
+            <div><span>Terminal</span><button type="button" data-copy-command-group>Copy</button></div>
+            <pre><code>{{ command }}</code></pre>
+          </div>
+          {% endfor %}
+
+          <div class="checkgrid">
+            <article><span class="k">Checkpoint</span><h4>You are done when</h4><p>{{ step.checkpoint }}</p></article>
+            <article><span class="k">Evidence</span><h4>Capture for submission</h4><p>{{ step.evidence }}</p></article>
+          </div>
+
+          <footer class="step-foot">
+            <button class="btn btn-sm" type="button" data-step-previous {% if loop.first %}disabled{% endif %}>← Previous</button>
+            <div class="mid">
+              <button class="btn btn-sm" type="button" data-step-complete="{{ loop.index }}">Mark step complete ✓</button>
+              <span data-step-save-status>Progress saves automatically on this device.</span>
+            </div>
+            <button class="btn btn-sm" type="button" data-step-next {% if loop.last %}disabled{% endif %}>Next →</button>
+          </footer>
+        </article>
+        {% endfor %}
+
+        <div class="gate" data-lab-quality-gate hidden>
+          <div>
+            <span class="k">Quality gate</span>
+            <h3>All steps complete — verify before you submit</h3>
+            <p>Run through the final checks, then open the Submit tab to turn in this week's work.</p>
+          </div>
+          <ul>{% for item in guided_lab.final_check %}<li>{{ item }}</li>{% endfor %}</ul>
+          <button class="btn btn-primary" type="button" data-open-focus-tab="submit">Go to Submit →</button>
         </div>
       </div>
-
-      <section class="focus-quality-gate" data-lab-quality-gate hidden>
-        <div><span class="spotlight-label dark"><i></i> Build complete</span><h3>Run the final quality check.</h3><p>Confirm every statement before opening the Hands-On submission.</p></div>
-        <ul>{% for item in guided_lab.final_check %}<li>{{ item }}</li>{% endfor %}</ul>
-        <button type="button" class="button button-primary" data-open-focus-tab="submit">Open submission →</button>
-      </section>
-    </section>
+    </div>
   </section>
 
-  <section class="focus-panel focus-panel-v17" data-focus-panel="research" hidden>
-    <div class="section-heading-v17"><div><span class="research-mark">R</span><span class="eyebrow">Guided research</span><h2>{{ guided_lab.research.title }}</h2><p>{{ guided_lab.research.goal }}</p></div><aside><strong>{{ guided_lab.research.estimated_time }}</strong><span>Complete after the build lab</span></aside></div>
-    <details class="research-searches-card"><summary><div><span>Suggested searches</span><strong>Start with official sources</strong></div><b>Open</b></summary><div>{% for query in guided_lab.research.search_queries %}<code>{{ query }}</code>{% endfor %}</div></details>
-    <div class="focus-accordion-list">
-      {% for research_step in guided_lab.research.steps %}
-      <details {% if loop.first %}open{% endif %}><summary><span>{{ '%02d'|format(loop.index) }}</span><strong>{{ research_step.title }}</strong><b>+</b></summary><div><ol>{% for instruction in research_step.instructions %}<li>{{ instruction }}</li>{% endfor %}</ol><aside><span>Required output</span><p>{{ research_step.output }}</p></aside></div></details>
+  <!-- ============ RESEARCH ============ -->
+  <section data-focus-panel="research" hidden>
+    <div class="panel-intro">
+      <div>
+        <span class="k">Research homework</span>
+        <h2>{{ guided_lab.research.title }}</h2>
+        <p>{{ guided_lab.research.goal }}</p>
+      </div>
+      <aside><b>{{ guided_lab.research.estimated_time }}</b><span>estimated effort</span></aside>
+    </div>
+
+    <span class="k" style="margin-bottom:8px">Starter search queries</span>
+    <div class="query-list">
+      {% for query in guided_lab.research.search_queries %}<code>{{ query }}</code>{% endfor %}
+    </div>
+
+    <div class="acc">
+      {% for step in guided_lab.research.steps %}
+      <details {% if loop.first %}open{% endif %}>
+        <summary><span>{{ '%02d'|format(loop.index) }}</span>{{ step.title }}<b>+</b></summary>
+        <div>
+          <ol>{% for line in step.instructions %}<li>{{ line }}</li>{% endfor %}</ol>
+          <aside><span>Write down</span>{{ step.output }}</aside>
+        </div>
+      </details>
       {% endfor %}
     </div>
-    <section class="compact-quality-card"><div><span class="eyebrow">Research quality gate</span><h3>Use only sources that pass these checks.</h3></div><ul>{% for item in guided_lab.research.source_scorecard %}<li>{{ item }}</li>{% endfor %}</ul></section>
-    <button type="button" class="button button-primary focus-continue-button" data-open-focus-tab="linkedin">Continue to LinkedIn →</button>
+
+    <div class="quality-note">
+      <span class="k">Source scorecard</span>
+      <h3>Rate every source you keep</h3>
+      <ul>{% for item in guided_lab.research.source_scorecard %}<li>{{ item }}</li>{% endfor %}</ul>
+    </div>
+
+    <div class="continue"><button class="btn" type="button" data-open-focus-tab="linkedin">Continue to LinkedIn →</button></div>
   </section>
 
-  <section class="focus-panel focus-panel-v17" data-focus-panel="linkedin" hidden>
-    <div class="section-heading-v17 linkedin-heading-v17"><div><span class="linkedin-mark">in</span><span class="eyebrow">Guided LinkedIn</span><h2>{{ guided_lab.linkedin.title }}</h2><p>Turn this week's technical work into one clear professional lesson.</p></div><aside><strong>{{ guided_lab.linkedin.estimated_time }}</strong><span>Draft first. Publish after approval.</span></aside></div>
-    <div class="linkedin-focus-grid"><article><span class="eyebrow">Build the post</span><ol>{% for item in guided_lab.linkedin.steps %}<li>{{ item }}</li>{% endfor %}</ol></article><article><span class="eyebrow">Use this structure</span><ol>{% for item in guided_lab.linkedin.template %}<li>{{ item }}</li>{% endfor %}</ol></article></div>
-    <button type="button" class="button button-primary focus-continue-button" data-open-focus-tab="submit">Continue to submission →</button>
+  <!-- ============ LINKEDIN ============ -->
+  <section data-focus-panel="linkedin" hidden>
+    <div class="panel-intro">
+      <div>
+        <span class="k">LinkedIn homework</span>
+        <h2>{{ guided_lab.linkedin.title }}</h2>
+        <p>Turn this week's lesson into a clear, professional post that builds your public portfolio.</p>
+      </div>
+      <aside><b>{{ guided_lab.linkedin.estimated_time }}</b><span>estimated effort</span></aside>
+    </div>
+
+    <div class="two-col">
+      <article>
+        <span class="k">How to write it</span>
+        <ol>{% for step in guided_lab.linkedin.steps %}<li>{{ step }}</li>{% endfor %}</ol>
+      </article>
+      <article>
+        <span class="k">Post structure</span>
+        <ol>{% for line in guided_lab.linkedin.template %}<li>{{ line }}</li>{% endfor %}</ol>
+      </article>
+    </div>
+
+    <div class="continue"><button class="btn" type="button" data-open-focus-tab="submit">Continue to Submit →</button></div>
   </section>
 
-  <section class="focus-panel focus-panel-v17" data-focus-panel="submit" hidden>
-    <div class="section-heading-v17 submit-heading-v17"><div><span class="eyebrow">Week {{ week.week_number }}</span><h2>Submit your work</h2><p>Checkmarks track progress only. Open each card below to send evidence to the instructor.</p></div><aside><strong>3 deliverables</strong><span>Hands-On, Research, and LinkedIn</span></aside></div>
-    <div class="assignment-card-grid focus-submission-grid">
-    {% for a in assignments %}
-      <article class="modern-assignment-card {{ a.category|lower|replace(' ','-') }}"><div class="assignment-card-top"><span class="assignment-type-icon">{% if a.category == 'Hands-On' %}&lt;/&gt;{% elif a.category == 'Research' %}R{% elif a.category == 'LinkedIn' %}in{% else %}★{% endif %}</span><span class="type-pill {{ a.category|lower|replace(' ','-') }}">{{ 'Final Project' if a.category == 'Capstone' else a.category }}</span></div><h3>{% if a.category in ['Hands-On','Capstone'] %}{{ week.milestone_title }}{% else %}{{ a.title }}{% endif %}</h3><p>{% if a.category in ['Hands-On','Capstone'] %}Submit the repository, screenshots, command output, and checkpoint evidence requested in the guided lab.{% elif a.category == 'Research' %}Submit the completed research paper after following the guided research sequence.{% else %}Submit the draft for instructor review. Add the published URL only after approval.{% endif %}</p><div class="deliverable-box"><span class="eyebrow">Required deliverable</span><p>{% if a.category in ['Hands-On','Capstone'] %}{{ week.milestone_deliverable }}{% else %}{{ a.deliverable }}{% endif %}</p></div>{% if current_user.role == 'student' %}<a class="button button-primary full-width" href="{{ url_for('student_assignment', assignment_id=a.id) }}">Open assignment →</a>{% endif %}</article>
-    {% endfor %}
+  <!-- ============ SUBMIT ============ -->
+  <section data-focus-panel="submit" hidden>
+    <div class="panel-intro">
+      <div>
+        <span class="k">Turn in this week</span>
+        <h2>Three deliverables for week {{ week.week_number }}</h2>
+        <p>Submit each piece separately. Your instructor reviews and returns private feedback with a score.</p>
+      </div>
+    </div>
+    <div class="submit-grid">
+      {% for a in assignments %}
+      <article class="submit-card">
+        <span class="pill {{ a.category|lower|replace(' ','-') }}">{{ 'Final Project' if a.category == 'Capstone' else a.category }}</span>
+        <h3>{% if a.category in ['Hands-On','Capstone'] %}{{ week.milestone_title }}{% else %}{{ a.title }}{% endif %}</h3>
+        <p>{% if a.category in ['Hands-On','Capstone'] %}{{ week.milestone_instructions }}{% else %}{{ a.instructions }}{% endif %}</p>
+        <div class="deliv"><span class="k">Deliverable</span>{% if a.category in ['Hands-On','Capstone'] %}{{ week.milestone_deliverable }}{% else %}{{ a.deliverable }}{% endif %}</div>
+        {% if current_user.role == 'student' %}
+        <a class="btn btn-primary btn-full" href="{{ url_for('student_assignment', assignment_id=a.id) }}">Open submission →</a>
+        {% else %}
+        <span class="muted" style="font-size:12px">Students submit from their dashboard.</span>
+        {% endif %}
+      </article>
+      {% endfor %}
     </div>
   </section>
-</section>
+
+</div>
 {% endblock %}
