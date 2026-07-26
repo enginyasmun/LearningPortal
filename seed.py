@@ -135,16 +135,23 @@ with get_db() as conn:
 
         if week_number < 16:
             category = "Hands-On"
-            build_key = f"v14:w{week_number:02d}:build"
-            build_title = f"Week {week_number} Classroom Project Build"
+            build_key = f"v15:w{week_number:02d}:build"
+            build_title = f"Week {week_number} Guided Build Lab"
             max_score = 100
-            build_instructions = (
-                f"Complete Week {week_number} of the project assigned to your classroom."
-            )
-            build_deliverable = "The classroom project milestone defines the required deliverable."
+            if week_number == 1:
+                build_title = "Week 1 Git Foundations Portfolio"
+                build_instructions = "Complete the individual Git foundations lab before accessing classroom project development."
+                build_deliverable = "Personal Git practice repository, commit history, branch and merge evidence, safe undo evidence, and GitHub URL."
+            elif week_number == 2:
+                build_title = "Week 2 Classroom GitHub Workflow"
+                build_instructions = "Complete the classroom Salesforce DX branch, pull-request, review, conflict-resolution, and synchronization lab."
+                build_deliverable = "Pull-request URL, review link, conflict-resolution evidence, and clean synchronized main branch."
+            else:
+                build_instructions = f"Complete Week {week_number} of the project assigned to your classroom."
+                build_deliverable = "The classroom project milestone defines the required deliverable."
         else:
             category = "Capstone"
-            build_key = "v14:w16:capstone"
+            build_key = "v15:w16:capstone"
             build_title = "Week 16 Final Classroom Application"
             max_score = 150
             build_instructions = (
@@ -158,7 +165,7 @@ with get_db() as conn:
         specs = [
             (build_key, build_title, category, build_instructions, build_deliverable, max_score),
             (
-                f"v14:w{week_number:02d}:research",
+                f"v15:w{week_number:02d}:research",
                 f"Week {week_number} Research: {research_topic}",
                 "Research",
                 research_topic,
@@ -167,7 +174,7 @@ with get_db() as conn:
                 100,
             ),
             (
-                f"v14:w{week_number:02d}:linkedin",
+                f"v15:w{week_number:02d}:linkedin",
                 f"Week {week_number} LinkedIn: {linkedin_topic}",
                 "LinkedIn",
                 linkedin_topic,
@@ -181,7 +188,7 @@ with get_db() as conn:
                 INSERT INTO assignments
                 (week_id,assignment_key,program_version,title,category,instructions,
                  deliverable,max_score,due_date,is_published)
-                VALUES (?,?,'v14',?,?,?,?,?,?,1)
+                VALUES (?,?,'v15',?,?,?,?,?,?,1)
                 """,
                 (
                     week_id, key, assignment_title, assignment_category, instructions,

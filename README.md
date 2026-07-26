@@ -61,3 +61,8 @@ The Curriculum section provides the common 16-week class syllabus for every stud
 ## Version 11
 
 Version 11 increases readability across the portal, modernizes the guided project-plan experience, and adds ten built-in profile avatar choices while retaining custom photo uploads.
+
+
+## Version 15 Git readiness gate
+
+Weeks 1 and 2 teach Git, GitHub, VS Code source control, pull requests, review, merge conflicts, and the Salesforce DX repository workflow before industry development begins in Week 3.

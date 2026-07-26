@@ -1,13 +1,28 @@
-"""Sixteen-week academy curriculum and five classroom project plans."""
+"""Sixteen-week academy curriculum with Git readiness first and five classroom project plans."""
 
 PROGRAM_WEEKS = [(1,
+  'Developer Workflow',
+  'Git and GitHub Foundations',
+  'Version control concepts, repositories, working tree, staging area, commits, history, branches, merging, safe undo '
+  'operations, .gitignore, GitHub accounts, remotes, and secure repository practices.',
+  'Why source control is essential for Salesforce developers and how Git differs from GitHub.',
+  'My first professional Git workflow: what a clean commit history communicates.'),
+ (2,
+  'Developer Workflow',
+  'Collaborative GitHub Workflow in VS Code and Salesforce DX',
+  'Cloning a classroom repository, Salesforce DX project structure, VS Code Source Control, branch naming, push and '
+  'pull, pull requests, peer review, merge conflicts, synchronizing main, Salesforce CLI authentication, and '
+  'source-driven development.',
+  'How branches, pull requests, reviews, and protected main branches reduce risk in team-based Salesforce development.',
+  'Why I will never develop directly on main: the GitHub workflow I practiced.'),
+ (3,
   'Foundation',
   'Discovery, Requirements, and Salesforce Architecture',
   'Business process discovery, personas, user stories, acceptance criteria, Salesforce architecture, multitenancy, '
   'metadata versus data, org strategy, and solution boundaries.',
   'How Salesforce multitenancy and metadata-driven architecture affect solution design.',
   'A strong Salesforce application begins with business discovery, not configuration.'),
- (2,
+ (4,
   'Foundation',
   'Data Modeling and Relationship Design',
   'Standard and custom objects, lookup and master-detail relationships, junction objects, external IDs, ownership, '
@@ -15,69 +30,57 @@ PROGRAM_WEEKS = [(1,
   'Lookup versus master-detail relationships and their effects on ownership, deletion, sharing, reporting, and '
   'roll-ups.',
   'The data-model decision that can shape an entire Salesforce application.'),
- (3,
+ (5,
   'Foundation',
   'Data Quality and User Experience',
   'Validation rules, formulas, duplicate prevention, matching rules, record types, Dynamic Forms, required data, '
   'conditional visibility, and user-friendly error messages.',
   'How data-quality controls should be divided among validation rules, duplicate rules, Flow, and Apex.',
   'Good Salesforce data quality is designed into the application.'),
- (4,
+ (6,
   'Foundation',
   'Security and Access Control',
   'Profiles, permission sets, permission set groups, organization-wide defaults, role hierarchy, sharing rules, '
   'field-level security, record access, least privilege, and security testing.',
   'How Salesforce object, field, and record security layers work together.',
   'Salesforce security is not controlled by one setting.'),
- (5,
+ (7,
   'Automation',
   'Flow and Declarative Automation',
   'Before-save Flow, after-save Flow, screen Flow, scheduled Flow, subflows, fault handling, order of execution, '
   'recursion, automation selection, and maintainability.',
   'Flow versus Apex and how to choose the correct automation layer.',
   'Not every Salesforce automation requires Apex.'),
- (6,
+ (8,
   'Development',
   'Apex Services and Object-Oriented Design',
   'Apex syntax, collections, classes, interfaces, exceptions, null handling, domain logic, service classes, separation '
   'of responsibilities, and maintainable design.',
   'Object-oriented programming in Apex and why service boundaries matter.',
   'Apex is more than syntax.'),
- (7,
-  'Development',
-  'SOQL, SOSL, and Data Access',
-  'Relationship queries, aggregate queries, bind variables, dynamic SOQL, selectivity, indexes, query planning, large '
-  'data volumes, governor limits, and bulk data access.',
-  'Efficient SOQL design, selective queries, and large-data-volume considerations.',
-  'Why SOQL inside a loop is a serious Salesforce development mistake.'),
- (8,
-  'Development',
-  'Triggers and Transaction Architecture',
-  'Trigger contexts, before and after operations, bulkification, recursion control, handler classes, service '
-  'orchestration, savepoints, rollback, and transaction boundaries.',
-  'Trigger architecture patterns, handler classes, service layers, and recursion prevention.',
-  'A trigger should coordinate work rather than contain the entire application.'),
  (9,
   'Development',
-  'Secure Apex and Permission-Aware Code',
-  'with sharing, inherited sharing, user mode, system mode, CRUD, field-level security, secure dynamic SOQL, injection '
-  'prevention, input validation, and sensitive-data handling.',
-  'User mode, system mode, sharing, CRUD, and field-level security in Apex.',
-  'Why with sharing does not enforce every Salesforce security layer.'),
+  'SOQL, SOSL, Triggers, and Transaction Architecture',
+  'Relationship and aggregate queries, search, selectivity, indexes, governor limits, trigger contexts, bulkification, '
+  'handler classes, recursion control, savepoints, rollback, and transaction boundaries.',
+  'How selective data access and bulk-safe transaction architecture work together in Salesforce.',
+  'Efficient queries and bulk-safe triggers must be designed together.'),
  (10,
-  'Quality',
-  'Testing Strategy and Test Automation',
-  'Test-data factories, @TestSetup, positive and negative tests, bulk tests, permission tests, callout mocks, '
-  'asynchronous tests, assertions, test isolation, and meaningful coverage.',
-  'What makes an Apex test valuable beyond code coverage.',
-  'Code coverage does not prove that Salesforce code works correctly.'),
+  'Quality and Security',
+  'Secure Apex and Automated Testing',
+  'Sharing declarations, user mode, CRUD, field-level security, injection prevention, input validation, test-data '
+  'factories, @TestSetup, behavior tests, bulk tests, permission tests, asynchronous tests, callout mocks, assertions, '
+  'and meaningful coverage.',
+  'How permission-aware code and behavior-focused tests reduce production risk.',
+  'Secure Apex needs tests that prove what limited users can and cannot do.'),
  (11,
   'Integration',
-  'Asynchronous Processing and Integrations',
-  'Queueable Apex, Batch Apex, Platform Events, scheduled processing, REST callouts, JSON, Named Credentials, '
-  'idempotency, retries, logging, monitoring, and recovery.',
-  'Queueable Apex versus Batch Apex versus Platform Events.',
-  'Choosing the correct asynchronous tool in Salesforce.'),
+  'Asynchronous Processing and Real Integrations',
+  'Queueable Apex, Batch Apex, Platform Events, scheduled processing, live REST callouts, JSON, Named Credentials, '
+  'External Credentials, idempotency, retries, logging, monitoring, recovery, and HttpCalloutMock for tests only.',
+  'Queueable Apex versus Batch Apex versus Platform Events, and why live callouts still require deterministic mocked '
+  'tests.',
+  'A real integration call and a mocked unit test solve two different problems.'),
  (12,
   'Experience',
   'Lightning Web Components Fundamentals',
@@ -94,10 +97,10 @@ PROGRAM_WEEKS = [(1,
   'A component is not complete merely because it works.'),
  (14,
   'Delivery',
-  'Git, DevOps, Debugging, and Release Readiness',
-  'Feature branches, commits, pull requests, code review, conflict resolution, static analysis, deployment validation, '
-  'dependencies, rollback, debug logs, root-cause analysis, and post-deployment verification.',
-  'Git workflows, continuous integration, release validation, and structured root-cause analysis.',
+  'DevOps, Debugging, and Release Readiness',
+  'Advanced Git workflow, release branches, pull-request quality, code review, conflict prevention, static analysis, '
+  'deployment validation, dependencies, rollback, debug logs, root-cause analysis, and post-deployment verification.',
+  'How disciplined source control, continuous integration, release validation, and structured debugging work together.',
   'Deployment success does not always mean release success.'),
  (15,
   'AI and Agents',
@@ -228,6 +231,27 @@ PROJECTS = [{'number': 1,
   'accent': 'services'}]
 
 PROJECT_MILESTONES = {1: [{'week_number': 1,
+      'title': 'Master Git fundamentals in VS Code',
+      'instructions': 'Before changing the classroom Salesforce application, every student completes an individual Git '
+                      'foundations lab. Create a personal practice repository, configure Git, use the working tree and '
+                      'staging area correctly, make meaningful commits, inspect history, create and merge a branch, '
+                      'undo changes safely, and publish the repository to GitHub.',
+      'deliverable': 'A personal Git Foundations Portfolio repository URL containing README.md, learning-log.md, '
+                     'profile.md, .gitignore, at least five meaningful commits, one merged branch, a clean git status, '
+                     'and the required screenshots and command output.',
+      'is_final': 0},
+     {'week_number': 2,
+      'title': 'Complete the classroom GitHub and Salesforce DX workflow',
+      'instructions': 'Use the classroom repository for the Warehouse Management & Logistics App, but do not build '
+                      'industry functionality yet. Clone the Salesforce DX repository in VS Code, inspect the source '
+                      'structure, authenticate the training org, create a student feature branch, make a safe '
+                      'documentation change, push it, open a pull request, review a peer pull request, apply feedback, '
+                      'resolve a controlled merge conflict, merge, and synchronize local main.',
+      'deliverable': 'A pull-request URL, peer-review evidence, merge-conflict resolution evidence, clean final git '
+                     'status, synchronized main branch, and a short workflow explanation showing clone, branch, '
+                     'commit, push, pull request, review, merge, and pull.',
+      'is_final': 0},
+     {'week_number': 3,
       'title': 'Define the product vision and backlog',
       'instructions': 'For the Warehouse Management & Logistics App, use the Warehouse, Zone, Bin, Product, Inventory '
                       'Item, Stock Movement, Shipment, Carrier Event model and support receiving, putaway, cycle '
@@ -237,7 +261,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'A classroom-approved product brief, persona set, process map, prioritized backlog, acceptance '
                      'criteria, and initial Salesforce solution diagram.',
       'is_final': 0},
-     {'week_number': 2,
+     {'week_number': 4,
       'title': 'Design the application data model',
       'instructions': 'For the Warehouse Management & Logistics App, use the Warehouse, Zone, Bin, Product, Inventory '
                       'Item, Stock Movement, Shipment, Carrier Event model and support receiving, putaway, cycle '
@@ -247,7 +271,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'A complete schema diagram, object-and-field inventory, relationship rationale, sample records, '
                      'and data-volume assumptions.',
       'is_final': 0},
-     {'week_number': 3,
+     {'week_number': 5,
       'title': 'Implement data quality and guided entry',
       'instructions': 'For the Warehouse Management & Logistics App, use the Warehouse, Zone, Bin, Product, Inventory '
                       'Item, Stock Movement, Shipment, Carrier Event model and support receiving, putaway, cycle '
@@ -257,7 +281,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'Working data-quality controls with positive and negative test evidence, screenshots, and a '
                      'data-quality decision log.',
       'is_final': 0},
-     {'week_number': 4,
+     {'week_number': 6,
       'title': 'Configure persona-based security',
       'instructions': 'For the Warehouse Management & Logistics App, use the Warehouse, Zone, Bin, Product, Inventory '
                       'Item, Stock Movement, Shipment, Carrier Event model and support receiving, putaway, cycle '
@@ -268,7 +292,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'A persona access matrix, security configuration, test users, permission test evidence, and '
                      'documented exceptions.',
       'is_final': 0},
-     {'week_number': 5,
+     {'week_number': 7,
       'title': 'Automate the core business process',
       'instructions': 'For the Warehouse Management & Logistics App, use the Warehouse, Zone, Bin, Product, Inventory '
                       'Item, Stock Movement, Shipment, Carrier Event model and support receiving, putaway, cycle '
@@ -278,7 +302,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'Working Flows, an automation diagram, fault-path evidence, recursion considerations, and an '
                      'end-to-end process demonstration.',
       'is_final': 0},
-     {'week_number': 6,
+     {'week_number': 8,
       'title': 'Build the Apex service layer',
       'instructions': 'For the Warehouse Management & Logistics App, use the Warehouse, Zone, Bin, Product, Inventory '
                       'Item, Stock Movement, Shipment, Carrier Event model and support receiving, putaway, cycle '
@@ -288,45 +312,32 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'Apex classes, class diagram, example invocations, exception handling, design rationale, and '
                      'unit-test scaffolding.',
       'is_final': 0},
-     {'week_number': 7,
-      'title': 'Create efficient data access',
+     {'week_number': 9,
+      'title': 'Build data access and transaction architecture',
       'instructions': 'For the Warehouse Management & Logistics App, use the Warehouse, Zone, Bin, Product, Inventory '
                       'Item, Stock Movement, Shipment, Carrier Event model and support receiving, putaway, cycle '
                       'counting, replenishment, picking, packing, shipping, and exception handling. Implement '
                       'selective SOQL, relationship queries, aggregates, search, and data-access utilities for '
-                      'operational views, missing-data detection, and reporting.',
-      'deliverable': 'Query examples, data-access classes, aggregate outputs, query-plan evidence where useful, and '
-                     'large-volume considerations.',
+                      'operational views, missing-data detection, and reporting. Then for the Warehouse Management & '
+                      'Logistics App, use the Warehouse, Zone, Bin, Product, Inventory Item, Stock Movement, Shipment, '
+                      'Carrier Event model and support receiving, putaway, cycle counting, replenishment, picking, '
+                      'packing, shipping, and exception handling. Add bulk-safe trigger and handler logic for status '
+                      'changes, related-record coordination, duplicate prevention, and transaction-safe updates.',
+      'deliverable': 'Selector and search classes, selective and aggregate query evidence, a thin trigger and handler, '
+                     'bulkification and recursion controls, transaction-safety reasoning, 200-record tests, analyzer '
+                     'results, and a reviewed pull request.',
       'is_final': 0},
-     {'week_number': 8,
-      'title': 'Implement transaction orchestration',
-      'instructions': 'For the Warehouse Management & Logistics App, use the Warehouse, Zone, Bin, Product, Inventory '
-                      'Item, Stock Movement, Shipment, Carrier Event model and support receiving, putaway, cycle '
-                      'counting, replenishment, picking, packing, shipping, and exception handling. Add bulk-safe '
-                      'trigger and handler logic for status changes, related-record coordination, duplicate '
-                      'prevention, and transaction-safe updates.',
-      'deliverable': 'Trigger, handler, and service code with bulk evidence, recursion strategy, savepoint or rollback '
-                     'reasoning, and transaction tests.',
-      'is_final': 0},
-     {'week_number': 9,
-      'title': 'Harden Apex security',
+     {'week_number': 10,
+      'title': 'Secure the codebase and automate testing',
       'instructions': 'For the Warehouse Management & Logistics App, use the Warehouse, Zone, Bin, Product, Inventory '
                       'Item, Stock Movement, Shipment, Carrier Event model and support receiving, putaway, cycle '
                       'counting, replenishment, picking, packing, shipping, and exception handling. Review the service '
                       'and data-access layers for sharing, user mode, CRUD, field-level security, secure dynamic SOQL, '
-                      'validation, and sensitive-data exposure.',
-      'deliverable': 'A security review report, corrected code, permission-based tests, injection tests, and a '
-                     'documented threat model.',
-      'is_final': 0},
-     {'week_number': 10,
-      'title': 'Create the automated test framework',
-      'instructions': 'For the Warehouse Management & Logistics App, use the Warehouse, Zone, Bin, Product, Inventory '
-                      'Item, Stock Movement, Shipment, Carrier Event model and support receiving, putaway, cycle '
-                      'counting, replenishment, picking, packing, shipping, and exception handling. Build reusable '
-                      'test data, positive and negative tests, bulk tests, permission tests, asynchronous tests, and '
-                      'meaningful assertions across the application.',
-      'deliverable': 'A test-data factory, behavior-focused test classes, coverage summary, test matrix, and '
-                     'documented residual risk.',
+                      'validation, and sensitive-data exposure. Then create a complete automated test framework with '
+                      'permission-aware, behavior-focused, bulk, asynchronous, and failure-path tests.',
+      'deliverable': 'Security review worksheet, corrected permission-aware code, test-data factory, low-permission '
+                     'tests, bulk and asynchronous tests, Code Analyzer results, coverage report, and a reviewed pull '
+                     'request.',
       'is_final': 0},
      {'week_number': 11,
       'title': 'Connect to a live external API',
@@ -400,6 +411,27 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
                      'architecture documentation, user guide, Git repository, and final classroom demonstration.',
       'is_final': 1}],
  2: [{'week_number': 1,
+      'title': 'Master Git fundamentals in VS Code',
+      'instructions': 'Before changing the classroom Salesforce application, every student completes an individual Git '
+                      'foundations lab. Create a personal practice repository, configure Git, use the working tree and '
+                      'staging area correctly, make meaningful commits, inspect history, create and merge a branch, '
+                      'undo changes safely, and publish the repository to GitHub.',
+      'deliverable': 'A personal Git Foundations Portfolio repository URL containing README.md, learning-log.md, '
+                     'profile.md, .gitignore, at least five meaningful commits, one merged branch, a clean git status, '
+                     'and the required screenshots and command output.',
+      'is_final': 0},
+     {'week_number': 2,
+      'title': 'Complete the classroom GitHub and Salesforce DX workflow',
+      'instructions': 'Use the classroom repository for the Patient Referral & Care Coordination App, but do not build '
+                      'industry functionality yet. Clone the Salesforce DX repository in VS Code, inspect the source '
+                      'structure, authenticate the training org, create a student feature branch, make a safe '
+                      'documentation change, push it, open a pull request, review a peer pull request, apply feedback, '
+                      'resolve a controlled merge conflict, merge, and synchronize local main.',
+      'deliverable': 'A pull-request URL, peer-review evidence, merge-conflict resolution evidence, clean final git '
+                     'status, synchronized main branch, and a short workflow explanation showing clone, branch, '
+                     'commit, push, pull request, review, merge, and pull.',
+      'is_final': 0},
+     {'week_number': 3,
       'title': 'Define the product vision and backlog',
       'instructions': 'For the Patient Referral & Care Coordination App, use the Patient, Provider, Referral, '
                       'Eligibility Review, Authorization, Care Task, Appointment, Follow-Up model and support referral '
@@ -409,7 +441,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'A classroom-approved product brief, persona set, process map, prioritized backlog, acceptance '
                      'criteria, and initial Salesforce solution diagram.',
       'is_final': 0},
-     {'week_number': 2,
+     {'week_number': 4,
       'title': 'Design the application data model',
       'instructions': 'For the Patient Referral & Care Coordination App, use the Patient, Provider, Referral, '
                       'Eligibility Review, Authorization, Care Task, Appointment, Follow-Up model and support referral '
@@ -419,7 +451,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'A complete schema diagram, object-and-field inventory, relationship rationale, sample records, '
                      'and data-volume assumptions.',
       'is_final': 0},
-     {'week_number': 3,
+     {'week_number': 5,
       'title': 'Implement data quality and guided entry',
       'instructions': 'For the Patient Referral & Care Coordination App, use the Patient, Provider, Referral, '
                       'Eligibility Review, Authorization, Care Task, Appointment, Follow-Up model and support referral '
@@ -429,7 +461,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'Working data-quality controls with positive and negative test evidence, screenshots, and a '
                      'data-quality decision log.',
       'is_final': 0},
-     {'week_number': 4,
+     {'week_number': 6,
       'title': 'Configure persona-based security',
       'instructions': 'For the Patient Referral & Care Coordination App, use the Patient, Provider, Referral, '
                       'Eligibility Review, Authorization, Care Task, Appointment, Follow-Up model and support referral '
@@ -440,7 +472,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'A persona access matrix, security configuration, test users, permission test evidence, and '
                      'documented exceptions.',
       'is_final': 0},
-     {'week_number': 5,
+     {'week_number': 7,
       'title': 'Automate the core business process',
       'instructions': 'For the Patient Referral & Care Coordination App, use the Patient, Provider, Referral, '
                       'Eligibility Review, Authorization, Care Task, Appointment, Follow-Up model and support referral '
@@ -450,7 +482,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'Working Flows, an automation diagram, fault-path evidence, recursion considerations, and an '
                      'end-to-end process demonstration.',
       'is_final': 0},
-     {'week_number': 6,
+     {'week_number': 8,
       'title': 'Build the Apex service layer',
       'instructions': 'For the Patient Referral & Care Coordination App, use the Patient, Provider, Referral, '
                       'Eligibility Review, Authorization, Care Task, Appointment, Follow-Up model and support referral '
@@ -460,45 +492,34 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'Apex classes, class diagram, example invocations, exception handling, design rationale, and '
                      'unit-test scaffolding.',
       'is_final': 0},
-     {'week_number': 7,
-      'title': 'Create efficient data access',
+     {'week_number': 9,
+      'title': 'Build data access and transaction architecture',
       'instructions': 'For the Patient Referral & Care Coordination App, use the Patient, Provider, Referral, '
                       'Eligibility Review, Authorization, Care Task, Appointment, Follow-Up model and support referral '
                       'intake, provider validation, eligibility review, authorization, care assignment, appointment '
                       'coordination, and follow-up. Implement selective SOQL, relationship queries, aggregates, '
-                      'search, and data-access utilities for operational views, missing-data detection, and reporting.',
-      'deliverable': 'Query examples, data-access classes, aggregate outputs, query-plan evidence where useful, and '
-                     'large-volume considerations.',
-      'is_final': 0},
-     {'week_number': 8,
-      'title': 'Implement transaction orchestration',
-      'instructions': 'For the Patient Referral & Care Coordination App, use the Patient, Provider, Referral, '
+                      'search, and data-access utilities for operational views, missing-data detection, and reporting. '
+                      'Then for the Patient Referral & Care Coordination App, use the Patient, Provider, Referral, '
                       'Eligibility Review, Authorization, Care Task, Appointment, Follow-Up model and support referral '
                       'intake, provider validation, eligibility review, authorization, care assignment, appointment '
                       'coordination, and follow-up. Add bulk-safe trigger and handler logic for status changes, '
                       'related-record coordination, duplicate prevention, and transaction-safe updates.',
-      'deliverable': 'Trigger, handler, and service code with bulk evidence, recursion strategy, savepoint or rollback '
-                     'reasoning, and transaction tests.',
+      'deliverable': 'Selector and search classes, selective and aggregate query evidence, a thin trigger and handler, '
+                     'bulkification and recursion controls, transaction-safety reasoning, 200-record tests, analyzer '
+                     'results, and a reviewed pull request.',
       'is_final': 0},
-     {'week_number': 9,
-      'title': 'Harden Apex security',
+     {'week_number': 10,
+      'title': 'Secure the codebase and automate testing',
       'instructions': 'For the Patient Referral & Care Coordination App, use the Patient, Provider, Referral, '
                       'Eligibility Review, Authorization, Care Task, Appointment, Follow-Up model and support referral '
                       'intake, provider validation, eligibility review, authorization, care assignment, appointment '
                       'coordination, and follow-up. Review the service and data-access layers for sharing, user mode, '
-                      'CRUD, field-level security, secure dynamic SOQL, validation, and sensitive-data exposure.',
-      'deliverable': 'A security review report, corrected code, permission-based tests, injection tests, and a '
-                     'documented threat model.',
-      'is_final': 0},
-     {'week_number': 10,
-      'title': 'Create the automated test framework',
-      'instructions': 'For the Patient Referral & Care Coordination App, use the Patient, Provider, Referral, '
-                      'Eligibility Review, Authorization, Care Task, Appointment, Follow-Up model and support referral '
-                      'intake, provider validation, eligibility review, authorization, care assignment, appointment '
-                      'coordination, and follow-up. Build reusable test data, positive and negative tests, bulk tests, '
-                      'permission tests, asynchronous tests, and meaningful assertions across the application.',
-      'deliverable': 'A test-data factory, behavior-focused test classes, coverage summary, test matrix, and '
-                     'documented residual risk.',
+                      'CRUD, field-level security, secure dynamic SOQL, validation, and sensitive-data exposure. Then '
+                      'create a complete automated test framework with permission-aware, behavior-focused, bulk, '
+                      'asynchronous, and failure-path tests.',
+      'deliverable': 'Security review worksheet, corrected permission-aware code, test-data factory, low-permission '
+                     'tests, bulk and asynchronous tests, Code Analyzer results, coverage report, and a reviewed pull '
+                     'request.',
       'is_final': 0},
      {'week_number': 11,
       'title': 'Connect to a live external API',
@@ -575,6 +596,27 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
                      'architecture documentation, user guide, Git repository, and final classroom demonstration.',
       'is_final': 1}],
  3: [{'week_number': 1,
+      'title': 'Master Git fundamentals in VS Code',
+      'instructions': 'Before changing the classroom Salesforce application, every student completes an individual Git '
+                      'foundations lab. Create a personal practice repository, configure Git, use the working tree and '
+                      'staging area correctly, make meaningful commits, inspect history, create and merge a branch, '
+                      'undo changes safely, and publish the repository to GitHub.',
+      'deliverable': 'A personal Git Foundations Portfolio repository URL containing README.md, learning-log.md, '
+                     'profile.md, .gitignore, at least five meaningful commits, one merged branch, a clean git status, '
+                     'and the required screenshots and command output.',
+      'is_final': 0},
+     {'week_number': 2,
+      'title': 'Complete the classroom GitHub and Salesforce DX workflow',
+      'instructions': 'Use the classroom repository for the Donor & Volunteer Engagement App, but do not build '
+                      'industry functionality yet. Clone the Salesforce DX repository in VS Code, inspect the source '
+                      'structure, authenticate the training org, create a student feature branch, make a safe '
+                      'documentation change, push it, open a pull request, review a peer pull request, apply feedback, '
+                      'resolve a controlled merge conflict, merge, and synchronize local main.',
+      'deliverable': 'A pull-request URL, peer-review evidence, merge-conflict resolution evidence, clean final git '
+                     'status, synchronized main branch, and a short workflow explanation showing clone, branch, '
+                     'commit, push, pull request, review, merge, and pull.',
+      'is_final': 0},
+     {'week_number': 3,
       'title': 'Define the product vision and backlog',
       'instructions': 'For the Donor & Volunteer Engagement App, use the Donor, Donation, Campaign, Volunteer, '
                       'Volunteer Shift, Acknowledgement, Outreach Activity, Engagement Score model and support donor '
@@ -584,7 +626,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'A classroom-approved product brief, persona set, process map, prioritized backlog, acceptance '
                      'criteria, and initial Salesforce solution diagram.',
       'is_final': 0},
-     {'week_number': 2,
+     {'week_number': 4,
       'title': 'Design the application data model',
       'instructions': 'For the Donor & Volunteer Engagement App, use the Donor, Donation, Campaign, Volunteer, '
                       'Volunteer Shift, Acknowledgement, Outreach Activity, Engagement Score model and support donor '
@@ -594,7 +636,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'A complete schema diagram, object-and-field inventory, relationship rationale, sample records, '
                      'and data-volume assumptions.',
       'is_final': 0},
-     {'week_number': 3,
+     {'week_number': 5,
       'title': 'Implement data quality and guided entry',
       'instructions': 'For the Donor & Volunteer Engagement App, use the Donor, Donation, Campaign, Volunteer, '
                       'Volunteer Shift, Acknowledgement, Outreach Activity, Engagement Score model and support donor '
@@ -604,7 +646,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'Working data-quality controls with positive and negative test evidence, screenshots, and a '
                      'data-quality decision log.',
       'is_final': 0},
-     {'week_number': 4,
+     {'week_number': 6,
       'title': 'Configure persona-based security',
       'instructions': 'For the Donor & Volunteer Engagement App, use the Donor, Donation, Campaign, Volunteer, '
                       'Volunteer Shift, Acknowledgement, Outreach Activity, Engagement Score model and support donor '
@@ -615,7 +657,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'A persona access matrix, security configuration, test users, permission test evidence, and '
                      'documented exceptions.',
       'is_final': 0},
-     {'week_number': 5,
+     {'week_number': 7,
       'title': 'Automate the core business process',
       'instructions': 'For the Donor & Volunteer Engagement App, use the Donor, Donation, Campaign, Volunteer, '
                       'Volunteer Shift, Acknowledgement, Outreach Activity, Engagement Score model and support donor '
@@ -625,7 +667,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'Working Flows, an automation diagram, fault-path evidence, recursion considerations, and an '
                      'end-to-end process demonstration.',
       'is_final': 0},
-     {'week_number': 6,
+     {'week_number': 8,
       'title': 'Build the Apex service layer',
       'instructions': 'For the Donor & Volunteer Engagement App, use the Donor, Donation, Campaign, Volunteer, '
                       'Volunteer Shift, Acknowledgement, Outreach Activity, Engagement Score model and support donor '
@@ -635,45 +677,34 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'Apex classes, class diagram, example invocations, exception handling, design rationale, and '
                      'unit-test scaffolding.',
       'is_final': 0},
-     {'week_number': 7,
-      'title': 'Create efficient data access',
+     {'week_number': 9,
+      'title': 'Build data access and transaction architecture',
       'instructions': 'For the Donor & Volunteer Engagement App, use the Donor, Donation, Campaign, Volunteer, '
                       'Volunteer Shift, Acknowledgement, Outreach Activity, Engagement Score model and support donor '
                       'engagement, donation processing, volunteer registration, shift assignment, acknowledgement, and '
                       'outreach follow-up. Implement selective SOQL, relationship queries, aggregates, search, and '
-                      'data-access utilities for operational views, missing-data detection, and reporting.',
-      'deliverable': 'Query examples, data-access classes, aggregate outputs, query-plan evidence where useful, and '
-                     'large-volume considerations.',
-      'is_final': 0},
-     {'week_number': 8,
-      'title': 'Implement transaction orchestration',
-      'instructions': 'For the Donor & Volunteer Engagement App, use the Donor, Donation, Campaign, Volunteer, '
-                      'Volunteer Shift, Acknowledgement, Outreach Activity, Engagement Score model and support donor '
-                      'engagement, donation processing, volunteer registration, shift assignment, acknowledgement, and '
-                      'outreach follow-up. Add bulk-safe trigger and handler logic for status changes, related-record '
+                      'data-access utilities for operational views, missing-data detection, and reporting. Then for '
+                      'the Donor & Volunteer Engagement App, use the Donor, Donation, Campaign, Volunteer, Volunteer '
+                      'Shift, Acknowledgement, Outreach Activity, Engagement Score model and support donor engagement, '
+                      'donation processing, volunteer registration, shift assignment, acknowledgement, and outreach '
+                      'follow-up. Add bulk-safe trigger and handler logic for status changes, related-record '
                       'coordination, duplicate prevention, and transaction-safe updates.',
-      'deliverable': 'Trigger, handler, and service code with bulk evidence, recursion strategy, savepoint or rollback '
-                     'reasoning, and transaction tests.',
+      'deliverable': 'Selector and search classes, selective and aggregate query evidence, a thin trigger and handler, '
+                     'bulkification and recursion controls, transaction-safety reasoning, 200-record tests, analyzer '
+                     'results, and a reviewed pull request.',
       'is_final': 0},
-     {'week_number': 9,
-      'title': 'Harden Apex security',
+     {'week_number': 10,
+      'title': 'Secure the codebase and automate testing',
       'instructions': 'For the Donor & Volunteer Engagement App, use the Donor, Donation, Campaign, Volunteer, '
                       'Volunteer Shift, Acknowledgement, Outreach Activity, Engagement Score model and support donor '
                       'engagement, donation processing, volunteer registration, shift assignment, acknowledgement, and '
                       'outreach follow-up. Review the service and data-access layers for sharing, user mode, CRUD, '
-                      'field-level security, secure dynamic SOQL, validation, and sensitive-data exposure.',
-      'deliverable': 'A security review report, corrected code, permission-based tests, injection tests, and a '
-                     'documented threat model.',
-      'is_final': 0},
-     {'week_number': 10,
-      'title': 'Create the automated test framework',
-      'instructions': 'For the Donor & Volunteer Engagement App, use the Donor, Donation, Campaign, Volunteer, '
-                      'Volunteer Shift, Acknowledgement, Outreach Activity, Engagement Score model and support donor '
-                      'engagement, donation processing, volunteer registration, shift assignment, acknowledgement, and '
-                      'outreach follow-up. Build reusable test data, positive and negative tests, bulk tests, '
-                      'permission tests, asynchronous tests, and meaningful assertions across the application.',
-      'deliverable': 'A test-data factory, behavior-focused test classes, coverage summary, test matrix, and '
-                     'documented residual risk.',
+                      'field-level security, secure dynamic SOQL, validation, and sensitive-data exposure. Then create '
+                      'a complete automated test framework with permission-aware, behavior-focused, bulk, '
+                      'asynchronous, and failure-path tests.',
+      'deliverable': 'Security review worksheet, corrected permission-aware code, test-data factory, low-permission '
+                     'tests, bulk and asynchronous tests, Code Analyzer results, coverage report, and a reviewed pull '
+                     'request.',
       'is_final': 0},
      {'week_number': 11,
       'title': 'Connect to a live external API',
@@ -750,6 +781,27 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
                      'architecture documentation, user guide, Git repository, and final classroom demonstration.',
       'is_final': 1}],
  4: [{'week_number': 1,
+      'title': 'Master Git fundamentals in VS Code',
+      'instructions': 'Before changing the classroom Salesforce application, every student completes an individual Git '
+                      'foundations lab. Create a personal practice repository, configure Git, use the working tree and '
+                      'staging area correctly, make meaningful commits, inspect history, create and merge a branch, '
+                      'undo changes safely, and publish the repository to GitHub.',
+      'deliverable': 'A personal Git Foundations Portfolio repository URL containing README.md, learning-log.md, '
+                     'profile.md, .gitignore, at least five meaningful commits, one merged branch, a clean git status, '
+                     'and the required screenshots and command output.',
+      'is_final': 0},
+     {'week_number': 2,
+      'title': 'Complete the classroom GitHub and Salesforce DX workflow',
+      'instructions': 'Use the classroom repository for the Production & Quality Operations App, but do not build '
+                      'industry functionality yet. Clone the Salesforce DX repository in VS Code, inspect the source '
+                      'structure, authenticate the training org, create a student feature branch, make a safe '
+                      'documentation change, push it, open a pull request, review a peer pull request, apply feedback, '
+                      'resolve a controlled merge conflict, merge, and synchronize local main.',
+      'deliverable': 'A pull-request URL, peer-review evidence, merge-conflict resolution evidence, clean final git '
+                     'status, synchronized main branch, and a short workflow explanation showing clone, branch, '
+                     'commit, push, pull request, review, merge, and pull.',
+      'is_final': 0},
+     {'week_number': 3,
       'title': 'Define the product vision and backlog',
       'instructions': 'For the Production & Quality Operations App, use the Plant, Work Center, Production Order, '
                       'Material Requirement, Production Run, Quality Inspection, Downtime Event, Finished Good model '
@@ -760,7 +812,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'A classroom-approved product brief, persona set, process map, prioritized backlog, acceptance '
                      'criteria, and initial Salesforce solution diagram.',
       'is_final': 0},
-     {'week_number': 2,
+     {'week_number': 4,
       'title': 'Design the application data model',
       'instructions': 'For the Production & Quality Operations App, use the Plant, Work Center, Production Order, '
                       'Material Requirement, Production Run, Quality Inspection, Downtime Event, Finished Good model '
@@ -771,7 +823,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'A complete schema diagram, object-and-field inventory, relationship rationale, sample records, '
                      'and data-volume assumptions.',
       'is_final': 0},
-     {'week_number': 3,
+     {'week_number': 5,
       'title': 'Implement data quality and guided entry',
       'instructions': 'For the Production & Quality Operations App, use the Plant, Work Center, Production Order, '
                       'Material Requirement, Production Run, Quality Inspection, Downtime Event, Finished Good model '
@@ -782,7 +834,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'Working data-quality controls with positive and negative test evidence, screenshots, and a '
                      'data-quality decision log.',
       'is_final': 0},
-     {'week_number': 4,
+     {'week_number': 6,
       'title': 'Configure persona-based security',
       'instructions': 'For the Production & Quality Operations App, use the Plant, Work Center, Production Order, '
                       'Material Requirement, Production Run, Quality Inspection, Downtime Event, Finished Good model '
@@ -794,7 +846,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'A persona access matrix, security configuration, test users, permission test evidence, and '
                      'documented exceptions.',
       'is_final': 0},
-     {'week_number': 5,
+     {'week_number': 7,
       'title': 'Automate the core business process',
       'instructions': 'For the Production & Quality Operations App, use the Plant, Work Center, Production Order, '
                       'Material Requirement, Production Run, Quality Inspection, Downtime Event, Finished Good model '
@@ -805,7 +857,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'Working Flows, an automation diagram, fault-path evidence, recursion considerations, and an '
                      'end-to-end process demonstration.',
       'is_final': 0},
-     {'week_number': 6,
+     {'week_number': 8,
       'title': 'Build the Apex service layer',
       'instructions': 'For the Production & Quality Operations App, use the Plant, Work Center, Production Order, '
                       'Material Requirement, Production Run, Quality Inspection, Downtime Event, Finished Good model '
@@ -816,49 +868,35 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'Apex classes, class diagram, example invocations, exception handling, design rationale, and '
                      'unit-test scaffolding.',
       'is_final': 0},
-     {'week_number': 7,
-      'title': 'Create efficient data access',
+     {'week_number': 9,
+      'title': 'Build data access and transaction architecture',
       'instructions': 'For the Production & Quality Operations App, use the Plant, Work Center, Production Order, '
                       'Material Requirement, Production Run, Quality Inspection, Downtime Event, Finished Good model '
                       'and support production planning, material readiness, work-center scheduling, execution, quality '
                       'inspection, downtime response, and finished-goods release. Implement selective SOQL, '
                       'relationship queries, aggregates, search, and data-access utilities for operational views, '
-                      'missing-data detection, and reporting.',
-      'deliverable': 'Query examples, data-access classes, aggregate outputs, query-plan evidence where useful, and '
-                     'large-volume considerations.',
+                      'missing-data detection, and reporting. Then for the Production & Quality Operations App, use '
+                      'the Plant, Work Center, Production Order, Material Requirement, Production Run, Quality '
+                      'Inspection, Downtime Event, Finished Good model and support production planning, material '
+                      'readiness, work-center scheduling, execution, quality inspection, downtime response, and '
+                      'finished-goods release. Add bulk-safe trigger and handler logic for status changes, '
+                      'related-record coordination, duplicate prevention, and transaction-safe updates.',
+      'deliverable': 'Selector and search classes, selective and aggregate query evidence, a thin trigger and handler, '
+                     'bulkification and recursion controls, transaction-safety reasoning, 200-record tests, analyzer '
+                     'results, and a reviewed pull request.',
       'is_final': 0},
-     {'week_number': 8,
-      'title': 'Implement transaction orchestration',
-      'instructions': 'For the Production & Quality Operations App, use the Plant, Work Center, Production Order, '
-                      'Material Requirement, Production Run, Quality Inspection, Downtime Event, Finished Good model '
-                      'and support production planning, material readiness, work-center scheduling, execution, quality '
-                      'inspection, downtime response, and finished-goods release. Add bulk-safe trigger and handler '
-                      'logic for status changes, related-record coordination, duplicate prevention, and '
-                      'transaction-safe updates.',
-      'deliverable': 'Trigger, handler, and service code with bulk evidence, recursion strategy, savepoint or rollback '
-                     'reasoning, and transaction tests.',
-      'is_final': 0},
-     {'week_number': 9,
-      'title': 'Harden Apex security',
+     {'week_number': 10,
+      'title': 'Secure the codebase and automate testing',
       'instructions': 'For the Production & Quality Operations App, use the Plant, Work Center, Production Order, '
                       'Material Requirement, Production Run, Quality Inspection, Downtime Event, Finished Good model '
                       'and support production planning, material readiness, work-center scheduling, execution, quality '
                       'inspection, downtime response, and finished-goods release. Review the service and data-access '
                       'layers for sharing, user mode, CRUD, field-level security, secure dynamic SOQL, validation, and '
-                      'sensitive-data exposure.',
-      'deliverable': 'A security review report, corrected code, permission-based tests, injection tests, and a '
-                     'documented threat model.',
-      'is_final': 0},
-     {'week_number': 10,
-      'title': 'Create the automated test framework',
-      'instructions': 'For the Production & Quality Operations App, use the Plant, Work Center, Production Order, '
-                      'Material Requirement, Production Run, Quality Inspection, Downtime Event, Finished Good model '
-                      'and support production planning, material readiness, work-center scheduling, execution, quality '
-                      'inspection, downtime response, and finished-goods release. Build reusable test data, positive '
-                      'and negative tests, bulk tests, permission tests, asynchronous tests, and meaningful assertions '
-                      'across the application.',
-      'deliverable': 'A test-data factory, behavior-focused test classes, coverage summary, test matrix, and '
-                     'documented residual risk.',
+                      'sensitive-data exposure. Then create a complete automated test framework with permission-aware, '
+                      'behavior-focused, bulk, asynchronous, and failure-path tests.',
+      'deliverable': 'Security review worksheet, corrected permission-aware code, test-data factory, low-permission '
+                     'tests, bulk and asynchronous tests, Code Analyzer results, coverage report, and a reviewed pull '
+                     'request.',
       'is_final': 0},
      {'week_number': 11,
       'title': 'Connect to a live external API',
@@ -936,6 +974,27 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
                      'architecture documentation, user guide, Git repository, and final classroom demonstration.',
       'is_final': 1}],
  5: [{'week_number': 1,
+      'title': 'Master Git fundamentals in VS Code',
+      'instructions': 'Before changing the classroom Salesforce application, every student completes an individual Git '
+                      'foundations lab. Create a personal practice repository, configure Git, use the working tree and '
+                      'staging area correctly, make meaningful commits, inspect history, create and merge a branch, '
+                      'undo changes safely, and publish the repository to GitHub.',
+      'deliverable': 'A personal Git Foundations Portfolio repository URL containing README.md, learning-log.md, '
+                     'profile.md, .gitignore, at least five meaningful commits, one merged branch, a clean git status, '
+                     'and the required screenshots and command output.',
+      'is_final': 0},
+     {'week_number': 2,
+      'title': 'Complete the classroom GitHub and Salesforce DX workflow',
+      'instructions': 'Use the classroom repository for the AI-Enabled Client Delivery App, but do not build industry '
+                      'functionality yet. Clone the Salesforce DX repository in VS Code, inspect the source structure, '
+                      'authenticate the training org, create a student feature branch, make a safe documentation '
+                      'change, push it, open a pull request, review a peer pull request, apply feedback, resolve a '
+                      'controlled merge conflict, merge, and synchronize local main.',
+      'deliverable': 'A pull-request URL, peer-review evidence, merge-conflict resolution evidence, clean final git '
+                     'status, synchronized main branch, and a short workflow explanation showing clone, branch, '
+                     'commit, push, pull request, review, merge, and pull.',
+      'is_final': 0},
+     {'week_number': 3,
       'title': 'Define the product vision and backlog',
       'instructions': 'For the AI-Enabled Client Delivery App, use the Client, Project, Milestone, Resource '
                       'Assignment, Time Entry, Risk, Deliverable, Client Update model and support project intake, '
@@ -945,7 +1004,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'A classroom-approved product brief, persona set, process map, prioritized backlog, acceptance '
                      'criteria, and initial Salesforce solution diagram.',
       'is_final': 0},
-     {'week_number': 2,
+     {'week_number': 4,
       'title': 'Design the application data model',
       'instructions': 'For the AI-Enabled Client Delivery App, use the Client, Project, Milestone, Resource '
                       'Assignment, Time Entry, Risk, Deliverable, Client Update model and support project intake, '
@@ -955,7 +1014,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'A complete schema diagram, object-and-field inventory, relationship rationale, sample records, '
                      'and data-volume assumptions.',
       'is_final': 0},
-     {'week_number': 3,
+     {'week_number': 5,
       'title': 'Implement data quality and guided entry',
       'instructions': 'For the AI-Enabled Client Delivery App, use the Client, Project, Milestone, Resource '
                       'Assignment, Time Entry, Risk, Deliverable, Client Update model and support project intake, '
@@ -965,7 +1024,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'Working data-quality controls with positive and negative test evidence, screenshots, and a '
                      'data-quality decision log.',
       'is_final': 0},
-     {'week_number': 4,
+     {'week_number': 6,
       'title': 'Configure persona-based security',
       'instructions': 'For the AI-Enabled Client Delivery App, use the Client, Project, Milestone, Resource '
                       'Assignment, Time Entry, Risk, Deliverable, Client Update model and support project intake, '
@@ -976,7 +1035,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'A persona access matrix, security configuration, test users, permission test evidence, and '
                      'documented exceptions.',
       'is_final': 0},
-     {'week_number': 5,
+     {'week_number': 7,
       'title': 'Automate the core business process',
       'instructions': 'For the AI-Enabled Client Delivery App, use the Client, Project, Milestone, Resource '
                       'Assignment, Time Entry, Risk, Deliverable, Client Update model and support project intake, '
@@ -986,7 +1045,7 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'Working Flows, an automation diagram, fault-path evidence, recursion considerations, and an '
                      'end-to-end process demonstration.',
       'is_final': 0},
-     {'week_number': 6,
+     {'week_number': 8,
       'title': 'Build the Apex service layer',
       'instructions': 'For the AI-Enabled Client Delivery App, use the Client, Project, Milestone, Resource '
                       'Assignment, Time Entry, Risk, Deliverable, Client Update model and support project intake, '
@@ -996,45 +1055,34 @@ PROJECT_MILESTONES = {1: [{'week_number': 1,
       'deliverable': 'Apex classes, class diagram, example invocations, exception handling, design rationale, and '
                      'unit-test scaffolding.',
       'is_final': 0},
-     {'week_number': 7,
-      'title': 'Create efficient data access',
+     {'week_number': 9,
+      'title': 'Build data access and transaction architecture',
       'instructions': 'For the AI-Enabled Client Delivery App, use the Client, Project, Milestone, Resource '
                       'Assignment, Time Entry, Risk, Deliverable, Client Update model and support project intake, '
                       'milestone planning, resource assignment, time tracking, risk management, deliverable approval, '
                       'and client communication. Implement selective SOQL, relationship queries, aggregates, search, '
-                      'and data-access utilities for operational views, missing-data detection, and reporting.',
-      'deliverable': 'Query examples, data-access classes, aggregate outputs, query-plan evidence where useful, and '
-                     'large-volume considerations.',
-      'is_final': 0},
-     {'week_number': 8,
-      'title': 'Implement transaction orchestration',
-      'instructions': 'For the AI-Enabled Client Delivery App, use the Client, Project, Milestone, Resource '
+                      'and data-access utilities for operational views, missing-data detection, and reporting. Then '
+                      'for the AI-Enabled Client Delivery App, use the Client, Project, Milestone, Resource '
                       'Assignment, Time Entry, Risk, Deliverable, Client Update model and support project intake, '
                       'milestone planning, resource assignment, time tracking, risk management, deliverable approval, '
                       'and client communication. Add bulk-safe trigger and handler logic for status changes, '
                       'related-record coordination, duplicate prevention, and transaction-safe updates.',
-      'deliverable': 'Trigger, handler, and service code with bulk evidence, recursion strategy, savepoint or rollback '
-                     'reasoning, and transaction tests.',
+      'deliverable': 'Selector and search classes, selective and aggregate query evidence, a thin trigger and handler, '
+                     'bulkification and recursion controls, transaction-safety reasoning, 200-record tests, analyzer '
+                     'results, and a reviewed pull request.',
       'is_final': 0},
-     {'week_number': 9,
-      'title': 'Harden Apex security',
+     {'week_number': 10,
+      'title': 'Secure the codebase and automate testing',
       'instructions': 'For the AI-Enabled Client Delivery App, use the Client, Project, Milestone, Resource '
                       'Assignment, Time Entry, Risk, Deliverable, Client Update model and support project intake, '
                       'milestone planning, resource assignment, time tracking, risk management, deliverable approval, '
                       'and client communication. Review the service and data-access layers for sharing, user mode, '
-                      'CRUD, field-level security, secure dynamic SOQL, validation, and sensitive-data exposure.',
-      'deliverable': 'A security review report, corrected code, permission-based tests, injection tests, and a '
-                     'documented threat model.',
-      'is_final': 0},
-     {'week_number': 10,
-      'title': 'Create the automated test framework',
-      'instructions': 'For the AI-Enabled Client Delivery App, use the Client, Project, Milestone, Resource '
-                      'Assignment, Time Entry, Risk, Deliverable, Client Update model and support project intake, '
-                      'milestone planning, resource assignment, time tracking, risk management, deliverable approval, '
-                      'and client communication. Build reusable test data, positive and negative tests, bulk tests, '
-                      'permission tests, asynchronous tests, and meaningful assertions across the application.',
-      'deliverable': 'A test-data factory, behavior-focused test classes, coverage summary, test matrix, and '
-                     'documented residual risk.',
+                      'CRUD, field-level security, secure dynamic SOQL, validation, and sensitive-data exposure. Then '
+                      'create a complete automated test framework with permission-aware, behavior-focused, bulk, '
+                      'asynchronous, and failure-path tests.',
+      'deliverable': 'Security review worksheet, corrected permission-aware code, test-data factory, low-permission '
+                     'tests, bulk and asynchronous tests, Code Analyzer results, coverage report, and a reviewed pull '
+                     'request.',
       'is_final': 0},
      {'week_number': 11,
       'title': 'Connect to a live external API',

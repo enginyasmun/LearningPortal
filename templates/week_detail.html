@@ -29,6 +29,13 @@
     <article><span class="overview-icon amber"><svg viewBox="0 0 24 24"><path d="m9 16.2-3.5-3.5L4 14.2l5 5L20 8l-1.5-1.5L9 16.2Z"/></svg></span><div><span class="eyebrow">Before you start</span><ul>{% for item in guided_lab.prerequisites %}<li>{{ item }}</li>{% endfor %}</ul></div></article>
   </div>
 
+  {% if guided_lab.resources %}
+  <section class="learning-resources-v15">
+    <div class="resource-section-heading"><div><span class="eyebrow">Official learning resources</span><h3>Use these alongside the guided steps.</h3></div><p>Documentation and interactive exercises are primary. Video links are optional visual reinforcement.</p></div>
+    <div class="resource-card-grid-v15">{% for resource in guided_lab.resources %}<a href="{{ resource.url }}" target="_blank" rel="noopener noreferrer"><span>{{ resource.type }}</span><strong>{{ resource.title }}</strong><p>{{ resource.note }}</p><b>Open resource ↗</b></a>{% endfor %}</div>
+  </section>
+  {% endif %}
+
   <div class="guided-step-stack">
   {% for step in guided_lab.steps %}
     <article class="guided-step-modern" data-guided-step="{{ loop.index }}">
