@@ -135,7 +135,7 @@ with get_db() as conn:
 
         if week_number < 16:
             category = "Hands-On"
-            build_key = f"v17:w{week_number:02d}:build"
+            build_key = f"v18:w{week_number:02d}:build"
             build_title = f"Week {week_number} Guided Build Lab"
             max_score = 100
             if week_number == 1:
@@ -159,7 +159,7 @@ with get_db() as conn:
                 build_deliverable = "The classroom project milestone defines the required deliverable."
         else:
             category = "Capstone"
-            build_key = "v17:w16:capstone"
+            build_key = "v18:w16:capstone"
             build_title = "Week 16 Governed Agentforce Final Application"
             max_score = 150
             build_instructions = (
@@ -173,7 +173,7 @@ with get_db() as conn:
         specs = [
             (build_key, build_title, category, build_instructions, build_deliverable, max_score),
             (
-                f"v17:w{week_number:02d}:research",
+                f"v18:w{week_number:02d}:research",
                 f"Week {week_number} Research: {research_topic}",
                 "Research",
                 research_topic,
@@ -182,7 +182,7 @@ with get_db() as conn:
                 100,
             ),
             (
-                f"v17:w{week_number:02d}:linkedin",
+                f"v18:w{week_number:02d}:linkedin",
                 f"Week {week_number} LinkedIn: {linkedin_topic}",
                 "LinkedIn",
                 linkedin_topic,
@@ -196,7 +196,7 @@ with get_db() as conn:
                 INSERT INTO assignments
                 (week_id,assignment_key,program_version,title,category,instructions,
                  deliverable,max_score,due_date,is_published)
-                VALUES (?,?,'v17',?,?,?,?,?,?,1)
+                VALUES (?,?,'v18',?,?,?,?,?,?,1)
                 """,
                 (
                     week_id, key, assignment_title, assignment_category, instructions,

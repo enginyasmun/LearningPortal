@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101114">
+  <meta name="theme-color" content="#0f231c">
   <title>{% block title %}Salesforce Developer Academy{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='17') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='18') }}">
 </head>
 <body class="{% if current_user %}app-body{% else %}public-body{% endif %}">
 {% if current_user %}
@@ -168,6 +168,6 @@
 </main>
 <footer class="public-footer"><div><strong>Salesforce Developer Academy</strong><p>One classroom project, built together over sixteen weeks.</p></div><div>Build · Research · Explain · Deliver</div></footer>
 {% endif %}
-<script src="{{ url_for('static', filename='app.js', v='17') }}" defer></script>
+<script src="{{ url_for('static', filename='app.js', v='18') }}" defer></script>
 </body>
 </html>

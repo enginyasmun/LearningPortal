@@ -1,4 +1,4 @@
-"""Sixteen-week academy curriculum with Git readiness first, dedicated AI tooling, and five classroom project plans."""
+"""Sixteen-week academy curriculum (v18): Git readiness first, CI from Week 2, modern Claude/MCP/Agentforce AI weeks, and five classroom project plans."""
 
 PROGRAM_WEEKS = [(1,
   'Developer Workflow',
@@ -12,7 +12,7 @@ PROGRAM_WEEKS = [(1,
   'Collaborative GitHub Workflow in VS Code and Salesforce DX',
   'Cloning a classroom repository, Salesforce DX project structure, VS Code Source Control, branch naming, '
   'push and pull, pull requests, peer review, merge conflicts, synchronizing main, Salesforce CLI '
-  'authentication, and source-driven development.',
+  'authentication, source-driven development, and GitHub Actions continuous-integration basics.',
   'How branches, pull requests, reviews, and protected main branches reduce risk in team-based Salesforce '
   'development.',
   'Why I will never develop directly on main: the GitHub workflow I practiced.'),
@@ -71,7 +71,8 @@ PROGRAM_WEEKS = [(1,
   'Secure Apex and Automated Testing',
   'Sharing declarations, user mode, CRUD, field-level security, injection prevention, input validation, '
   'test-data factories, @TestSetup, behavior tests, bulk tests, permission tests, asynchronous tests, '
-  'callout mocks, assertions, and meaningful coverage.',
+  'callout mocks, assertions, meaningful coverage, and AI-assisted code review with mandatory human '
+  'verification.',
   'How permission-aware code and behavior-focused tests reduce production risk.',
   'Secure Apex needs tests that prove what limited users can and cannot do.'),
  (11,
@@ -100,30 +101,34 @@ PROGRAM_WEEKS = [(1,
  (14,
   'AI Development',
   'Claude AI and Salesforce CLI Development Workflow',
-  'Claude Code installation and authentication, safe repository context, project instructions, plan mode, '
-  'bounded tasks, prompt and context design, human review, hallucination detection, Salesforce CLI commands, '
-  'org authentication, source retrieval, tests, Code Analyzer, deployment validation, and audit evidence.',
+  'Claude Code installation and authentication, safe repository context, CLAUDE.md project instructions, '
+  'plan mode, bounded tasks, prompt and context design, model selection and cost awareness, subagents and '
+  'reusable agent skills, human diff review, hallucination detection, Salesforce CLI commands, org '
+  'authentication, source retrieval, tests, Code Analyzer, deployment validation, AI-use disclosure, and '
+  'audit evidence.',
   'Where Claude AI improves Salesforce development, where deterministic Salesforce CLI commands are safer, '
-  'and how developers verify every AI-generated change.',
+  'how repository instructions and plan mode reduce risk, and how developers verify every AI-generated '
+  'change.',
   'My rules for using Claude AI without surrendering engineering responsibility.'),
  (15,
   'AI Tooling',
   'MCP Servers, Secure Tool Use, and Agent Skills',
-  'Model Context Protocol clients and servers, tools, resources, prompts, transport, authentication, '
-  'project-scoped configuration, Salesforce DX MCP, Salesforce Hosted MCP Servers, least privilege, '
-  'read-only-first access, human approval, audit logs, CLI versus MCP, reusable agent skills, and '
-  'tool-output verification.',
+  'Model Context Protocol clients and servers, tools, resources, prompts, transport, OAuth authentication, '
+  'project-scoped configuration, Salesforce DX MCP, Salesforce Hosted MCP Servers, tool permissions and '
+  'allowlists, least privilege, read-only-first access, human approval, prompt-injection risk inside tool '
+  'outputs, audit logs, CLI versus MCP, reusable agent skills, and tool-output verification.',
   'How MCP tools, resources, and prompts differ from APIs and CLI commands, and how least privilege and '
   'human approval reduce agent risk.',
   'MCP is a connector, not a permission bypass: the secure tool workflow I designed.'),
  (16,
   'AI and Agents',
   'Agentforce, AI Governance, and Final Production Demonstration',
-  'Agentforce instructions, grounding, actions, Flow and Apex actions, Agent Script, guardrails, '
-  'prompt-injection testing, permissions, monitoring, human escalation, release validation, documentation, '
-  'final integration, and stakeholder demonstration.',
+  'Agentforce instructions, retrieval grounding, topic and action design, Flow and Apex actions, Agent '
+  'Script, guardrails, Agentforce Testing Center, prompt-injection testing, permission-aware execution, '
+  'confirmation before state changes, monitoring and agent analytics, human escalation, release validation, '
+  'documentation, final integration, and stakeholder demonstration.',
   'Designing secure and reliable Salesforce agents with grounding, authorization boundaries, guardrails, '
-  'monitoring, and human escalation.',
+  'automated agent testing, monitoring, and human escalation.',
   'A production Salesforce agent needs evidence, limits, and accountable human ownership.')]
 
 PROJECTS = [{'number': 1,

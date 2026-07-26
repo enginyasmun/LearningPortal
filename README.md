@@ -74,3 +74,7 @@ Weekly guided project pages now show one workspace and one build step at a time.
 ## Version 17: clean focus mode and two dedicated AI weeks
 
 The weekly project page now presents one workspace and one guided step at a time. Week 14 is dedicated to Claude AI plus Salesforce CLI, Week 15 is dedicated to MCP servers and secure tool orchestration, and Week 16 completes the governed Agentforce application. Run `python migrate_v17.py` after updating an existing installation.
+
+## Version 18: Expedition design and refreshed AI curriculum
+
+Version 18 replaces the purple software theme with an evergreen-and-campfire Expedition identity, new typography (Bricolage Grotesque, Inter, and JetBrains Mono for terminal blocks), trail-style progress bars, visible keyboard focus, and reduced-motion support. Curriculum content is modernized: Week 2 adds GitHub Actions CI basics, Week 10 adds AI-assisted code review with human verification, and Weeks 14–16 are refreshed with CLAUDE.md instructions, plan mode, agent skills, MCP OAuth and tool permissions, and the Agentforce Testing Center. Run `python migrate_v18.py` after updating an existing installation. See `EXPEDITION_DESIGN_V18_GUIDE.md`.
