@@ -181,14 +181,68 @@
       });
     });
 
-    /* Guided lab progress */
+    /* Focus-mode week workspace */
+    const focusWorkspace = document.querySelector("[data-focus-workspace]");
+    if (focusWorkspace) {
+      const tabButtons = [...focusWorkspace.querySelectorAll("[data-focus-tab]")];
+      const panels = [...focusWorkspace.querySelectorAll("[data-focus-panel]")];
+
+      const aliases = {
+        "guided-lab": "build",
+        "research-lab": "research",
+        "linkedin-lab": "linkedin",
+        assignments: "submit",
+      };
+
+      const openFocusTab = (name, options = {}) => {
+        const requested = aliases[name] || name;
+        const valid = panels.some((panel) => panel.dataset.focusPanel === requested);
+        const target = valid ? requested : "build";
+
+        tabButtons.forEach((button) => {
+          const active = button.dataset.focusTab === target;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-selected", String(active));
+        });
+        panels.forEach((panel) => {
+          const active = panel.dataset.focusPanel === target;
+          panel.hidden = !active;
+          panel.classList.toggle("active", active);
+        });
+
+        if (options.updateHash !== false) {
+          history.replaceState(null, "", `#${target}`);
+        }
+        if (options.scroll !== false) {
+          focusWorkspace.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      };
+
+      tabButtons.forEach((button) => {
+        button.addEventListener("click", () => openFocusTab(button.dataset.focusTab));
+      });
+      focusWorkspace.querySelectorAll("[data-open-focus-tab]").forEach((button) => {
+        button.addEventListener("click", () => openFocusTab(button.dataset.openFocusTab));
+      });
+
+      const initialHash = window.location.hash.replace("#", "");
+      openFocusTab(initialHash || "build", { updateHash: false, scroll: false });
+    }
+
+    /* Guided lab manual progress and one-step-at-a-time navigation */
     const labShell = document.querySelector("[data-lab-id]");
     if (labShell) {
       const labId = labShell.dataset.labId;
-      const checks = [...labShell.querySelectorAll("[data-lab-step-check]")];
+      const steps = [...labShell.querySelectorAll("[data-guided-step]")];
+      const stepButtons = [...labShell.querySelectorAll("[data-step-jump]")];
+      const completeButtons = [...labShell.querySelectorAll("[data-step-complete]")];
       const progressText = labShell.querySelector("[data-lab-progress-text]");
       const progressBar = labShell.querySelector("[data-lab-progress-bar]");
+      const globalProgressText = document.querySelector("[data-global-progress-count]");
+      const globalProgressBar = document.querySelector("[data-global-progress-bar]");
+      const qualityGate = labShell.querySelector("[data-lab-quality-gate]");
       const storageKey = `academy-guided-lab:${labId}`;
+      let currentStep = 1;
 
       const readSaved = () => {
         try {
@@ -202,36 +256,87 @@
         try {
           localStorage.setItem(storageKey, JSON.stringify([...completed]));
         } catch (_) {
-          // Progress remains available for the current page.
+          // The current page still reflects progress when browser storage is disabled.
         }
       };
-      const updateProgress = () => {
-        checks.forEach((check) => {
-          const step = check.dataset.labStepCheck;
-          check.checked = completed.has(step);
-          check.closest(".guided-step")?.classList.toggle("completed", completed.has(step));
+
+      const showStep = (number, options = {}) => {
+        const bounded = Math.min(Math.max(Number(number) || 1, 1), steps.length);
+        currentStep = bounded;
+        steps.forEach((step) => {
+          const active = Number(step.dataset.guidedStep) === currentStep;
+          step.hidden = !active;
+          step.classList.toggle("active", active);
         });
-        const count = completed.size;
-        const percentage = checks.length ? Math.round((count / checks.length) * 100) : 0;
-        if (progressText) progressText.textContent = `${count} of ${checks.length} steps`;
-        if (progressBar) progressBar.style.width = `${percentage}%`;
+        stepButtons.forEach((button) => {
+          button.classList.toggle("active", Number(button.dataset.stepJump) === currentStep);
+        });
+        if (options.scroll !== false) {
+          labShell.querySelector(".focus-step-stage")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
       };
 
-      checks.forEach((check) => {
-        check.addEventListener("change", () => {
-          const step = check.dataset.labStepCheck;
-          check.checked ? completed.add(step) : completed.delete(step);
+      const updateProgress = () => {
+        const count = [...completed].filter((value) => Number(value) <= steps.length).length;
+        const percentage = steps.length ? Math.round((count / steps.length) * 100) : 0;
+        if (progressText) progressText.textContent = `${count} of ${steps.length} steps completed`;
+        if (progressBar) progressBar.style.width = `${percentage}%`;
+        if (globalProgressText) globalProgressText.textContent = `${percentage}%`;
+        if (globalProgressBar) globalProgressBar.style.width = `${percentage}%`;
+
+        stepButtons.forEach((button) => {
+          const done = completed.has(button.dataset.stepJump);
+          button.classList.toggle("completed", done);
+          button.setAttribute("aria-label", `${button.textContent.trim()}${done ? ", completed" : ""}`);
+        });
+        completeButtons.forEach((button) => {
+          const done = completed.has(button.dataset.stepComplete);
+          button.classList.toggle("completed", done);
+          button.textContent = done ? "Completed ✓  Click to undo" : "Mark step complete ✓";
+        });
+        if (qualityGate) qualityGate.hidden = count !== steps.length;
+      };
+
+      stepButtons.forEach((button) => {
+        button.addEventListener("click", () => showStep(button.dataset.stepJump));
+      });
+      steps.forEach((step) => {
+        step.querySelector("[data-step-previous]")?.addEventListener("click", () => showStep(currentStep - 1));
+        step.querySelector("[data-step-next]")?.addEventListener("click", () => showStep(currentStep + 1));
+      });
+      completeButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const value = button.dataset.stepComplete;
+          const wasComplete = completed.has(value);
+          if (wasComplete) {
+            completed.delete(value);
+          } else {
+            completed.add(value);
+          }
           save();
           updateProgress();
+          const status = button.closest(".focus-guided-step")?.querySelector("[data-step-save-status]");
+          if (status) {
+            status.textContent = wasComplete
+              ? "Step reopened. Your change was saved in this browser."
+              : "Step completed. Progress saved automatically in this browser.";
+          }
+          if (!wasComplete && currentStep < steps.length) {
+            window.setTimeout(() => showStep(currentStep + 1), 320);
+          }
         });
       });
+
+      const firstIncomplete = steps.find((step) => !completed.has(step.dataset.guidedStep));
+      currentStep = firstIncomplete ? Number(firstIncomplete.dataset.guidedStep) : steps.length;
       updateProgress();
+      showStep(currentStep, { scroll: false });
     }
 
     /* Copy code blocks */
     document.querySelectorAll("[data-copy-command-group]").forEach((button) => {
       button.addEventListener("click", async () => {
-        const code = button.closest(".command-group")?.querySelector("code")?.textContent?.trim();
+        const code = button.closest(".command-card, .command-group")?.querySelector("code")?.textContent?.trim();
         if (!code) return;
         const original = button.textContent;
         try {

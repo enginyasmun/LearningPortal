@@ -66,3 +66,7 @@ Version 11 increases readability across the portal, modernizes the guided projec
 ## Version 15 Git readiness gate
 
 Weeks 1 and 2 teach Git, GitHub, VS Code source control, pull requests, review, merge conflicts, and the Salesforce DX repository workflow before industry development begins in Week 3.
+
+## Version 16 focus mode
+
+Weekly guided project pages now show one workspace and one build step at a time. Step completion is manually confirmed by the student and automatically saved in the current browser. Lab checkmarks do not replace assignment submission. See `FOCUS_MODE_V16_GUIDE.md`.
