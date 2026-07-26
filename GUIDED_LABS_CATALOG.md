@@ -116,3 +116,17 @@ The academy contains 80 project-specific guided hands-on labs.
 | 14 | Guided Lab: Run the Git, quality, deployment, and release workflow | 6 to 8 hours | 8 | Git workflows, continuous integration, release validation, and structured root-cause analysis. |
 | 15 | Guided Lab: Use AI, MCP, CLI, and reusable agent skills safely | 6 to 9 hours | 8 | Benefits and risks of AI-generated Salesforce code, plus MCP servers versus APIs and Salesforce CLI. |
 | 16 | Guided Lab: Complete, test, and demonstrate the Agentforce-enabled application | 10 to 14 hours | 8 | Designing secure and reliable Salesforce agents with grounding, guardrails, monitoring, and escalation. |
+
+## Version 17 AI engineering sequence
+
+### Week 14: Claude AI and Salesforce CLI
+
+A controlled Claude Code workflow with repository instructions, plan mode, bounded edits, human diff review, Salesforce CLI verification, Apex tests, Code Analyzer, deployment validation, and AI-use disclosure.
+
+### Week 15: MCP servers and secure tool orchestration
+
+MCP architecture, prompts/resources/tools, project-scoped server configuration, read-only-first access, direct CLI comparison, one human-approved action, denied-action testing, failure handling, reusable skills, audit logs, and least-privilege review.
+
+### Week 16: Agentforce and AI governance
+
+Grounding, actions, authorization boundaries, confirmations, prompt-injection testing, monitoring, escalation, final validation, documentation, and classroom demonstration.

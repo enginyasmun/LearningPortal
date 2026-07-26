@@ -135,7 +135,7 @@ with get_db() as conn:
 
         if week_number < 16:
             category = "Hands-On"
-            build_key = f"v15:w{week_number:02d}:build"
+            build_key = f"v17:w{week_number:02d}:build"
             build_title = f"Week {week_number} Guided Build Lab"
             max_score = 100
             if week_number == 1:
@@ -146,13 +146,21 @@ with get_db() as conn:
                 build_title = "Week 2 Classroom GitHub Workflow"
                 build_instructions = "Complete the classroom Salesforce DX branch, pull-request, review, conflict-resolution, and synchronization lab."
                 build_deliverable = "Pull-request URL, review link, conflict-resolution evidence, and clean synchronized main branch."
+            elif week_number == 14:
+                build_title = "Week 14 Claude AI and Salesforce CLI Workflow"
+                build_instructions = "Complete the controlled Claude Code and deterministic Salesforce CLI development lab."
+                build_deliverable = "Claude instructions, bounded task, reviewed AI diff, CLI tests, Code Analyzer, deployment validation, and pull-request evidence."
+            elif week_number == 15:
+                build_title = "Week 15 MCP and Secure Agent Tooling Workflow"
+                build_instructions = "Complete the governed Claude MCP connection, least-privilege tool workflow, and security review."
+                build_deliverable = "MCP architecture, redacted configuration, tool inventory, read-only and controlled-action evidence, audit logs, skill file, and pull request."
             else:
                 build_instructions = f"Complete Week {week_number} of the project assigned to your classroom."
                 build_deliverable = "The classroom project milestone defines the required deliverable."
         else:
             category = "Capstone"
-            build_key = "v15:w16:capstone"
-            build_title = "Week 16 Final Classroom Application"
+            build_key = "v17:w16:capstone"
+            build_title = "Week 16 Governed Agentforce Final Application"
             max_score = 150
             build_instructions = (
                 "Complete, deploy, document, and demonstrate the application shared by your classroom."
@@ -165,7 +173,7 @@ with get_db() as conn:
         specs = [
             (build_key, build_title, category, build_instructions, build_deliverable, max_score),
             (
-                f"v15:w{week_number:02d}:research",
+                f"v17:w{week_number:02d}:research",
                 f"Week {week_number} Research: {research_topic}",
                 "Research",
                 research_topic,
@@ -174,7 +182,7 @@ with get_db() as conn:
                 100,
             ),
             (
-                f"v15:w{week_number:02d}:linkedin",
+                f"v17:w{week_number:02d}:linkedin",
                 f"Week {week_number} LinkedIn: {linkedin_topic}",
                 "LinkedIn",
                 linkedin_topic,
@@ -188,7 +196,7 @@ with get_db() as conn:
                 INSERT INTO assignments
                 (week_id,assignment_key,program_version,title,category,instructions,
                  deliverable,max_score,due_date,is_published)
-                VALUES (?,?,'v15',?,?,?,?,?,?,1)
+                VALUES (?,?,'v17',?,?,?,?,?,?,1)
                 """,
                 (
                     week_id, key, assignment_title, assignment_category, instructions,

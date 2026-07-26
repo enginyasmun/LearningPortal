@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='16') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='17') }}">
 </head>
 <body class="{% if current_user %}app-body{% else %}public-body{% endif %}">
 {% if current_user %}
@@ -168,6 +168,6 @@
 </main>
 <footer class="public-footer"><div><strong>Salesforce Developer Academy</strong><p>One classroom project, built together over sixteen weeks.</p></div><div>Build · Research · Explain · Deliver</div></footer>
 {% endif %}
-<script src="{{ url_for('static', filename='app.js', v='16') }}" defer></script>
+<script src="{{ url_for('static', filename='app.js', v='17') }}" defer></script>
 </body>
 </html>

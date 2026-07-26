@@ -70,3 +70,7 @@ Weeks 1 and 2 teach Git, GitHub, VS Code source control, pull requests, review, 
 ## Version 16 focus mode
 
 Weekly guided project pages now show one workspace and one build step at a time. Step completion is manually confirmed by the student and automatically saved in the current browser. Lab checkmarks do not replace assignment submission. See `FOCUS_MODE_V16_GUIDE.md`.
+
+## Version 17: clean focus mode and two dedicated AI weeks
+
+The weekly project page now presents one workspace and one guided step at a time. Week 14 is dedicated to Claude AI plus Salesforce CLI, Week 15 is dedicated to MCP servers and secure tool orchestration, and Week 16 completes the governed Agentforce application. Run `python migrate_v17.py` after updating an existing installation.
