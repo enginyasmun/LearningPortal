@@ -45,7 +45,7 @@
         {% for preset in avatar_presets %}
         <label class="avatar-option {% if user.avatar_filename == preset.filename %}selected{% endif %}">
           <input type="radio" name="avatar_preset" value="{{ preset.filename }}" data-avatar-preset data-avatar-url="{{ url_for('static', filename='avatars/' + preset.filename) }}" {% if user.avatar_filename == preset.filename %}checked{% endif %}>
-          <img src="{{ url_for('static', filename='avatars/' + preset.filename) }}" alt="{{ preset.label }}">
+          <img src="{{ url_for('static', filename='avatars/' + preset.filename) }}" alt="{{ preset.label }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/default-avatar.webp') }}'">
           <strong>{{ preset.group }}</strong><small>{{ preset.label.split(' ')[-1] }}</small>
         </label>
         {% endfor %}

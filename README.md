@@ -75,14 +75,14 @@ Weekly guided project pages now show one workspace and one build step at a time.
 
 The weekly project page now presents one workspace and one guided step at a time. Week 14 is dedicated to Claude AI plus Salesforce CLI, Week 15 is dedicated to MCP servers and secure tool orchestration, and Week 16 completes the governed Agentforce application. Run `python migrate_v17.py` after updating an existing installation.
 
-## Version 19 — Calm Workshop (current)
+## Version 20 — Studio (current)
 
-Complete redesign of every page. New from-scratch stylesheet inspired by the
-best-designed products of 2026 (Linear, Vercel, Notion): one accent color,
-hairline borders, no gradients or shadows, whitespace-driven layouts, and a
-signature 16-segment week strip. Simple but informative — each page leads with
-status and one clear next action. Design-only release: no database migration
-required. See CALM_WORKSHOP_V19_GUIDE.md.
+Apple-inspired redesign: big confident typography, soft layered shadows on
+large-radius white cards, frosted-glass navigation, pill buttons with a
+gradient primary, segmented-control tabs, and a dark gradient closing band on
+the landing page. Simple but informative — each page leads with status and one
+clear next action. Design-only release: no database migration required.
+See STUDIO_DESIGN_V20_GUIDE.md.
 
 ## Version 18: Expedition design and refreshed AI curriculum
 
