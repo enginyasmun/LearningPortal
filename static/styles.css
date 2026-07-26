@@ -846,3 +846,169 @@ body.command-open{overflow:hidden}
 @media (prefers-reduced-motion:reduce){
   *,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
+
+/* ================================================================
+   V21 "Gallery" — visual layer: banners, illustrations, iconography
+   ================================================================ */
+
+/* ---------- Decorative hero backdrop (gradient blobs) ---------- */
+.hero{position:relative;overflow:visible}
+.hero:before{
+  content:"";position:absolute;inset:-120px -10% auto -10%;height:560px;z-index:-1;
+  background:
+    radial-gradient(420px 300px at 18% 20%,rgba(13,138,95,.14),transparent 70%),
+    radial-gradient(460px 320px at 82% 12%,rgba(11,180,162,.14),transparent 70%),
+    radial-gradient(380px 300px at 55% 78%,rgba(110,86,207,.08),transparent 70%);
+  filter:blur(2px);pointer-events:none;
+}
+
+/* ---------- CSS product mockup (landing illustration) ---------- */
+.mock{
+  margin:72px auto 0;max-width:880px;border-radius:22px;background:var(--card);
+  box-shadow:var(--shadow-l);overflow:hidden;text-align:left;
+  border:1px solid rgba(0,0,0,.05);
+}
+.mock-bar{display:flex;align-items:center;gap:7px;padding:13px 16px;border-bottom:1px solid var(--line-soft);background:rgba(245,245,247,.7)}
+.mock-bar i{width:11px;height:11px;border-radius:50%;font-style:normal}
+.mock-bar i:nth-child(1){background:#ff5f57}.mock-bar i:nth-child(2){background:#febc2e}.mock-bar i:nth-child(3){background:#28c840}
+.mock-bar span{margin-left:12px;flex:1;max-width:340px;height:22px;border-radius:7px;background:rgba(0,0,0,.05);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--faint)}
+.mock-body{display:grid;grid-template-columns:190px 1fr;min-height:330px}
+.mock-side{border-right:1px solid var(--line-soft);padding:16px 12px;background:rgba(245,245,247,.5)}
+.mock-side b{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:650;margin-bottom:14px}
+.mock-side b:before{content:"";width:20px;height:20px;border-radius:6px;background:var(--accent-grad)}
+.mock-side i{display:block;height:26px;border-radius:8px;margin:4px 0;font-style:normal;background:rgba(0,0,0,.045)}
+.mock-side i.on{background:var(--ink)}
+.mock-main{padding:22px 24px}
+.mock-main h4{font-size:16px;font-weight:700;letter-spacing:-.02em;margin-bottom:3px}
+.mock-main small{font-size:11.5px;color:var(--faint)}
+.mock-strip{display:flex;gap:4px;margin:16px 0 18px}
+.mock-strip i{flex:1;height:8px;border-radius:5px;background:rgba(0,0,0,.07);font-style:normal}
+.mock-strip i.d{background:var(--accent-grad)}
+.mock-strip i.n{background:linear-gradient(135deg,#e8a33d,#dd7f21)}
+.mock-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.mock-cards div{border-radius:12px;padding:14px;background:var(--bg)}
+.mock-cards b{display:block;font-size:22px;font-weight:750;letter-spacing:-.03em}
+.mock-cards span{font-size:10.5px;color:var(--mut)}
+.mock-rows{margin-top:14px;display:grid;gap:7px}
+.mock-rows i{display:flex;height:30px;border-radius:9px;background:rgba(0,0,0,.035);font-style:normal;align-items:center;gap:10px;padding:0 12px}
+.mock-rows i:before{content:"";width:14px;height:14px;border-radius:50%;background:var(--accent-soft)}
+.mock-rows i:after{content:"";height:7px;border-radius:4px;background:rgba(0,0,0,.07);flex:1;max-width:46%}
+
+/* ---------- Gradient dashboard banner ---------- */
+.banner{
+  position:relative;border-radius:26px;padding:34px 36px;margin-bottom:24px;
+  color:#fff;overflow:hidden;box-shadow:0 8px 28px rgba(9,90,63,.35);
+  background:linear-gradient(120deg,#0b6b4a 0%,#0d8a5f 45%,#0ba28d 100%);
+}
+.banner:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(340px 240px at 88% -20%,rgba(255,255,255,.22),transparent 70%),
+    radial-gradient(280px 220px at 8% 120%,rgba(255,255,255,.12),transparent 70%);
+}
+.banner .k{color:rgba(255,255,255,.75)}
+.banner h1{font-size:32px;font-weight:750;letter-spacing:-.028em;color:#fff;margin:4px 0 8px}
+.banner p{color:rgba(255,255,255,.82);font-size:15px;max-width:640px}
+.banner-strip{
+  position:relative;margin-top:24px;padding:18px 20px;border-radius:18px;
+  background:rgba(255,255,255,.14);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.22);
+}
+.banner-strip .weekstrip .seg{background:rgba(255,255,255,.28)}
+.banner-strip .weekstrip .seg.done{background:#fff}
+.banner-strip .weekstrip .seg.now{background:#ffd60a;box-shadow:0 2px 10px rgba(255,214,10,.5)}
+.banner-strip .weekstrip-meta{color:rgba(255,255,255,.7)}
+.banner-strip .weekstrip-meta b{color:#fff}
+
+/* ---------- Stat icons ---------- */
+.stat{display:flex;flex-direction:column}
+.stat .stat-ic{
+  width:42px;height:42px;border-radius:13px;display:grid;place-items:center;margin-bottom:14px;color:#fff;
+}
+.stat .stat-ic svg{width:20px;height:20px}
+.stat-ic.g{background:var(--accent-grad);box-shadow:0 4px 12px rgba(13,138,95,.3)}
+.stat-ic.b{background:linear-gradient(135deg,#2f7cf6,#0a66c2);box-shadow:0 4px 12px rgba(10,102,194,.3)}
+.stat-ic.o{background:linear-gradient(135deg,#f0a63d,#dd7f21);box-shadow:0 4px 12px rgba(221,127,33,.3)}
+.stat-ic.p{background:linear-gradient(135deg,#8a72e3,#6e56cf);box-shadow:0 4px 12px rgba(110,86,207,.3)}
+.stat-ic.r{background:linear-gradient(135deg,#f26b66,#d13438);box-shadow:0 4px 12px rgba(209,52,56,.3)}
+
+/* ---------- Project gradient heroes ---------- */
+.proj-hero{
+  position:relative;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;
+  padding:30px 30px 26px;color:#fff;overflow:hidden;
+}
+.proj-hero:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(420px 280px at 90% -30%,rgba(255,255,255,.25),transparent 70%);
+}
+.proj-hero .k{color:rgba(255,255,255,.75);position:relative}
+.proj-hero h2{position:relative;font-size:24px;font-weight:750;letter-spacing:-.024em;color:#fff;margin:5px 0 7px}
+.proj-hero p{position:relative;font-size:13.5px;color:rgba(255,255,255,.85);max-width:560px}
+.proj-hero .project-no{position:relative;background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.25)}
+.proj-ic{
+  position:relative;flex:none;width:64px;height:64px;border-radius:18px;display:grid;place-items:center;
+  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+}
+.proj-ic svg{width:32px;height:32px;fill:#fff}
+.acc-finance{background:linear-gradient(120deg,#123c8c 0%,#2f7cf6 100%)}
+.acc-healthcare{background:linear-gradient(120deg,#0b6b4a 0%,#0bb4a2 100%)}
+.acc-nonprofit{background:linear-gradient(120deg,#a33b78 0%,#e0619b 100%)}
+.acc-manufacturing{background:linear-gradient(120deg,#8c4d10 0%,#e8a33d 100%)}
+.acc-services{background:linear-gradient(120deg,#4b3a9e 0%,#8a72e3 100%)}
+
+/* ---------- Curriculum stage cards with gradient icons ---------- */
+.stage-strip article{position:relative;padding-top:20px}
+.stage-ic{
+  width:44px;height:44px;border-radius:13px;display:grid;place-items:center;color:#fff;margin-bottom:14px;
+}
+.stage-ic svg{width:22px;height:22px}
+.stage-ic.ph1{background:linear-gradient(135deg,#5f6a76,#3a4552);box-shadow:0 4px 12px rgba(58,69,82,.3)}
+.stage-ic.ph2{background:var(--accent-grad);box-shadow:0 4px 12px rgba(13,138,95,.3)}
+.stage-ic.ph3{background:linear-gradient(135deg,#2f7cf6,#0a66c2);box-shadow:0 4px 12px rgba(10,102,194,.3)}
+.stage-ic.ph4{background:linear-gradient(135deg,#8a72e3,#6e56cf);box-shadow:0 4px 12px rgba(110,86,207,.3)}
+
+/* ---------- Week workspace banner ---------- */
+.week-banner{
+  position:relative;border-radius:26px;padding:30px 32px;margin-bottom:26px;color:#fff;overflow:hidden;
+  background:linear-gradient(120deg,#14231d 0%,#0b3d2c 55%,#0d8a5f 130%);
+  box-shadow:var(--shadow-m);
+}
+.week-banner:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(460px 300px at 92% -30%,rgba(11,180,162,.35),transparent 70%);
+}
+.week-banner .top-line{position:relative}
+.week-banner .meta .pill{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.2)}
+.week-banner .meta .muted{color:rgba(255,255,255,.65)!important}
+.week-banner h1{color:#fff}
+.week-banner .lede{color:rgba(255,255,255,.8)}
+.week-banner .week-progress{background:rgba(255,255,255,.12);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);box-shadow:none}
+.week-banner .week-progress .k{color:rgba(255,255,255,.7)}
+.week-banner .week-progress b{color:#fff}
+.week-banner .week-progress small{color:rgba(255,255,255,.6)}
+.week-banner .week-progress .prog{background:rgba(255,255,255,.2)}
+.week-banner .week-progress .prog i{background:#fff}
+.week-banner .week-strip-block{background:rgba(255,255,255,.12);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);box-shadow:none}
+.week-banner .weekstrip .seg{background:rgba(255,255,255,.25)}
+.week-banner .weekstrip .seg.done{background:#fff}
+.week-banner .weekstrip .seg.now{background:#ffd60a;box-shadow:0 2px 10px rgba(255,214,10,.5)}
+.week-banner .weekstrip-meta{color:rgba(255,255,255,.65)}
+.week-banner .weekstrip-meta b{color:#fff}
+
+/* ---------- Feature icons on landing ---------- */
+.feat .feat-ic{
+  display:grid;place-items:center;width:46px;height:46px;border-radius:14px;color:#fff;margin-bottom:16px;
+}
+.feat .feat-ic svg{width:22px;height:22px}
+.feat-ic.f1{background:var(--accent-grad);box-shadow:0 4px 14px rgba(13,138,95,.35)}
+.feat-ic.f2{background:linear-gradient(135deg,#b07a4e,#95634a);box-shadow:0 4px 14px rgba(149,99,74,.35)}
+.feat-ic.f3{background:linear-gradient(135deg,#2f7cf6,#0a66c2);box-shadow:0 4px 14px rgba(10,102,194,.35)}
+
+@media (max-width:960px){
+  .mock-body{grid-template-columns:1fr}
+  .mock-side{display:none}
+  .banner{padding:26px 24px}
+  .banner h1{font-size:26px}
+  .proj-hero{flex-direction:column;align-items:flex-start}
+}

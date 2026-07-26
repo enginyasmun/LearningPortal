@@ -27,3 +27,26 @@ avatar if `static/avatars/` files are missing on the server.
 1. Upload repository contents to GitHub (do not delete `static/avatars/`).
 2. PythonAnywhere: `cd ~/LearningPortal && rm -rf __pycache__ && git pull origin main`
 3. Web tab → Reload, then Ctrl+F5 in the browser.
+
+
+## V21 addendum — "Gallery" visual layer
+
+Added rich designed visuals on top of the Studio system (cache `?v=21`):
+
+- **Landing page**: soft gradient blob backdrop behind the hero, a CSS-built
+  product mockup (browser window showing the student dashboard) as the hero
+  illustration, and gradient icon badges on the three feature cards.
+- **Student dashboard**: emerald gradient welcome banner with the 16-week
+  strip inside a frosted glass inset; colorful gradient stat icons.
+- **Instructor dashboard**: gradient stat icons (classrooms, assignments,
+  review clock, revisions).
+- **Projects**: every project opens with its own gradient hero — blue for
+  Warehouse & Logistics, teal for Healthcare, pink for Nonprofit, amber for
+  Manufacturing, violet for Professional Services — each with a frosted
+  industry icon.
+- **Curriculum**: the four phase cards carry gradient icon badges (git branch,
+  code, lightning, agent).
+- **Week workspace**: deep forest-gradient banner header with frosted progress
+  meter and week strip.
+
+Still design-only. No migration. Deploy the same way, then Ctrl+F5.

@@ -22,13 +22,22 @@
 {% for project in projects %}
 {% if not selected_project or project.id == selected_project.id %}
 <section class="panel project-block">
-  <div class="panel-head">
+  <div class="proj-hero acc-{{ project.accent }}">
     <div class="project-title">
       <span class="k">{{ project.industry }}</span>
       <h2>{{ project.title }}</h2>
       <p>{{ project.summary }}</p>
     </div>
-    <span class="project-no">Project {{ '%02d'|format(project.project_number) }}</span>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:14px">
+      <span class="project-no">Project {{ '%02d'|format(project.project_number) }}</span>
+      <span class="proj-ic">
+        {% if project.accent == 'finance' %}<svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5Zm-8 8.2V17l8 4 8-4v-6.8l-8 4-8-4Z"/></svg>
+        {% elif project.accent == 'healthcare' %}<svg viewBox="0 0 24 24"><path d="M10 3h4v7h7v4h-7v7h-4v-7H3v-4h7V3Z"/></svg>
+        {% elif project.accent == 'nonprofit' %}<svg viewBox="0 0 24 24"><path d="M12 21S4 14.5 4 9.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8 3.5C20 14.5 12 21 12 21Z"/></svg>
+        {% elif project.accent == 'manufacturing' %}<svg viewBox="0 0 24 24"><path d="m19.4 13 .1-1-.1-1 2.1-1.6-2-3.5-2.5 1a7 7 0 0 0-1.7-1L15 3H9l-.3 2.9a7 7 0 0 0-1.7 1l-2.5-1-2 3.5L4.6 11l-.1 1 .1 1-2.1 1.6 2 3.5 2.5-1a7 7 0 0 0 1.7 1L9 21h6l.3-2.9a7 7 0 0 0 1.7-1l2.5 1 2-3.5L19.4 13ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z"/></svg>
+        {% else %}<svg viewBox="0 0 24 24"><path d="M9 3h6a2 2 0 0 1 2 2v1h4a1 1 0 0 1 1 1v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a1 1 0 0 1 1-1h4V5a2 2 0 0 1 2-2Zm0 3h6V5H9v1Z"/></svg>{% endif %}
+      </span>
+    </div>
   </div>
   {% set pm = milestones|selectattr('project_id','equalto',project.id)|list %}
   <div class="phase-cols">

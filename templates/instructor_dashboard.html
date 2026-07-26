@@ -14,10 +14,10 @@
 </section>
 
 <section class="statline">
-  <div class="stat"><b>{{ stats.classrooms }}</b><span>{% if is_academy_admin %}Active classrooms{% else %}My classrooms{% endif %}</span><small>{{ stats.students }} active students</small></div>
-  <div class="stat"><b>{{ stats.assignments }}</b><span>Program assignments</span><small>48 per student</small></div>
-  <div class="stat"><b>{{ stats.awaiting_review }}</b><span>Awaiting review</span><small>Ready for action</small></div>
-  <div class="stat"><b>{{ stats.revisions }}</b><span>Revision required</span><small>Returned to students</small></div>
+  <div class="stat"><span class="stat-ic g"><svg viewBox="0 0 24 24"><path d="M3 4h18v14H3V4Zm2 2v10h14V6H5Zm3 13h8v2H8v-2Z"/></svg></span><b>{{ stats.classrooms }}</b><span>{% if is_academy_admin %}Active classrooms{% else %}My classrooms{% endif %}</span><small>{{ stats.students }} active students</small></div>
+  <div class="stat"><span class="stat-ic b"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm8 2v5h5l-5-5ZM8 13v2h8v-2H8Zm0 4v2h8v-2H8Z"/></svg></span><b>{{ stats.assignments }}</b><span>Program assignments</span><small>48 per student</small></div>
+  <div class="stat"><span class="stat-ic o"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 5h-2v6l5 3 1-1.7-4-2.3V7Z"/></svg></span><b>{{ stats.awaiting_review }}</b><span>Awaiting review</span><small>Ready for action</small></div>
+  <div class="stat"><span class="stat-ic r"><svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8Z"/></svg></span><b>{{ stats.revisions }}</b><span>Revision required</span><small>Returned to students</small></div>
 </section>
 
 <section class="panel">

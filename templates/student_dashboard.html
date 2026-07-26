@@ -10,20 +10,17 @@
 {% set ns = namespace(next_item=None) %}
 {% for r in rows %}{% if ns.next_item is none and r.submission_status != 'Approved' %}{% set ns.next_item = r %}{% endif %}{% endfor %}
 
-<section class="head-row">
-  <div>
-    <span class="k">{{ classroom.name }} · {{ project.industry }}{% if mentor and mentor.name %} · Instructor {{ mentor.name }}{% endif %}</span>
-    <h1 class="page-head">Welcome back, {{ current_user.name.split(' ')[0] }}.</h1>
-    <p class="lede">Your classroom is building {{ project.title }} together. Here is where you are.</p>
+<section class="banner">
+  <span class="k">{{ classroom.name }} · {{ project.industry }}{% if mentor and mentor.name %} · Instructor {{ mentor.name }}{% endif %}</span>
+  <h1>Welcome back, {{ current_user.name.split(' ')[0] }}.</h1>
+  <p>Your classroom is building {{ project.title }} together. Here is where you are.</p>
+  <div class="banner-strip">
+    <div class="weekstrip" aria-label="Project build progress across 16 weeks">
+      {% for item in project_progress %}<span class="seg {% if item.status == 'Approved' %}done{% elif item.status %}now{% endif %}" title="Week {{ item.week_number }}: {{ item.title }}"></span>{% endfor %}
+    </div>
+    <div class="weekstrip-meta"><span>Week 1</span><b>{{ project_approved }} of {{ project_total }} milestones approved · {{ project_percent }}%</b><span>Week 16</span></div>
   </div>
 </section>
-
-<div class="panel panel-pad" style="margin-bottom:20px">
-  <div class="weekstrip" aria-label="Project build progress across 16 weeks">
-    {% for item in project_progress %}<span class="seg {% if item.status == 'Approved' %}done{% elif item.status %}now{% endif %}" title="Week {{ item.week_number }}: {{ item.title }}"></span>{% endfor %}
-  </div>
-  <div class="weekstrip-meta"><span>Week 1</span><b>{{ project_approved }} of {{ project_total }} milestones approved · {{ project_percent }}%</b><span>Week 16</span></div>
-</div>
 
 {% if ns.next_item %}
 <div class="panel next-card">
@@ -41,10 +38,10 @@
 {% endif %}
 
 <section class="statline" style="margin-top:20px">
-  <div class="stat"><b>{{ total }}</b><span>Total assignments</span></div>
-  <div class="stat"><b>{{ submitted }}</b><span>Submitted</span></div>
-  <div class="stat"><b>{{ approved }}</b><span>Approved</span></div>
-  <div class="stat"><b>{{ summary.avg_score }}</b><span>Average score</span></div>
+  <div class="stat"><span class="stat-ic b"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm8 2v5h5l-5-5ZM8 13v2h8v-2H8Zm0 4v2h8v-2H8Z"/></svg></span><b>{{ total }}</b><span>Total assignments</span></div>
+  <div class="stat"><span class="stat-ic o"><svg viewBox="0 0 24 24"><path d="m2 21 21-9L2 3v7l15 2-15 2v7Z"/></svg></span><b>{{ submitted }}</b><span>Submitted</span></div>
+  <div class="stat"><span class="stat-ic g"><svg viewBox="0 0 24 24"><path d="m9 16.2-3.5-3.5L4 14.2 9 19 20 8l-1.4-1.4L9 16.2Z"/></svg></span><b>{{ approved }}</b><span>Approved</span></div>
+  <div class="stat"><span class="stat-ic p"><svg viewBox="0 0 24 24"><path d="m12 17.3-6.2 3.7 1.6-7L2 9.2l7.1-.6L12 2l2.9 6.6 7.1.6-5.4 4.8 1.6 7L12 17.3Z"/></svg></span><b>{{ summary.avg_score }}</b><span>Average score</span></div>
 </section>
 
 <section class="panel">
