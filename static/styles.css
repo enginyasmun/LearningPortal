@@ -1012,3 +1012,96 @@ body.command-open{overflow:hidden}
   .banner h1{font-size:26px}
   .proj-hero{flex-direction:column;align-items:flex-start}
 }
+
+/* ================================================================
+   V22 — Self-registration and approval queue
+   ================================================================ */
+
+/* ---------- Sidebar pending badge ---------- */
+.nav-badge{
+  margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:var(--r-pill);
+  display:grid;place-items:center;font-size:11px;font-weight:700;
+  background:linear-gradient(135deg,#f0a63d,#dd7f21);color:#fff;
+  box-shadow:0 2px 6px rgba(221,127,33,.4);
+}
+.side-link.active .nav-badge{background:#fff;color:#dd7f21;box-shadow:none}
+
+/* ---------- Register / confirmation cards ---------- */
+.reg-card{width:min(520px,100%)}
+.reg-card .field-grid{gap:0 16px}
+.field>span em.opt{font-style:normal;font-weight:500;color:var(--faint);font-size:11.5px;letter-spacing:.02em}
+.alt-link{color:var(--accent-ink);font-weight:600}
+.alt-link:hover{text-decoration:underline;text-underline-offset:3px}
+
+.done-card{width:min(520px,100%);text-align:center}
+.done-ic{
+  width:58px;height:58px;margin:0 auto 22px;border-radius:18px;display:grid;place-items:center;
+  background:var(--accent-grad);color:#fff;box-shadow:0 6px 18px rgba(13,138,95,.35);
+}
+.done-ic svg{width:30px;height:30px}
+.done-card h1{font-size:26px;font-weight:750;letter-spacing:-.025em;margin-bottom:8px}
+.done-card>p{color:var(--mut);font-size:14.5px;margin-bottom:26px}
+.done-steps{list-style:none;padding:0;margin:0 0 26px;display:grid;gap:10px;text-align:left}
+.done-steps li{display:flex;gap:13px;align-items:flex-start;padding:14px 16px;border-radius:var(--r-s);background:var(--bg)}
+.done-steps b{
+  flex:none;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;
+  background:var(--card);font-size:12px;font-weight:700;color:var(--accent-ink);box-shadow:var(--shadow-s);
+}
+.done-steps strong{display:block;font-size:14px;font-weight:600}
+.done-steps small{display:block;font-size:12.5px;color:var(--mut);margin-top:1px}
+
+/* ---------- Pending registration rows ---------- */
+.reg-row{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;
+  padding:20px 26px;border-bottom:1px solid var(--line-soft);
+}
+.reg-row:last-child{border-bottom:0}
+.reg-who{display:flex;gap:14px;align-items:flex-start;flex:1;min-width:260px}
+.reg-who img{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:none;box-shadow:var(--shadow-s)}
+.reg-who strong{display:block;font-size:16px;font-weight:650;letter-spacing:-.015em}
+.reg-who>div>small{display:block;font-size:13px;color:var(--mut);margin-top:1px}
+.reg-meta{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.reg-note{
+  margin-top:12px;padding:11px 14px;border-radius:var(--r-s);background:var(--bg);
+  font-size:13px;color:var(--mut);font-style:italic;max-width:520px;
+}
+.reg-actions{display:flex;flex-direction:column;gap:10px;align-items:flex-end;flex:none}
+.reg-approve{display:flex;gap:9px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.reg-approve select{
+  height:33px;padding:0 12px;border:1px solid var(--line);border-radius:var(--r-pill);
+  background:var(--card);font-size:13px;max-width:250px;
+}
+.reg-approve select:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(13,138,95,.12);outline:none}
+.reg-decline summary{
+  list-style:none;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--mut);
+  padding:6px 13px;border-radius:var(--r-pill);background:rgba(0,0,0,.05);display:inline-block;transition:.15s;
+}
+.reg-decline summary::-webkit-details-marker{display:none}
+.reg-decline summary:hover{background:rgba(209,52,56,.1);color:var(--red)}
+.reg-decline form{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:flex-end}
+.reg-decline input{
+  height:33px;padding:0 13px;border:1px solid var(--line);border-radius:var(--r-pill);
+  background:var(--card);font-size:13px;width:250px;
+}
+.reg-decline input:focus{border-color:var(--red);box-shadow:0 0 0 4px rgba(209,52,56,.1);outline:none}
+
+/* ---------- Approval alert on the dashboard ---------- */
+.approve-alert{
+  display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;
+  padding:22px 26px;margin-bottom:24px;border-radius:var(--r-l);color:#fff;
+  background:linear-gradient(120deg,#8c4d10 0%,#dd7f21 60%,#f0a63d 100%);
+  box-shadow:0 8px 24px rgba(221,127,33,.32);
+}
+.approve-alert .k{color:rgba(255,255,255,.78)}
+.approve-alert strong{display:block;font-size:19px;font-weight:700;letter-spacing:-.02em;margin:3px 0 4px}
+.approve-alert p{font-size:13.5px;color:rgba(255,255,255,.85)}
+.approve-alert .btn{background:#fff;color:#8c4d10}
+.approve-alert .btn:hover{background:#fff;filter:brightness(.97)}
+
+@media (max-width:640px){
+  .reg-actions{align-items:stretch;width:100%}
+  .reg-approve{justify-content:stretch}
+  .reg-approve select{max-width:none;flex:1}
+  .reg-decline input{width:100%}
+  .reg-card .field-grid{grid-template-columns:1fr}
+}

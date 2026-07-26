@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Registrations | Developer Academy{% endblock %}
+{% block content %}
+<section class="head-row">
+  <div>
+    <span class="k">Access approval</span>
+    <h1 class="page-head">Registrations</h1>
+    <p class="lede">Students who signed up themselves. Nobody can enter the academy until you approve them and assign a classroom.</p>
+  </div>
+</section>
+
+<section class="statline">
+  <div class="stat">
+    <span class="stat-ic o"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 5h-2v6l5 3 1-1.7-4-2.3V7Z"/></svg></span>
+    <b>{{ pending|length }}</b><span>Waiting for review</span>
+  </div>
+  <div class="stat">
+    <span class="stat-ic g"><svg viewBox="0 0 24 24"><path d="m9 16.2-3.5-3.5L4 14.2 9 19 20 8l-1.4-1.4L9 16.2Z"/></svg></span>
+    <b>{{ decided|selectattr('approval_status','equalto','approved')|list|length }}</b><span>Recently approved</span>
+  </div>
+  <div class="stat">
+    <span class="stat-ic r"><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4Z"/></svg></span>
+    <b>{{ decided|selectattr('approval_status','equalto','rejected')|list|length }}</b><span>Recently declined</span>
+  </div>
+  <div class="stat">
+    <span class="stat-ic b"><svg viewBox="0 0 24 24"><path d="M3 4h18v14H3V4Zm2 2v10h14V6H5Zm3 13h8v2H8v-2Z"/></svg></span>
+    <b>{{ classrooms|length }}</b><span>Classrooms available</span>
+  </div>
+</section>
+
+{% if not classrooms %}
+<div class="flash warning" style="margin-bottom:22px"><span>There are no active classrooms yet, so approvals are blocked. Create a classroom first.</span></div>
+{% endif %}
+
+<section class="panel">
+  <div class="panel-head">
+    <div><span class="k">Pending queue</span><h2>Waiting for your decision</h2></div>
+    {% if pending %}<span class="pill submitted"><i></i>{{ pending|length }} to review</span>{% endif %}
+  </div>
+
+  {% if pending %}
+  <div class="rows">
+    {% for p in pending %}
+    <article class="reg-row">
+      <div class="reg-who">
+        <img src="{{ avatar_src(p.avatar_filename) }}" alt="">
+        <div>
+          <strong>{{ p.name }}</strong>
+          <small>{{ clean_email(p.email) }}</small>
+          <div class="reg-meta">
+            <span class="pill">Requested {{ (p.registered_at or '')[:10] }}</span>
+            {% if p.requested_classroom_name %}
+              <span class="pill hands-on">Asked for {{ p.requested_classroom_name }}</span>
+            {% else %}
+              <span class="pill draft">No classroom preference</span>
+            {% endif %}
+          </div>
+          {% if p.registration_note %}<p class="reg-note">“{{ p.registration_note }}”</p>{% endif %}
+        </div>
+      </div>
+
+      <div class="reg-actions">
+        <form class="reg-approve" method="post" action="{{ url_for('approve_registration', user_id=p.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <select name="classroom_id" required aria-label="Classroom for {{ p.name }}">
+            <option value="">Place in classroom…</option>
+            {% for c in classrooms %}
+            <option value="{{ c.id }}" {% if c.id == p.requested_classroom_id %}selected{% endif %}>{{ c.name }} — {{ c.industry }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-primary btn-sm" type="submit" {% if not classrooms %}disabled{% endif %}>Approve →</button>
+        </form>
+        <details class="reg-decline">
+          <summary>Decline</summary>
+          <form method="post" action="{{ url_for('reject_registration', user_id=p.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="text" name="rejection_reason" placeholder="Reason (optional, shown to them)" maxlength="300">
+            <button class="btn btn-sm" type="submit">Confirm decline</button>
+          </form>
+        </details>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">
+    <strong>No registrations waiting</strong>
+    <p>New self-service signups will appear here for your approval.</p>
+  </div>
+  {% endif %}
+</section>
+
+{% if decided %}
+<section class="panel">
+  <div class="panel-head"><div><span class="k">History</span><h2>Recent decisions</h2></div></div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Student</th><th>Decision</th><th>Classroom</th><th>Decided by</th><th>When</th><th></th></tr></thead>
+      <tbody>
+      {% for d in decided %}
+        <tr>
+          <td><div class="who"><img src="{{ avatar_src(d.avatar_filename) }}" alt=""><div><strong>{{ d.name }}</strong><small>{{ clean_email(d.email) }}</small></div></div></td>
+          <td><span class="pill {{ 'approved' if d.approval_status == 'approved' else 'revision-required' }}"><i></i>{{ 'Approved' if d.approval_status == 'approved' else 'Declined' }}</span>
+            {% if d.rejection_reason %}<small>{{ d.rejection_reason }}</small>{% endif %}
+          </td>
+          <td>{% if d.classroom_name %}<strong>{{ d.classroom_name }}</strong>{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td>{{ d.decided_by_name or '—' }}</td>
+          <td>{{ (d.decision_at or '')[:10] }}</td>
+          <td>
+            {% if d.approval_status == 'rejected' %}
+            <form method="post" action="{{ url_for('reopen_registration', user_id=d.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button class="row-action subtle" type="submit">Reopen</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

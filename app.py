@@ -106,12 +106,35 @@ def execute(sql, params=()):
         return cur.lastrowid
 
 
+def _blocked_session_response():
+    """If the signed-in account is no longer approved/active, sign it out."""
+    user = current_user()
+    if user is None:
+        session.clear()
+        flash("Please sign in to continue.", "warning")
+        return redirect(url_for("login"))
+    status = approval_status_of(user)
+    if status != "approved" or not user["is_active"]:
+        session.clear()
+        if status == "pending":
+            flash("Your account is waiting for academy approval.", "warning")
+        elif status == "rejected":
+            flash("Your registration was not approved.", "danger")
+        else:
+            flash("This account has been deactivated.", "danger")
+        return redirect(url_for("login"))
+    return None
+
+
 def login_required(view):
     @wraps(view)
     def wrapped(*args, **kwargs):
         if "user_id" not in session:
             flash("Please sign in to continue.", "warning")
             return redirect(url_for("login"))
+        blocked = _blocked_session_response()
+        if blocked:
+            return blocked
         return view(*args, **kwargs)
     return wrapped
 
@@ -123,6 +146,9 @@ def role_required(role):
             if "user_id" not in session:
                 flash("Please sign in to continue.", "warning")
                 return redirect(url_for("login"))
+            blocked = _blocked_session_response()
+            if blocked:
+                return blocked
             if session.get("role") != role:
                 abort(403)
             return view(*args, **kwargs)
@@ -137,6 +163,9 @@ def admin_required(view):
         if not user:
             flash("Please sign in to continue.", "warning")
             return redirect(url_for("login"))
+        blocked = _blocked_session_response()
+        if blocked:
+            return blocked
         if user["role"] != "instructor" or not bool(user["is_admin"]):
             abort(403)
         return view(*args, **kwargs)
@@ -176,6 +205,55 @@ def current_user():
 def user_is_admin(user=None):
     user = user or current_user()
     return bool(user and user["role"] == "instructor" and user["is_admin"])
+
+
+_approval_columns_ready = False
+
+
+def approval_columns_ready():
+    """True once migrate_v22.py has added the approval columns.
+
+    Keeps the whole app usable if the code is deployed before the migration
+    is run: approval features simply stay dormant instead of erroring.
+    """
+    global _approval_columns_ready
+    if _approval_columns_ready:
+        return True
+    try:
+        columns = {row["name"] for row in query_all("PRAGMA table_info(users)")}
+    except Exception:
+        return False
+    _approval_columns_ready = "approval_status" in columns
+    return _approval_columns_ready
+
+
+def approval_status_of(user):
+    """Approval state for a user row, defaulting to 'approved' for legacy rows."""
+    if user is None:
+        return "approved"
+    try:
+        status = user["approval_status"]
+    except (IndexError, KeyError):
+        return "approved"
+    return (status or "approved").strip().lower()
+
+
+def user_is_approved(user):
+    return approval_status_of(user) == "approved"
+
+
+def pending_registration_count(user=None):
+    """Registrations this instructor may act on."""
+    user = user or current_user()
+    if not user or user["role"] != "instructor" or not approval_columns_ready():
+        return 0
+    try:
+        row = query_one(
+            "SELECT COUNT(*) AS total FROM users WHERE approval_status='pending' AND role='student'"
+        )
+    except Exception:
+        return 0
+    return row["total"] if row else 0
 
 
 def classroom_for_student(student_id):
@@ -261,6 +339,7 @@ def inject_globals():
         "csrf_token": get_csrf_token(),
         "avatar_src": avatar_src,
         "clean_email": clean_email,
+        "pending_registrations": pending_registration_count(user),
     }
 
 
@@ -279,7 +358,27 @@ def login():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
         user = query_one("SELECT * FROM users WHERE lower(email)=?", (email,))
-        if user and user["is_active"] and check_password_hash(user["password_hash"], password):
+        if user and check_password_hash(user["password_hash"], password):
+            status = approval_status_of(user)
+            if status == "pending":
+                flash(
+                    "Your registration is still waiting for academy approval. "
+                    "You will be able to sign in as soon as an instructor approves your account.",
+                    "warning",
+                )
+                return render_template("login.html")
+            if status == "rejected":
+                reason = (user["rejection_reason"] or "").strip()
+                flash(
+                    "Your registration was not approved."
+                    + (f" Reason: {reason}" if reason else "")
+                    + " Contact your academy if you believe this is a mistake.",
+                    "danger",
+                )
+                return render_template("login.html")
+            if not user["is_active"]:
+                flash("This account has been deactivated. Contact your academy.", "danger")
+                return render_template("login.html")
             session.clear()
             session["user_id"] = user["id"]
             session["role"] = user["role"]
@@ -288,6 +387,72 @@ def login():
             return redirect(url_for("home"))
         flash("Invalid email or password.", "danger")
     return render_template("login.html")
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if "user_id" in session:
+        return redirect(url_for("home"))
+    classrooms = query_all(
+        """
+        SELECT c.id, c.name, p.industry, p.title AS project_title
+        FROM classrooms c JOIN projects p ON p.id=c.project_id
+        WHERE c.is_active=1 ORDER BY c.name
+        """
+    )
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        confirm = request.form.get("confirm_password", "")
+        note = request.form.get("registration_note", "").strip()[:500]
+        try:
+            requested_classroom_id = int(request.form.get("requested_classroom_id", "0")) or None
+        except ValueError:
+            requested_classroom_id = None
+        if requested_classroom_id and not any(c["id"] == requested_classroom_id for c in classrooms):
+            requested_classroom_id = None
+
+        if not name or not email or not password:
+            flash("Name, email, and password are required.", "danger")
+        elif "@" not in email or "." not in email.split("@")[-1]:
+            flash("Enter a valid email address.", "danger")
+        elif len(password) < 8:
+            flash("Choose a password with at least 8 characters.", "danger")
+        elif password != confirm:
+            flash("The two passwords do not match.", "danger")
+        elif not approval_columns_ready():
+            flash(
+                "Self-registration is not switched on yet. Ask the academy administrator "
+                "to run the version 22 upgrade step.",
+                "warning",
+            )
+        elif query_one("SELECT id FROM users WHERE lower(email)=?", (email,)):
+            flash(
+                "An account with this email already exists. Try signing in, "
+                "or contact your academy if you have forgotten your password.",
+                "danger",
+            )
+        else:
+            execute(
+                """
+                INSERT INTO users(
+                    name,email,avatar_filename,password_hash,role,classroom_id,is_admin,is_active,
+                    approval_status,requested_classroom_id,registration_note,registered_at,created_at
+                ) VALUES (?,?,NULL,?,'student',NULL,0,1,'pending',?,?,?,?)
+                """,
+                (
+                    name,
+                    email,
+                    generate_password_hash(password),
+                    requested_classroom_id,
+                    note or None,
+                    now_iso(),
+                    now_iso(),
+                ),
+            )
+            return render_template("register_submitted.html", name=name, email=email)
+    return render_template("register.html", classrooms=classrooms)
 
 
 @app.route("/logout")
@@ -951,6 +1116,151 @@ def toggle_student(user_id):
     if not student: abort(404)
     execute("UPDATE users SET is_active=? WHERE id=?",(0 if student["is_active"] else 1,user_id))
     flash("Student status updated.","success"); return redirect(url_for("manage_students"))
+
+
+@app.route("/instructor/registrations")
+@role_required("instructor")
+def manage_registrations():
+    user = current_user()
+    is_admin = user_is_admin(user)
+    if not approval_columns_ready():
+        flash(
+            "Self-registration is not enabled yet. Run 'python migrate_v22.py' on the server, "
+            "then reload the web app.",
+            "warning",
+        )
+        return render_template(
+            "manage_registrations.html", pending=[], decided=[], classrooms=[], page_is_admin=is_admin
+        )
+    class_sql = """
+        SELECT c.id, c.name, p.industry, p.title AS project_title
+        FROM classrooms c JOIN projects p ON p.id=c.project_id
+        WHERE c.is_active=1
+    """
+    class_params = []
+    if not is_admin:
+        class_sql += " AND c.instructor_id=?"
+        class_params.append(user["id"])
+    class_sql += " ORDER BY c.name"
+    classrooms = query_all(class_sql, class_params)
+
+    pending = query_all(
+        """
+        SELECT u.*, rc.name AS requested_classroom_name, p.industry AS requested_industry
+        FROM users u
+        LEFT JOIN classrooms rc ON rc.id=u.requested_classroom_id
+        LEFT JOIN projects p ON p.id=rc.project_id
+        WHERE u.approval_status='pending' AND u.role='student'
+        ORDER BY u.registered_at ASC, u.id ASC
+        """
+    )
+    decided = query_all(
+        """
+        SELECT u.*, c.name AS classroom_name, d.name AS decided_by_name
+        FROM users u
+        LEFT JOIN classrooms c ON c.id=u.classroom_id
+        LEFT JOIN users d ON d.id=u.decision_by
+        WHERE u.approval_status IN ('approved','rejected')
+          AND u.role='student' AND u.registered_at IS NOT NULL
+        ORDER BY u.decision_at DESC
+        LIMIT 20
+        """
+    )
+    return render_template(
+        "manage_registrations.html",
+        pending=pending,
+        decided=decided,
+        classrooms=classrooms,
+        page_is_admin=is_admin,
+    )
+
+
+@app.route("/instructor/registrations/<int:user_id>/approve", methods=["POST"])
+@role_required("instructor")
+def approve_registration(user_id):
+    if not approval_columns_ready():
+        flash("Run 'python migrate_v22.py' on the server to enable approvals.", "warning")
+        return redirect(url_for("manage_registrations"))
+    user = current_user()
+    is_admin = user_is_admin(user)
+    candidate = query_one(
+        "SELECT * FROM users WHERE id=? AND role='student' AND approval_status='pending'", (user_id,)
+    )
+    if not candidate:
+        flash("That registration is no longer pending.", "warning")
+        return redirect(url_for("manage_registrations"))
+    try:
+        classroom_id = int(request.form.get("classroom_id", "0"))
+    except ValueError:
+        classroom_id = 0
+    classroom = query_one("SELECT * FROM classrooms WHERE id=? AND is_active=1", (classroom_id,))
+    if not classroom or (not is_admin and classroom["instructor_id"] != user["id"]):
+        flash("Choose a classroom you can manage before approving.", "danger")
+        return redirect(url_for("manage_registrations"))
+    execute(
+        """
+        UPDATE users
+        SET approval_status='approved', classroom_id=?, is_active=1,
+            decision_at=?, decision_by=?, rejection_reason=NULL
+        WHERE id=?
+        """,
+        (classroom_id, now_iso(), user["id"], user_id),
+    )
+    flash(
+        f"{candidate['name']} approved and placed in {classroom['name']}. They can sign in now.",
+        "success",
+    )
+    return redirect(url_for("manage_registrations"))
+
+
+@app.route("/instructor/registrations/<int:user_id>/reject", methods=["POST"])
+@role_required("instructor")
+def reject_registration(user_id):
+    if not approval_columns_ready():
+        flash("Run 'python migrate_v22.py' on the server to enable approvals.", "warning")
+        return redirect(url_for("manage_registrations"))
+    user = current_user()
+    candidate = query_one(
+        "SELECT * FROM users WHERE id=? AND role='student' AND approval_status='pending'", (user_id,)
+    )
+    if not candidate:
+        flash("That registration is no longer pending.", "warning")
+        return redirect(url_for("manage_registrations"))
+    reason = request.form.get("rejection_reason", "").strip()[:300]
+    execute(
+        """
+        UPDATE users
+        SET approval_status='rejected', is_active=0, decision_at=?, decision_by=?, rejection_reason=?
+        WHERE id=?
+        """,
+        (now_iso(), user["id"], reason or None, user_id),
+    )
+    flash(f"Registration from {candidate['name']} was declined.", "info")
+    return redirect(url_for("manage_registrations"))
+
+
+@app.route("/instructor/registrations/<int:user_id>/reopen", methods=["POST"])
+@role_required("instructor")
+def reopen_registration(user_id):
+    if not approval_columns_ready():
+        flash("Run 'python migrate_v22.py' on the server to enable approvals.", "warning")
+        return redirect(url_for("manage_registrations"))
+    candidate = query_one(
+        "SELECT * FROM users WHERE id=? AND role='student' AND approval_status='rejected'", (user_id,)
+    )
+    if not candidate:
+        flash("That registration cannot be reopened.", "warning")
+        return redirect(url_for("manage_registrations"))
+    execute(
+        """
+        UPDATE users
+        SET approval_status='pending', is_active=1, decision_at=NULL, decision_by=NULL, rejection_reason=NULL
+        WHERE id=?
+        """,
+        (user_id,),
+    )
+    flash(f"{candidate['name']} moved back to the pending queue.", "success")
+    return redirect(url_for("manage_registrations"))
 
 
 @app.route("/instructor/assignments")

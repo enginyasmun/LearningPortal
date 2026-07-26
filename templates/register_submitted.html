@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Request received | Developer Academy{% endblock %}
+{% block public_content %}
+<div class="login-wrap">
+  <section class="login-card done-card">
+    <span class="done-ic"><svg viewBox="0 0 24 24"><path d="m9 16.2-3.5-3.5L4 14.2 9 19 20 8l-1.4-1.4L9 16.2Z"/></svg></span>
+    <h1>Request received</h1>
+    <p>Thanks, {{ name.split(' ')[0] }}. Your registration for <strong>{{ email }}</strong> has been sent to the academy for review.</p>
+
+    <ol class="done-steps">
+      <li><b>1</b><div><strong>An instructor reviews your request</strong><small>They confirm your identity and pick your classroom.</small></div></li>
+      <li><b>2</b><div><strong>Your account is approved</strong><small>You are placed in a classroom with its 16-week project.</small></div></li>
+      <li><b>3</b><div><strong>Sign in and start Week 1</strong><small>Use the same email and password you just chose.</small></div></li>
+    </ol>
+
+    <a class="btn btn-primary btn-full" href="{{ url_for('login') }}">Go to sign in</a>
+    <p class="login-note">Signing in before approval shows a reminder that your request is still pending.</p>
+  </section>
+</div>
+{% endblock %}

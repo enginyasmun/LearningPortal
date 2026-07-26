@@ -7,8 +7,8 @@
     <h1>Learn Salesforce by building <em>one real application</em>, start to finish.</h1>
     <p>Each classroom builds a single industry application together across sixteen guided weeks — from Git and data modeling to Apex, integrations, and governed AI agents.</p>
     <div class="hero-actions">
-      <a class="btn btn-primary" href="{{ url_for('login') }}">Enter the academy →</a>
-      <a class="btn" href="#program">See how it works</a>
+      <a class="btn btn-primary" href="{{ url_for('register') }}">Create your account →</a>
+      <a class="btn" href="{{ url_for('login') }}">Sign in</a>
     </div>
     <div class="mock" aria-hidden="true">
       <div class="mock-bar"><i></i><i></i><i></i><span>academy.yourschool.dev/student</span></div>
@@ -57,8 +57,11 @@
   </section>
 
   <section class="cta-band">
-    <div><h2>Open your workspace.</h2><p>Continue learning, submit work, or review student progress.</p></div>
-    <a class="btn btn-primary" href="{{ url_for('login') }}">Sign in →</a>
+    <div><h2>Request your place.</h2><p>Register in a minute. An instructor approves your account and assigns your classroom.</p></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+      <a class="btn btn-primary" href="{{ url_for('register') }}">Create account →</a>
+      <a class="btn btn-ghost" style="color:#f5f5f7" href="{{ url_for('login') }}">I already have one</a>
+    </div>
   </section>
 </div>
 {% endblock %}

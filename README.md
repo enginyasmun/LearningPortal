@@ -75,7 +75,15 @@ Weekly guided project pages now show one workspace and one build step at a time.
 
 The weekly project page now presents one workspace and one guided step at a time. Week 14 is dedicated to Claude AI plus Salesforce CLI, Week 15 is dedicated to MCP servers and secure tool orchestration, and Week 16 completes the governed Agentforce application. Run `python migrate_v17.py` after updating an existing installation.
 
-## Version 20 — Studio (current)
+## Version 22 — Self-registration with approval (current)
+
+Students create their own accounts at `/register`; they stay in a pending state
+and cannot sign in until an instructor approves them and assigns a classroom.
+Adds a Registrations review queue with approve/decline/reopen, a pending badge
+in the sidebar, and a dashboard alert. Requires `python migrate_v22.py`.
+See SELF_REGISTRATION_V22_GUIDE.md.
+
+## Version 20 — Studio
 
 Apple-inspired redesign: big confident typography, soft layered shadows on
 large-radius white cards, frosted-glass navigation, pill buttons with a

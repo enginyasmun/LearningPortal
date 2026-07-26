@@ -37,6 +37,13 @@ CREATE TABLE users (
     classroom_id INTEGER,
     is_admin INTEGER NOT NULL DEFAULT 0,
     is_active INTEGER NOT NULL DEFAULT 1,
+    approval_status TEXT NOT NULL DEFAULT 'approved' CHECK(approval_status IN ('pending','approved','rejected')),
+    requested_classroom_id INTEGER,
+    registration_note TEXT,
+    registered_at TEXT,
+    decision_at TEXT,
+    decision_by INTEGER,
+    rejection_reason TEXT,
     created_at TEXT NOT NULL,
     FOREIGN KEY (classroom_id) REFERENCES classrooms(id)
 );

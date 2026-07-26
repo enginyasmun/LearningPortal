@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Create an account | Developer Academy{% endblock %}
+{% block public_content %}
+<div class="login-wrap">
+  <form class="login-card reg-card" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <span class="brand-mark">SF</span>
+    <h1>Create your account</h1>
+    <p>Register below. An academy instructor reviews every request before your workspace opens.</p>
+
+    <label class="field"><span>Full name</span>
+      <input type="text" name="name" required autocomplete="name" placeholder="Jordan Ellis">
+    </label>
+
+    <label class="field"><span>Email address</span>
+      <input type="email" name="email" required autocomplete="email" placeholder="you@example.com">
+    </label>
+
+    <div class="field-grid">
+      <label class="field"><span>Password</span>
+        <div class="input-shell">
+          <input type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters">
+          <button type="button" data-password-toggle aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M12 5c5.5 0 9.4 4.2 10 7-.6 2.8-4.5 7-10 7S2.6 14.8 2 12c.6-2.8 4.5-7 10-7Zm0 2c-4 0-7 2.9-7.8 5 .8 2.1 3.8 5 7.8 5s7-2.9 7.8-5C19 9.9 16 7 12 7Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z"/></svg></button>
+        </div>
+      </label>
+      <label class="field"><span>Confirm password</span>
+        <div class="input-shell">
+          <input type="password" name="confirm_password" required minlength="8" autocomplete="new-password" placeholder="Repeat your password">
+          <button type="button" data-password-toggle aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M12 5c5.5 0 9.4 4.2 10 7-.6 2.8-4.5 7-10 7S2.6 14.8 2 12c.6-2.8 4.5-7 10-7Zm0 2c-4 0-7 2.9-7.8 5 .8 2.1 3.8 5 7.8 5s7-2.9 7.8-5C19 9.9 16 7 12 7Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z"/></svg></button>
+        </div>
+      </label>
+    </div>
+
+    {% if classrooms %}
+    <label class="field"><span>Which classroom are you joining? <em class="opt">optional</em></span>
+      <select name="requested_classroom_id">
+        <option value="">I'm not sure — let the academy decide</option>
+        {% for c in classrooms %}<option value="{{ c.id }}">{{ c.name }} — {{ c.industry }}</option>{% endfor %}
+      </select>
+      <small>Your instructor confirms the final placement.</small>
+    </label>
+    {% endif %}
+
+    <label class="field"><span>Anything your instructor should know? <em class="opt">optional</em></span>
+      <textarea name="registration_note" rows="3" placeholder="Your background, cohort name, or who invited you"></textarea>
+    </label>
+
+    <button class="btn btn-primary btn-full" type="submit">Request access →</button>
+    <p class="login-note">Already approved? <a class="alt-link" href="{{ url_for('login') }}">Sign in instead</a></p>
+  </form>
+</div>
+{% endblock %}

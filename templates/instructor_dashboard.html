@@ -13,6 +13,17 @@
   </div>
 </section>
 
+{% if pending_registrations %}
+<a class="approve-alert" href="{{ url_for('manage_registrations') }}">
+  <div>
+    <span class="k">Action needed</span>
+    <strong>{{ pending_registrations }} student{{ '' if pending_registrations == 1 else 's' }} waiting for approval</strong>
+    <p>They registered themselves and cannot sign in until you approve them and assign a classroom.</p>
+  </div>
+  <span class="btn">Review registrations →</span>
+</a>
+{% endif %}
+
 <section class="statline">
   <div class="stat"><span class="stat-ic g"><svg viewBox="0 0 24 24"><path d="M3 4h18v14H3V4Zm2 2v10h14V6H5Zm3 13h8v2H8v-2Z"/></svg></span><b>{{ stats.classrooms }}</b><span>{% if is_academy_admin %}Active classrooms{% else %}My classrooms{% endif %}</span><small>{{ stats.students }} active students</small></div>
   <div class="stat"><span class="stat-ic b"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm8 2v5h5l-5-5ZM8 13v2h8v-2H8Zm0 4v2h8v-2H8Z"/></svg></span><b>{{ stats.assignments }}</b><span>Program assignments</span><small>48 per student</small></div>
