@@ -1,0 +1,109 @@
+/* Instructor portal UX recommendations, July 2026 */
+.sidebar-collapse-button{
+  position:absolute;
+  top:28px;
+  right:-14px;
+  z-index:3;
+  width:30px;
+  height:30px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:10px;
+  display:grid;
+  place-items:center;
+  background:#24372e;
+  color:#dce5df;
+  box-shadow:0 8px 20px rgba(10,18,15,.2);
+}
+.sidebar-collapse-button:hover,.sidebar-collapse-button:focus-visible{background:#314a3d;color:#fff;outline:0;box-shadow:0 0 0 3px rgba(213,154,52,.25)}
+.sidebar-collapse-button svg{width:16px;height:16px;transition:transform .18s ease}
+
+.password-field-shell{display:block;position:relative;margin-top:7px}
+.password-field-shell input{margin-top:0;padding-right:48px}
+.password-visibility-button{
+  position:absolute;
+  top:50%;
+  right:7px;
+  transform:translateY(-50%);
+  width:34px;
+  height:34px;
+  border:0;
+  border-radius:9px;
+  display:grid;
+  place-items:center;
+  background:transparent;
+  color:#68736c;
+}
+.password-visibility-button:hover,.password-visibility-button:focus-visible{background:var(--sage-soft);color:var(--sage);outline:0}
+.password-visibility-button svg{width:19px;height:19px}
+.password-visible .password-visibility-button{background:var(--sage-soft);color:var(--sage)}
+
+.quick-action-disabled{cursor:default;background:#fafbf9;box-shadow:none}
+.quick-action-disabled:hover{transform:none;border-color:var(--line)}
+.quick-action-disabled .arrow-circle{background:var(--sage-soft);border-color:transparent;color:var(--sage)}
+
+.student-edit-toggle{padding:7px 10px;border-radius:8px}
+.student-edit-toggle:hover,.student-edit-toggle:focus-visible{background:var(--sage-soft);outline:0}
+.student-edit-row td{padding:0;background:#f7f8f5;border-bottom:1px solid var(--line)}
+.student-edit-row:hover{background:#f7f8f5}
+.student-edit-panel{padding:23px 25px 26px;border-left:4px solid var(--sage)}
+.student-edit-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:18px}
+.student-edit-heading h3{font-size:20px;margin:3px 0 2px}
+.student-edit-heading p{font-size:10px;margin:0}
+.student-edit-close{width:32px;height:32px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--muted);font-size:20px;line-height:1}
+.student-edit-close:hover,.student-edit-close:focus-visible{color:var(--ink);border-color:#b9c1bb;outline:0}
+.student-edit-grid{display:grid;grid-template-columns:repeat(4,minmax(190px,1fr));gap:13px;align-items:stretch}
+.student-edit-form{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;display:flex;flex-direction:column;justify-content:space-between;gap:12px}
+.student-edit-form .field-label{margin:0}
+.student-edit-form .button{align-self:flex-start}
+.student-status-form>div{display:flex;flex-direction:column}
+.static-label{margin-bottom:7px}
+
+@media(min-width:901px){
+  .app-layout,.sidebar,.app-stage{transition:grid-template-columns .2s ease,width .2s ease}
+  .sidebar-collapsed .app-layout{grid-template-columns:78px 1fr}
+  .sidebar-collapsed .sidebar{width:78px;padding-left:10px;padding-right:10px}
+  .sidebar-collapsed .sidebar .app-brand{justify-content:center}
+  .sidebar-collapsed .sidebar .brand-copy,
+  .sidebar-collapsed .sidebar .nav-section-label,
+  .sidebar-collapsed .sidebar .nav-link>span,
+  .sidebar-collapsed .sidebar .profile-copy{display:none}
+  .sidebar-collapsed .sidebar-nav{margin-top:44px}
+  .sidebar-collapsed .nav-link{justify-content:center;padding:0;position:relative}
+  .sidebar-collapsed .profile-card{justify-content:center;padding-left:0;padding-right:0}
+  .sidebar-collapsed .sidebar-collapse-button svg{transform:rotate(180deg)}
+  .sidebar-collapsed .nav-link[data-tooltip]::after{
+    content:attr(data-tooltip);
+    position:absolute;
+    left:calc(100% + 14px);
+    top:50%;
+    transform:translateY(-50%) translateX(-4px);
+    min-width:max-content;
+    max-width:220px;
+    padding:8px 10px;
+    border-radius:9px;
+    background:#101a15;
+    color:#fff;
+    font-size:11px;
+    font-weight:750;
+    line-height:1.2;
+    letter-spacing:0;
+    box-shadow:0 10px 25px rgba(10,18,15,.24);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .14s ease,transform .14s ease,visibility .14s ease;
+    z-index:100;
+  }
+  .sidebar-collapsed .nav-link[data-tooltip]:hover::after,
+  .sidebar-collapsed .nav-link[data-tooltip]:focus-visible::after{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(-50%) translateX(0);
+  }
+  .sidebar-collapsed .nav-link:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+}
+
+@media(max-width:1180px){.student-edit-grid{grid-template-columns:repeat(2,minmax(220px,1fr))}}
+@media(max-width:900px){.sidebar-collapse-button{display:none}.student-edit-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.student-edit-panel{padding:19px 16px 22px}.student-edit-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.sidebar-collapse-button svg,.nav-link[data-tooltip]::after{transition:none!important}}

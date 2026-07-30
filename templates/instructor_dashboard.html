@@ -1,69 +1,31 @@
 {% extends "base.html" %}
 {% block title %}Instructor Dashboard | Developer Academy{% endblock %}
 {% block content %}
-<section class="head-row">
-  <div>
-    <span class="k">{{ scope_note }}</span>
-    <h1 class="page-head">{{ scope_title }}</h1>
-    <p class="lede">Review individual work while every classroom moves through its shared 16-week project.</p>
-  </div>
-  <div class="actions">
-    {% if is_academy_admin %}<a class="btn" href="{{ url_for('manage_instructors') }}">Invite instructor</a>{% endif %}
-    <a class="btn btn-primary" href="{{ url_for('submissions_list', status='Submitted') }}">Open review queue →</a>
-  </div>
+<section class="dashboard-hero">
+  <div><span class="page-kicker">INSTRUCTOR DASHBOARD</span><h1>{{ scope_title }}</h1><p>{{ scope_note }}. Each student follows one selected project across the entire sixteen-week program.</p></div>
+  <div class="hero-button-group">{% if is_academy_admin %}<a class="button ghost" href="{{ url_for('manage_instructors') }}">Add instructor</a>{% endif %}<a class="button" href="{{ url_for('manage_students') }}">Add student <svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5Z"/></svg></a></div>
 </section>
-
-{% if pending_registrations %}
-<a class="approve-alert" href="{{ url_for('manage_registrations') }}">
-  <div>
-    <span class="k">Action needed</span>
-    <strong>{{ pending_registrations }} student{{ '' if pending_registrations == 1 else 's' }} waiting for approval</strong>
-    <p>They registered themselves and cannot sign in until you approve them and assign a classroom.</p>
-  </div>
-  <span class="btn">Review registrations →</span>
-</a>
-{% endif %}
-
-<section class="statline">
-  <div class="stat"><span class="stat-ic g"><svg viewBox="0 0 24 24"><path d="M3 4h18v14H3V4Zm2 2v10h14V6H5Zm3 13h8v2H8v-2Z"/></svg></span><b>{{ stats.classrooms }}</b><span>{% if is_academy_admin %}Active classrooms{% else %}My classrooms{% endif %}</span><small>{{ stats.students }} active students</small></div>
-  <div class="stat"><span class="stat-ic b"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm8 2v5h5l-5-5ZM8 13v2h8v-2H8Zm0 4v2h8v-2H8Z"/></svg></span><b>{{ stats.assignments }}</b><span>Program assignments</span><small>48 per student</small></div>
-  <div class="stat"><span class="stat-ic o"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 5h-2v6l5 3 1-1.7-4-2.3V7Z"/></svg></span><b>{{ stats.awaiting_review }}</b><span>Awaiting review</span><small>Ready for action</small></div>
-  <div class="stat"><span class="stat-ic r"><svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8Z"/></svg></span><b>{{ stats.revisions }}</b><span>Revision required</span><small>Returned to students</small></div>
+<section class="stats-grid modern-stats">
+  <article class="stat-card accent-sage"><div class="stat-icon">👥</div><div><span>{% if is_academy_admin %}Active students{% else %}My students{% endif %}</span><strong>{{ stats.students }}</strong><small>{% if is_academy_admin %}Across the academy{% else %}Assigned to you{% endif %}</small></div></article>
+  <article class="stat-card accent-charcoal"><div class="stat-icon">▦</div><div><span>Assignments</span><strong>{{ stats.assignments }}</strong><small>Published in the active 16-week program</small></div></article>
+  <article class="stat-card accent-amber"><div class="stat-icon">◷</div><div><span>Awaiting review</span><strong>{{ stats.awaiting_review }}</strong><small>{% if stats.awaiting_review %}Only work you may review{% else %}No submissions awaiting review{% endif %}</small></div></article>
+  <article class="stat-card accent-coral"><div class="stat-icon">↻</div><div><span>Revisions</span><strong>{{ stats.revisions }}</strong><small>Returned for improvement</small></div></article>
 </section>
-
-<section class="panel">
-  <div class="panel-head">
-    <div><span class="k">Recent activity</span><h2>Student work</h2></div>
-    <a class="link-arr" href="{{ url_for('submissions_list') }}">View all →</a>
-  </div>
-  <div class="tbl-wrap">
-    <table class="tbl">
-      <thead><tr><th>Student</th><th>Classroom</th><th>Assignment</th><th>Type</th><th>Status</th><th></th></tr></thead>
-      <tbody>
-      {% for r in recent %}
-        <tr>
-          <td><div class="who"><img src="{{ avatar_src(r.student_avatar) }}" alt=""><div><strong>{{ r.student_name }}</strong><small>{{ r.student_email }}</small></div></div></td>
-          <td><strong>{{ r.classroom_name }}</strong><small>{{ r.industry or '' }}</small></td>
-          <td><strong>{{ r.assignment_title }}</strong><small>Week {{ r.week_number }}</small></td>
-          <td><span class="pill {{ r.category|lower|replace(' ','-') }}">{{ 'Final Project' if r.category == 'Capstone' else r.category }}</span></td>
-          <td><span class="pill {{ r.status|lower|replace(' ','-') }}"><i></i>{{ r.status }}</span></td>
-          <td><a class="row-action" href="{{ url_for('grade_submission', submission_id=r.id) }}">Review</a></td>
-        </tr>
-      {% else %}
-        <tr><td colspan="6"><div class="empty"><strong>No student activity yet</strong><p>Submitted homework will appear here.</p></div></td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
+<section class="quick-action-grid">
+  {% if stats.awaiting_review %}
+  <a class="quick-action sage-action" href="{{ url_for('submissions_list', status='Submitted') }}"><span class="quick-icon">✓</span><div><small>PRIMARY WORKFLOW</small><h3>Review submissions</h3><p>Open work submitted by students assigned to you.</p></div><span class="arrow-circle">→</span></a>
+  {% else %}
+  <article class="quick-action sage-action quick-action-disabled" aria-disabled="true"><span class="quick-icon">✓</span><div><small>REVIEW QUEUE</small><h3>Nothing to review</h3><p>No submissions are awaiting review. New work will appear here automatically.</p></div><span class="arrow-circle" aria-hidden="true">✓</span></article>
+  {% endif %}
+  <a class="quick-action amber-action" href="{{ url_for('manage_students') }}"><span class="quick-icon">👥</span><div><small>MENTOR OWNERSHIP</small><h3>Manage students</h3><p>View classes, instructor ownership, and project selection.</p></div><span class="arrow-circle">→</span></a>
+  <a class="quick-action coral-action" href="{{ url_for('projects') }}"><span class="quick-icon">▦</span><div><small>PROJECT OPTIONS</small><h3>Five 16-week plans</h3><p>Review every parallel industry-project roadmap.</p></div><span class="arrow-circle">→</span></a>
 </section>
-
-<section class="panel">
-  <div class="panel-head">
-    <div><span class="k">Classroom model</span><h2>One instructor, many students, one shared project</h2></div>
-    <a class="link-arr" href="{{ url_for('manage_classrooms') }}">Manage classrooms →</a>
-  </div>
-  <div class="panel-body">
-    <p class="muted" style="font-size:13.5px;max-width:640px">Each classroom shares one instructor and one industry project. Students submit individual homework and receive private grades and feedback while the whole class follows the same guided roadmap. You currently run <strong>{{ stats.classrooms }}</strong> classroom{{ '' if stats.classrooms == 1 else 's' }} with <strong>{{ stats.students }}</strong> active student{{ '' if stats.students == 1 else 's' }}.</p>
-  </div>
+<section class="panel table-panel">
+  <div class="table-toolbar"><div><span class="panel-kicker">RECENT ACTIVITY</span><h2>Student work</h2></div><a class="table-action" href="{{ url_for('submissions_list') }}">View all →</a></div>
+  <div class="responsive-table"><table><thead><tr><th>Student</th><th>Assignment</th><th>Project</th><th>Type</th><th>Status</th><th></th></tr></thead><tbody>
+  {% for r in recent %}
+  <tr><td><strong class="table-title">{{ r.student_name }}</strong><span class="table-subtitle">{{ r.student_email }}</span></td><td><strong class="table-title">{{ r.assignment_title }}</strong><span class="table-subtitle">Week {{ r.week_number }}</span></td><td><strong class="table-title">{{ r.industry or 'Not selected' }}</strong><span class="table-subtitle">{{ r.project_title or '' }}</span></td><td><span class="pill {{ r.category|lower|replace(' ','-') }}">{{ 'Final Project' if r.category == 'Capstone' else r.category }}</span></td><td><span class="status {{ r.status|lower|replace(' ','-') }}"><i></i>{{ r.status }}</span></td><td><a class="table-action" href="{{ url_for('grade_submission', submission_id=r.id) }}">Review →</a></td></tr>
+  {% else %}<tr><td colspan="6"><div class="empty-table"><span>○</span><strong>No student activity yet</strong><p>Submitted homework will appear here.</p></div></td></tr>{% endfor %}
+  </tbody></table></div>
 </section>
 {% endblock %}
